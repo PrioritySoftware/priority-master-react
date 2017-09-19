@@ -54,3 +54,4 @@ fastlane/screenshots
 
 __tests__/
 .vscode/
+*.bat
