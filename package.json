@@ -16,6 +16,7 @@
     "react-native-camera": "0.10.0",
     "react-native-elements": "^0.16.0",
     "react-native-localization": "^0.1.32",
+    "react-native-md-textinput": "2.0.4",
     "react-native-spinkit": "^1.1.1",
     "react-native-svg": "5.4.1",
     "react-native-svg-uri": "1.2.1",
@@ -23,9 +24,10 @@
     "react-navigation": "1.0.0-beta.11"
   },
   "devDependencies": {
+    "base-64": "0.1.0",
     "@types/jest": "20.0.8",
     "@types/react": "16.0.5",
-    "@types/react-native": "0.48.0",
+    "@types/react-native": "^0.48.0",
     "babel-jest": "21.0.0",
     "babel-preset-react-native": "3.0.2",
     "concurrently": "3.5.0",

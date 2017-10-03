@@ -12,8 +12,9 @@ export class Strings
     sideByLang: string;
     dirOpposite: string;
 
+    /** Device */
     deviceLang: string;
-    platform:string;
+    platform: string;
     private _localInfo: LocalizedStrings;
 
     /** First Launch */
@@ -261,6 +262,11 @@ export class Strings
     {
         return this.getString(this._forgotPassword);
     }
+    private _noCompanyIsAllowed: String = { value: "", code: 3 };
+    public get noCompanyIsAllowed(): string
+    {
+        return this.getString(this._noCompanyIsAllowed);
+    }
 
     /** Buttons text */
     private _loginBtn: String = { value: "", code: 0 };
@@ -409,7 +415,7 @@ export class Strings
             this.setFirstLtrConstants();
             this.setLtrConstants();
         }
-        this.platform=Platform.OS;
+        this.platform = Platform.OS;
         this._policy.value = "Privacy policy";
         this._policyURL.value = "https://s3.priority-software.com/terms/master_privacy_policy.pdf";
         if (Platform.OS === 'ios')
@@ -476,6 +482,7 @@ export class Strings
         this._noDirectActivations.value = "לא נבחרו הפעלות";
         this._loadingSearchResults.value = "טוען נתונים נוספים";
         this._forgotPassword.value = "שכחת סיסמא?";
+        this._noCompanyIsAllowed.value = "אין לך הרשאות לאף חברה. יש לפנות למנהל המערכת.";
 
         this._loginBtn.value = "היכנס";
         this._loginHeader.value = "כניסה למערכת";
@@ -518,10 +525,10 @@ export class Strings
         this._scanError.value = "QR code scan failed. Try again";
         this._preparingApp.value = "Preparing your app. Please wait";
         this._failedToReadJsonError.value = "Invalid configuration file";
-        this._failedToLoadJsonError.value = "There was a problem loading the configuration file. \n Check your Wi-Fi connection.";
+        this._failedToLoadJsonError.value = "There was a problem loading the configuration file.\nCheck your Wi-Fi connection.";
         this._scanNewConfigurationFile.value = " \nContact your system administrator or scan a new QR code";
 
-        this.dirByLang= "ltr";
+        this.dirByLang = "ltr";
         this._defaultMsgTitle.value = "Message";
         this._ok.value = "OK";
         this._cancel.value = "Cancel";
@@ -571,6 +578,7 @@ export class Strings
         this._noDirectActivations.value = "No activations were chosen";
         this._loadingSearchResults.value = "Loading more data";
         this._forgotPassword.value = "Forgot password?";
+        this._noCompanyIsAllowed.value = "You have no privileges in any company. Please consult your system manager.";
 
         this._loginBtn.value = "Login";
         this._loginHeader.value = "";
@@ -596,7 +604,7 @@ export class Strings
         this._approveReadOnly.value = "Read only";
         this._approveEditText.value = "Edit";
         this.dirByLang = "ltr";
-        this.dirOpposite= "rtl";
+        this.dirOpposite = "rtl";
         this.sideByLang = "left";
 
         this._decimalValidErr.value = "Wrong decimal precision";

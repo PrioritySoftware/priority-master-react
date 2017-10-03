@@ -4,17 +4,15 @@ import { StartPage, LoginPage, MainPage } from './pages';
 import { StackNavigator } from 'react-navigation';
 import { PageProps, LocalStorageUserData } from './modules/index';
 import { QRCodeScanner } from './components/qrscanner';
-import { RootService } from './providers/root.service';
+import providers from './providers';
 
 // https://stackoverflow.com/questions/45670065/mobx-react-native-way-to-inject-stores
 export class App extends React.Component<PageProps, any>
 {
     navigator;
-    rootService: RootService;
     constructor(props)
     {
         super(props);
-        this.rootService = new RootService();
         this.state = { isFinishedloading: false };
         this.init();
     }
@@ -24,7 +22,7 @@ export class App extends React.Component<PageProps, any>
         if (this.state.isFinishedloading)
         {
             return (
-                <this.navigator screenProps={{ rootService: this.rootService }} />
+                <this.navigator screenProps={{ ...providers }} />
             );
         }
         return (
@@ -35,8 +33,8 @@ export class App extends React.Component<PageProps, any>
     setNavigationStack(root: string)
     {
         this.navigator = StackNavigator({
-            Start: { screen: StartPage, navigationOptions: { header: null } },
-            QRCodeScanner: { screen: QRCodeScanner, navigationOptions: { header: null } },
+            Start: { screen: StartPage},
+            QRCodeScanner: { screen: QRCodeScanner},
             Login: { screen: LoginPage },
             Main: { screen: MainPage }
         },
@@ -46,10 +44,10 @@ export class App extends React.Component<PageProps, any>
     }
     init(): Promise<any>
     {
-        return this.rootService.configService.loadConfigData()
+        return providers.configService.loadConfigData()
             .then((userData: LocalStorageUserData) =>
             {
-                this.rootService.configService.login(userData.userName, userData.password)
+                providers.configService.login(userData.userName, userData.password)
                     .then(() => this.setNavigationStack('Main'))
                     .catch(error => this.setNavigationStack('Login'));
             })

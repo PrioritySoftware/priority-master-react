@@ -19,6 +19,7 @@ export class MainPage extends React.Component<PageProps, any>
     constructor(props)
     {
         super(props);
+        let appService = this.props.screenProps.appService;
         this.state = { text: 'Some text' };
     }
     render() 

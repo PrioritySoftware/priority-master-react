@@ -9,3 +9,5 @@ export * from './strings';
 export * from './entity.class';
 export * from './localStorageUserData.class';
 export * from './configuration.class';
+export * from './loginFunctions.class';
+export * from './company.class';

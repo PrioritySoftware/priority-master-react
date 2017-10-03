@@ -1,4 +1,3 @@
-import { RootService } from './root.service';
 import { LocalStorageUserData } from '../modules';
 import { AsyncStorage } from 'react-native';
 
@@ -6,10 +5,7 @@ const LocalStorageUserData: string = "userdata"
 export class StorageService
 {
     userData: LocalStorageUserData = undefined;
-    constructor(private rootService: RootService)
-    {
-
-    }
+    
     setItem(key: string, value: string): Promise<any>
     {
         return AsyncStorage.setItem(key, value);
@@ -51,7 +47,7 @@ export class StorageService
 
         });
     }
-    storetUserData()
+    storeUserData()
     {
         this.setItem(LocalStorageUserData, JSON.stringify(this.userData));
     }

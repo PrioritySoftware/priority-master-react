@@ -1,29 +1,19 @@
 import { Alert, ActivityIndicator, ToastAndroid } from 'react-native';
-import { RootService } from '../providers/root.service';
 import { Strings } from '../modules';
 import { MessageOptions } from '../modules/messageOptions.class';
-
 
 export class MessageHandler
 {
     // private dnotAskMeAgain: boolean;
-    strings: Strings;
-    constructor(private rootService: RootService)
+  
+    constructor(private   strings: Strings)
     {
-        this.strings = this.rootService.strings;
+       
     }
     // ******************************************** Toast ***************************************************
-    public showToast(message: string, dur = 1000)
+    public showToast(message: string, dur = ToastAndroid.SHORT)
     {
-
-        // let con = Constants.dirByLang ? Constants.dirByLang : 'center';
-        // let toast = this.toastController.create({
-        //     message: "",
-        //     position: 'top',
-        //     cssClass: con,
-        //     duration: dur
-
-        // });
+        ToastAndroid.showWithGravity(message,dur,ToastAndroid.TOP);
         // if (this.alert == null && this.loading == null)
         // {
         //     toast.setMessage(message);
@@ -229,7 +219,7 @@ export class MessageHandler
         {
             return;
         }
-        message = message.replace(/(\r\n|\n|\r)/gm, "<br>");
+        //message = message.replace(/(\r\n|\n|\r)/gm, "<br>");
         let options: MessageOptions =
             {
                 cssClass: this.strings.dirByLang,

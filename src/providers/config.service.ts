@@ -1,29 +1,31 @@
-import { Strings, ServerResponse, Entity, LocalStorageUserData, Configuration } from '../modules';
-import { RootService,StorageService } from '.';
+import { Strings, ServerResponse, Entity, LocalStorageUserData, Configuration, LoginFunctions, Company, ServerResponseCode } from '../modules';
+import pridata from '../../assets/js/pridata.json';
+import { EnvProfile } from '../modules/envProfile.class';
+import { StorageService } from './storage.service';
+import { AppService } from './app.service';
 
 // const LocalJsonUrl: string = "assets/js/pridata.json";
 export class ConfigService
 {
-    strings: Strings;
     config: Configuration;
 
-    storage: StorageService;
-    priorityService;
     // currentApp: any = {};
     entitiesData: Entity[];
     // formsConfig: { [key: string]: FormConfig } = {};
     // RowsBatchSize: number = 115;
-    // loginExpired: boolean = false;
-    // supportCompanySelection: boolean = true;
-    private jsonCompanyDname: string = "";
-    private jsonUrlString: string = "";
+    passwordExpired: boolean;
+    // supportCompanySelection: boolean;
+    private jsonCompanyDname: string;
+    private priorityUrl: string;
     private reason: ServerResponse;
 
-    constructor(private rootService: RootService)
+    constructor(private appService:AppService,private storage:StorageService,private priorityService,private strings:Strings)
     {
-        this.strings = this.rootService.strings;
-        this.storage = this.rootService.storageService;
-        this.priorityService = this.rootService.priorityService;
+
+        // initializations
+        // this.supportCompanySelection = true;
+        this.jsonCompanyDname = '';
+        this.priorityUrl = '';
         this.reason = {
             message: '',
             form: null,
@@ -55,7 +57,7 @@ export class ConfigService
                                 reject(this.reason);
                             });
                     }
-                    else if (request.status === 0 && request.responseText==='')
+                    else if (request.status === 0 && request.responseText === '')
                     {
                         this.reason.message = this.strings.certificateProblem;
                         reject(this.reason);
@@ -120,15 +122,17 @@ export class ConfigService
             try
             {
                 let json = JSON.parse(jsonString);
-                this.jsonUrlString = json.url;
+                this.priorityUrl = json.url;
+                this.appService.setApp(json.appdes, jsonUrl);
                 // update storage
                 if (this.storage.userData.jsonUrl !== jsonUrl)
                 {
                     this.storage.userData.jsonUrl = jsonUrl;
-                    this.storage.storetUserData();
+                    this.storage.storeUserData();
                 }
+                // Configures wcf url from 'json.url'
                 this.checkUrl(json.url).then(
-                    (url) =>
+                    (wcfurl) =>
                     {
                         this.jsonCompanyDname = json.dname;
                         if (this.storage.userData.companyName === null) // First time or in selecting apps without support for companies selection
@@ -137,13 +141,12 @@ export class ConfigService
                         }
                         this.config = {
                             appname: json.appname,
-                            url: url,
+                            url: wcfurl,
                             profileConfig: this.storage.userData.profile,
                             language: json.lang,
                             tabulaini: json.tabulaini,
                             devicename: ''// this.device.uuid
                         }
-                        // this.setApp(json.appdes, jsonUrl);
                         try
                         {
                             this.entitiesData = json.forms_data;
@@ -166,7 +169,7 @@ export class ConfigService
                         }
                         resolve();
                     },
-                    () =>
+                    reason =>
                     {
                         reject();
                     });
@@ -185,6 +188,8 @@ export class ConfigService
             this.getLocalUserData()
                 .then(() =>
                 {
+                     if (__DEV__)
+                        return this.readJson(JSON.stringify(pridata), '');
                     if (this.storage.userData.jsonUrl)
                     {
                         return this.initApp(this.storage.userData.jsonUrl);
@@ -193,7 +198,7 @@ export class ConfigService
                     reject(this.reason);
                 })
                 .then(() => resolve(this.storage.userData))
-                .catch(() =>
+                .catch(reason =>
                 {
                     this.reason.message = this.strings.failedToLoadJsonError;
                     reject(this.reason);
@@ -210,6 +215,21 @@ export class ConfigService
                 resolve();
                 return;
             }
+             if(__DEV__)
+             {
+                this.storage.userData = {
+                    jsonUrl: null,
+                    applist: [],
+                    userName: null,
+                    password: null,
+                    companyName: null,
+                    groupName: null,
+                    notShowSaveMessage: false,
+                    profile: { company: null, group: 0 }
+                };
+                resolve();
+                return;
+             }
 
             this.storage.getUserData()
                 .then((storageData: LocalStorageUserData) =>
@@ -239,123 +259,160 @@ export class ConfigService
         {
             this.config.username = username;
             this.config.password = password;
+            this.passwordExpired = false;
             this.priorityService.login(this.config).then(
-                () =>
+                (loginFunctions: LoginFunctions) =>
                 {
+                    this.config.loginFunctions = loginFunctions;
                     // save username and password in local storage
                     this.storage.userData.userName = username;
                     this.storage.userData.password = password;
-                    this.storage.storetUserData();
-                    resolve();
-                    // this.messagesService.setMessages(MasterMessagesEname, MasterMessagesType, 1, 1000);
-                    // if (this.supportCompanySelection)
-                    // {
-                    //     this.getCompanies().then(
-                    //         (companies: Company[]) =>
-                    //         {
-                    //             if (companies)
-                    //             {
-                    //                 this.setProfile(companies);
-                    //                 this.setLocalUserData();
-                    //                 resolve();
-                    //             }
-                    //             else
-                    //             {
-                    //                 this.reason.message = this.messagesService.getMessage(MasterMessagesEname, MasterMessagesType, 3);
-                    //                 reject(this.reason);
-                    //             }
 
-                    //         },
-                    //         (reason) =>
-                    //         {
-                    //             this.setLocalUserData();
-                    //             resolve();
-                    //         }
-                    //     );
-                    // }
-                    // else
-                    // {
-                    //     this.setLocalUserData();
-                    //     resolve();
-                    // }
+                    this.getCompanies()
+                        .then(() =>
+                        {
+                            this.storage.storeUserData();
+                            resolve();
+                        },
+                        reason =>
+                        {
+                            this.storage.storeUserData();
+                            reject(reason);// getCompanies rejects only in case the user doesn't have permissions for any company.
+                        });
+                    // this.messagesService.setMessages(MasterMessagesEname, MasterMessagesType, 1, 1000);
                 },
                 (reason: ServerResponse) =>
                 {
-                    // this.loginExpired = (reason.code === ServerResponseCode.LoginExpired);
+                    this.passwordExpired = (reason.code === ServerResponseCode.LoginExpired);
                     reject(reason);
                 });
         });
     }
-    /* Checks if there is a local json file */
-    // localJsonExists(): Promise<any>
-    // {
-    //     return new Promise((resolve, reject) =>
-    //     {
-    //         let request = new XMLHttpRequest();
-    //         request.onreadystatechange = () =>
-    //         {
-    //             if (request.readyState === 4)
-    //             {
-    //                 if (request.status === 200)
-    //                 {
-    //                     resolve();
-    //                 }
-    //                 else
-    //                 {
-    //                     reject();
-    //                 }
-    //             }
-    //         };
-    //         request.open('HEAD', LocalJsonUrl, false);
-    //         request.send();
-    //     });
-    // }
     // /* Retrives the json url from local storage */
-    // jsonUrl(): Promise<any>
-    // {
-    //     return new Promise((resolve, reject) =>
-    //     {
-    //         this.getLocalUserData().then(
-    //             () =>
-    //             {
-    //                 this.localJsonExists().then(
-    //                     (exists) =>
-    //                     {
-    //                         resolve(LocalJsonUrl);
-    //                     },
-    //                     (notexists) =>
-    //                     {
-    //                         if (this.userData.jsonUrl)
-    //                         {
-    //                             resolve(this.userData.jsonUrl);
-    //                         }
-    //                         else
-    //                         {
-    //                             this.reason.message = this.strings.failedToLoadJsonError;
-    //                             reject(this.reason);
-    //                         }
-    //                     });
-    //             });
-    //     });
-    // }
-
-    // setLocalUserData()
-    // {
-    //     this.storage.set(LocalStorageUserData, this.userData);
-    // }
 
     // setLocalUserPreferenceShowSaveMessage(value: boolean)
     // {
     //     this.userData.notShowSaveMessage = value;
     //     this.setLocalUserData();
     // }
-    /** Loads the json file from the url */
 
-    // /** Set json url in local storage */
-    // setJsonUrl(jsonUrl: string)
+    /********* Profiles  **********************/
+    // setProfileConfig(profile: ProfileConfig, companyName: string, groupName: string)
     // {
-    //     this.userData.jsonUrl = jsonUrl;
+    //     this.configService.setProfileConfiguration(profile);
+    //     this.storage.userData.profile = profile;
+    //     this.storage.userData.companyName = companyName;
+    //     this.storage.userData.groupName = groupName;
     //     this.setLocalUserData();
     // }
+    getCurrentCompany(): string
+    {
+        return this.storage.userData.profile.company;
+    }
+    getCompanies(): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (!this.config.loginFunctions)// !this.supportCompanySelection || 
+            {
+                /**  No user login yet */
+                reject();
+                return;
+            }
+            this.config.loginFunctions.companies()
+                .then((companies) =>
+                {
+                    if (companies && companies.Company)
+                    {
+                        this.setProfile(companies.Company);
+                        resolve();
+                    }
+                    else
+                    {
+                        this.reason.message = this.strings.noCompanyIsAllowed;
+                        reject(this.reason);
+                    }
+                })
+                .catch((reason: ServerResponse) =>
+                {
+                    // if (reason.code === ServerResponseCode.NotSupport)
+                    // {
+                    //     this.supportCompanySelection = false;
+                    // }
+                    resolve();
+                });
+
+        });
+    }
+
+    setProfile(companies: Company[])
+    {
+        let storageCompany: string = this.storage.userData.profile.company;
+        let storageGroup: number = this.storage.userData.profile.group;
+        this.storage.userData.companyName = null;
+        this.storage.userData.groupName = null;
+        this.storage.userData.profile.company = this.jsonCompanyDname;
+        this.storage.userData.profile.group = 0;
+        let company: Company = null;
+        let companyFilter: Company[] = companies.filter(comp => comp.dname === storageCompany);
+        if (companyFilter.length)
+        {
+            company = companyFilter[0];
+        }
+        else // stored company doesn't exist in companies list 
+        {
+            companyFilter = companies.filter(comp => comp.dname === this.jsonCompanyDname);
+            if (companyFilter.length)
+            {
+                company = companyFilter[0];
+            }
+        }
+        if (company) 
+        {
+            this.storage.userData.profile.company = company.dname;
+            this.storage.userData.companyName = company.title;
+
+            // profiles
+            if (company.EnvProfile)
+            {
+                let envProfile: EnvProfile = null;
+                if (storageGroup > 0)
+                {
+                    let envProfileFilter: EnvProfile[];
+                    envProfileFilter = company.EnvProfile.filter(prof => prof.profile === storageGroup);
+                    if (envProfileFilter.length)
+                    {
+                        envProfile = envProfileFilter[0];
+                    }
+                }
+
+                if (!envProfile)
+                {
+                    envProfile = company.EnvProfile[0];
+                }
+
+                this.storage.userData.profile.group = envProfile.profile;
+                this.storage.userData.groupName = envProfile.profilename;
+            }
+        }
+    }
+
+    /*************************** Passwords **********************/
+
+    /**
+     * Returns a link to a page where the user can restore his password.
+     * 
+     * @returns 
+     * @memberof AppService
+     */
+    getForgotPasswordURL()
+    {
+        let configuration = this.config;
+        return this.priorityUrl + "/priority/prihtml.dll?WWWCHPWD&_tabulaini=" + configuration.tabulaini;
+    }
+    changePassword(newPwd, confirmNewPwd, oldPwd): Promise<any>
+    {
+        return this.priorityService.changePassword(newPwd, confirmNewPwd, oldPwd)
+    }
 
 }

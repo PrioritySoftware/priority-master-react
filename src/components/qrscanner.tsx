@@ -12,12 +12,15 @@ import { PageProps, Strings } from '../modules';
 import Camera from 'react-native-camera'
 export class QRCodeScanner extends Component<PageProps, any> {
 
+  static navigationOptions = { header: null };
+
   params: { onRead };
   strings: Strings;
+
   constructor(props) 
   {
     super(props);
-    this.strings = this.props.screenProps.rootService.strings;
+    this.strings = this.props.screenProps.strings;
     this.params = this.props.navigation.state.params;
   }
 
@@ -34,24 +37,24 @@ export class QRCodeScanner extends Component<PageProps, any> {
     let icon = null;
     if (this.strings.dirByLang === 'rtl')
     {
-      let iconName=this.strings.platform==='ios'? 'ios-arrow-forward' :'md-arrow-forward';
-      icon = <Icon
-        name= {iconName}
-        type='ionicon'
-        color='#517fa4'
-        onPress={() => { this.goBack() }}
-        style={styles.backButtonRTL}
-      />;
-    }
-    else
-    {
-      let iconName=this.strings.platform==='ios'? 'ios-arrow-back' :'md-arrow-back';
+      let iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
       icon = <Icon
         name={iconName}
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButtonLTR}
+        style={styles.backButton}
+      />;
+    }
+    else
+    {
+      let iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'md-arrow-back';
+      icon = <Icon
+        name={iconName}
+        type='ionicon'
+        color='#517fa4'
+        onPress={() => { this.goBack() }}
+        style={styles.backButton}
       />;
     }
     return (
@@ -105,17 +108,10 @@ const styles = StyleSheet.create({
     borderColor: '#00FF00',
     backgroundColor: 'transparent',
   },
-  backButtonRTL:
+  backButton:
   {
     position: 'absolute',
     top: 10,
     left: 0
-   
-  },
-  backButtonLTR:
-  {
-    position: 'absolute',
-    top: 10,
-    right: 0
   }
 })

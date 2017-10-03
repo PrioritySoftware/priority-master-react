@@ -8,17 +8,22 @@ import
 } from 'react-native';
 import { PageProps, ServerResponse, Strings } from '../modules';
 import { MessageHandler } from '../components/message.handler';
-import { ConfigService } from '../providers';
 
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
-// import { SVGImage} from '../components/svg';
+import {primaryColor} from '../styles/common';
+import { ConfigService } from '../providers/config.service';
+import { AppService } from '../providers/app.service';
 
 export class StartPage extends React.Component<PageProps, any>
 {
+  static navigationOptions = { header: null };
+
   messageHandler: MessageHandler;
   configService: ConfigService;
+  appService: AppService;
   strings: Strings;
+
   navigateToLoginAction: NavigationActions;
 
   constructor(props)
@@ -27,9 +32,9 @@ export class StartPage extends React.Component<PageProps, any>
     this.state = {
       isShowSpinner: false
     };
-    this.configService = this.props.screenProps.rootService.configService;
-    this.messageHandler = this.props.screenProps.rootService.messageHandler;
-    this.strings = this.props.screenProps.rootService.strings;
+    this.configService = this.props.screenProps.configService;
+    this.messageHandler = this.props.screenProps.messageHandler;
+    this.strings = this.props.screenProps.strings;
     this.navigateToLoginAction = NavigationActions.navigate({
       routeName: 'Login',
       params: {}
@@ -74,7 +79,7 @@ export class StartPage extends React.Component<PageProps, any>
   }
 
   /**
-   * Navigates to QRCodeScanner component to scan a qa code.
+   * Navigates to QRCodeScanner component to scan a qr code.
    * 
    * @memberof StartPage
    */
@@ -92,7 +97,7 @@ export class StartPage extends React.Component<PageProps, any>
   {
     if (data == undefined || data === "")
     {
-      this.messageHandler.showToast("Scan Error", 3000);
+      this.messageHandler.showToast(this.strings.scanError, 3000);
     }
     else
     {
@@ -100,9 +105,7 @@ export class StartPage extends React.Component<PageProps, any>
       this.configService.initApp(data).then(
         () =>
         {
-          // set the json in local storage
-          //   this.appService.setJsonUrl(result.text);
-         // this.setState({isShowSpinner:true});
+           this.setState({isShowSpinner:true});
           // go to login
           this.setRoot('Login');
         },
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   capture: {
-    backgroundColor: '#1f9bd1',
+    backgroundColor: primaryColor,
     color: 'white',
     borderRadius: 2,
     padding: 10,
