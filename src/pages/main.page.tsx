@@ -32,7 +32,7 @@ export class MainPage extends React.Component<PageProps, any>
         for (let ent of this.configService.entitiesData)
         {
             // Shows only procs that are not direct activations and forms that are parent forms 
-            if (ent.fatname === ent.name || ent.fatname === undefined)
+            if (ent.fatname !== ent.name && ent.fatname !== undefined)
                 continue;
             let marginTopStyle = cards.length ? {} : { marginTop: 9 };
             let borderStye = this.strings.dirByLang === "rtl" ? styles.borderRight : styles.borderLeft;
