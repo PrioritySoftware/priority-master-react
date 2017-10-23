@@ -11,7 +11,7 @@ import { SVG } from '../components/svg';
 import { Header, Text } from 'react-native-elements';
 import {  AppService } from '../providers/app.service';
 import TextField from 'react-native-md-textinput';
-import { primaryColor, center } from '../styles/common';
+import { colors, center,header } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
@@ -89,7 +89,7 @@ export class LoginPage extends React.Component<PageProps, any>
                 <View style={styles.headerContainer}>
                     <Header
                         centerComponent={<SVG svg={SVG.headerLogo} />}
-                        outerContainerStyles={styles.header}
+                        outerContainerStyles={header}
                         innerContainerStyles={center}
                     />
                 </View>
@@ -125,7 +125,7 @@ export class LoginPage extends React.Component<PageProps, any>
                 <View style={styles.headerContainer}>
                     <Header
                         centerComponent={<SVG svg={SVG.headerLogo} />}
-                        outerContainerStyles={styles.header}
+                        outerContainerStyles={header}
                         innerContainerStyles={center}
                     />
                 </View>
@@ -189,11 +189,6 @@ const styles = StyleSheet.create({
     {
         flex: 0.4,
     },
-    header:
-    {
-        backgroundColor: primaryColor,
-        height: '100%'
-    },
     inputContainer:
     {
         marginRight: 45,
@@ -205,18 +200,18 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingRight: 40,
         paddingLeft: 40,
-        borderColor: primaryColor,
+        borderColor: colors.primaryColor,
         borderWidth: 1,
         borderRadius: 2,
         marginTop: 45,
         fontWeight: 'bold',
-        color: primaryColor
+        color: colors.primaryColor
     },
     forgotPassword:
     {
         marginTop: 15,
         textDecorationLine: 'underline',
-        color: primaryColor
+        color: colors.primaryColor
     },
     changePassTitle:
     {

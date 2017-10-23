@@ -19,7 +19,7 @@ export class ConfigService
     private priorityUrl: string;
     private reason: ServerResponse;
 
-    constructor(private appService:AppService,private storage:StorageService,private priorityService,private strings:Strings)
+    constructor(private appService: AppService, private storage: StorageService, private priorityService, private strings: Strings)
     {
 
         // initializations
@@ -188,7 +188,7 @@ export class ConfigService
             this.getLocalUserData()
                 .then(() =>
                 {
-                     if (__DEV__)
+                    if (__DEV__)
                         return this.readJson(JSON.stringify(pridata), '');
                     if (this.storage.userData.jsonUrl)
                     {
@@ -215,21 +215,6 @@ export class ConfigService
                 resolve();
                 return;
             }
-             if(__DEV__)
-             {
-                this.storage.userData = {
-                    jsonUrl: null,
-                    applist: [],
-                    userName: null,
-                    password: null,
-                    companyName: null,
-                    groupName: null,
-                    notShowSaveMessage: false,
-                    profile: { company: null, group: 0 }
-                };
-                resolve();
-                return;
-             }
 
             this.storage.getUserData()
                 .then((storageData: LocalStorageUserData) =>
@@ -248,7 +233,10 @@ export class ConfigService
                         notShowSaveMessage: false,
                         profile: { company: null, group: 0 }
                     }
-                    reject();
+                    if (__DEV__)
+                        resolve();
+                    else
+                        reject();
                 });
         });
     }

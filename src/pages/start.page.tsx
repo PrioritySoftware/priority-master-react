@@ -11,7 +11,7 @@ import { MessageHandler } from '../components/message.handler';
 
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
-import {primaryColor} from '../styles/common';
+import {colors} from '../styles/common';
 import { ConfigService } from '../providers/config.service';
 import { AppService } from '../providers/app.service';
 
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   capture: {
-    backgroundColor: primaryColor,
+    backgroundColor: colors.primaryColor,
     color: 'white',
     borderRadius: 2,
     padding: 10,

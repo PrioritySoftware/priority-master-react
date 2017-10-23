@@ -108,7 +108,7 @@ export class Strings
 
     /** Text */
     private _wait: String = { value: "", code: 0 };
-    public get devwaiiceLang(): string
+    public get wait(): string
     {
         return this.getString(this._wait);
     }
@@ -266,6 +266,11 @@ export class Strings
     public get noCompanyIsAllowed(): string
     {
         return this.getString(this._noCompanyIsAllowed);
+    }
+    private _procedureNotSupported: String = { value: "", code: 0 };
+    public get procedureNotSupported(): string
+    {
+        return this.getString(this._procedureNotSupported);
     }
 
     /** Buttons text */
@@ -483,6 +488,7 @@ export class Strings
         this._loadingSearchResults.value = "טוען נתונים נוספים";
         this._forgotPassword.value = "שכחת סיסמא?";
         this._noCompanyIsAllowed.value = "אין לך הרשאות לאף חברה. יש לפנות למנהל המערכת.";
+        this._procedureNotSupported.value = "הפרוצדורה לא נתמכת עדיין.";
 
         this._loginBtn.value = "היכנס";
         this._loginHeader.value = "כניסה למערכת";
@@ -579,6 +585,7 @@ export class Strings
         this._loadingSearchResults.value = "Loading more data";
         this._forgotPassword.value = "Forgot password?";
         this._noCompanyIsAllowed.value = "You have no privileges in any company. Please consult your system manager.";
+        this._procedureNotSupported.value = "The procedure is not supported yet.";
 
         this._loginBtn.value = "Login";
         this._loginHeader.value = "";

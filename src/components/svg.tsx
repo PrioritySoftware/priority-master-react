@@ -89,7 +89,7 @@ width="170px" height="50px" viewBox="0 0 170 50" enable-background="new 0 0 170 
   render()
   {
     return (
-      <SvgUri svgXmlData={this.props.svg} />
+      <SvgUri svgXmlData={this.props.svg}  height={this.props.height}/>
     );
   }
 }

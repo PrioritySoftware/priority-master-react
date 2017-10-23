@@ -53,7 +53,6 @@ export class App extends React.Component<PageProps, any>
             })
             .catch(error => this.setNavigationStack('Start'));
 
-
         // this.appService.jsonUrl().then(
         //     url =>
         //     {
