@@ -4,14 +4,15 @@ import
   StyleSheet,
   Text,
   View,
-  Image
+  Image,
+  Dimensions
 } from 'react-native';
 import { PageProps, ServerResponse, Strings } from '../modules';
 import { MessageHandler } from '../components/message.handler';
 
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
-import {colors} from '../styles/common';
+import { colors } from '../styles/common';
 import { ConfigService } from '../providers/config.service';
 import { AppService } from '../providers/app.service';
 
@@ -69,7 +70,7 @@ export class StartPage extends React.Component<PageProps, any>
       <View style={styles.container}>
         <Image style={styles.image} source={require('../../assets/img/start_bg.png')} >
           <View style={styles.top}>
-            <Image style={styles.center} source={require('../../assets/img/start_logo.png')} />
+            <Image  source={require('../../assets/img/start_logo.png')} />
           </View>
           {footer}
         </Image>
@@ -97,7 +98,7 @@ export class StartPage extends React.Component<PageProps, any>
   {
     if (data == undefined || data === "")
     {
-      this.messageHandler.showToast(this.strings.scanError, 3000);
+      this.messageHandler.showToast(this.strings.scanError, true);
     }
     else
     {
@@ -105,7 +106,7 @@ export class StartPage extends React.Component<PageProps, any>
       this.configService.initApp(data).then(
         () =>
         {
-           this.setState({isShowSpinner:true});
+          this.setState({ isShowSpinner: true });
           // go to login
           this.setRoot('Login');
         },
@@ -127,6 +128,8 @@ export class StartPage extends React.Component<PageProps, any>
   }
 }
 /*********** style ************* */
+let ScreenWidth = Dimensions.get("window").width;
+let ScreenHeight = Dimensions.get("window").height;
 const styles = StyleSheet.create({
   container: {
     flex: 1
@@ -138,7 +141,6 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingRight: 30,
     paddingLeft: 30,
-    alignSelf: 'center',
     marginTop: 25,
     fontSize: 20
   },
@@ -149,21 +151,23 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
     fontSize: 19,
-    alignSelf: 'center',
+    backgroundColor: 'transparent'
   },
   image: {
-    flex: 1,
+    width: ScreenWidth,
+    height: ScreenHeight
   },
   top: {
     flex: 1,
     justifyContent: 'flex-start',
     marginTop: 60,
+    alignItems: 'center'
   },
   bottom:
   {
     flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 60,
+    alignItems: 'center'
   }
-
 });

@@ -43,7 +43,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButton}
+        style={styles.backButtonRight}
       />;
     }
     else
@@ -54,7 +54,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButton}
+        style={styles.backButtonLeft}
       />;
     }
     return (
@@ -108,10 +108,16 @@ const styles = StyleSheet.create({
     borderColor: '#00FF00',
     backgroundColor: 'transparent',
   },
-  backButton:
+  backButtonLeft:
   {
     position: 'absolute',
-    top: 10,
+    top: 12,
     left: 0
+  },
+  backButtonRight:
+  {
+    position: 'absolute',
+    top: 12,
+    right: 0
   }
 })

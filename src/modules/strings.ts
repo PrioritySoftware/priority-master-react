@@ -1,4 +1,4 @@
-import LocalizedStrings from 'react-native-localization/LocalizedStrings';
+import LocalizedStrings from 'react-native-localization';
 import { Platform } from "react-native";
 class String
 {
@@ -409,8 +409,8 @@ export class Strings
 
     constructor()
     {
-        this._localInfo = new LocalizedStrings({ "en-US": {}, "iw": {} });
-        if (this._localInfo.getLanguage() === 'iw')
+        this._localInfo = new LocalizedStrings({});
+        if (this._localInfo.getInterfaceLanguage().startsWith('he'))
         {
             this.setFirstRtlConstants();
             this.setRtlConstants();
