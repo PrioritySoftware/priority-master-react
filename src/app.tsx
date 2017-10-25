@@ -1,10 +1,11 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Image, StyleSheet, Dimensions,ActivityIndicator  } from 'react-native';
 import { StartPage, LoginPage, MainPage } from './pages';
 import { StackNavigator } from 'react-navigation';
 import { PageProps, LocalStorageUserData } from './modules/index';
 import { QRCodeScanner } from './components/qrscanner';
 import providers from './providers';
+import SplashScreen from "rn-splash-screen";
 
 // https://stackoverflow.com/questions/45670065/mobx-react-native-way-to-inject-stores
 export class App extends React.Component<PageProps, any>
@@ -19,22 +20,27 @@ export class App extends React.Component<PageProps, any>
 
     public render()
     {
-        if (this.state.isFinishedloading)
+        SplashScreen.hide();
+       if (this.state.isFinishedloading)
         {
             return (
                 <this.navigator screenProps={{ ...providers }} />
             );
         }
         return (
-            <View></View>
+           <View style={{ flex: 1 }}>
+              <Image style={styles.image} source={require('../assets/img/splash.png')} >
+                <ActivityIndicator  style={styles.indicator} color="#fff"></ActivityIndicator>
+              </Image>
+           </View>
         );
 
     }
     setNavigationStack(root: string)
     {
         this.navigator = StackNavigator({
-            Start: { screen: StartPage},
-            QRCodeScanner: { screen: QRCodeScanner},
+            Start: { screen: StartPage },
+            QRCodeScanner: { screen: QRCodeScanner },
             Login: { screen: LoginPage },
             Main: { screen: MainPage }
         },
@@ -125,3 +131,19 @@ export class App extends React.Component<PageProps, any>
         //     });
     }
 }
+
+/*********** style ************* */
+let ScreenWidth = Dimensions.get("window").width;
+let ScreenHeight = Dimensions.get("window").height;
+const styles = StyleSheet.create({
+    image:
+    {
+        height: ScreenHeight,
+        width: ScreenWidth,
+        justifyContent:'center'
+    },
+    indicator:
+    {
+        marginTop:100
+    }
+});
