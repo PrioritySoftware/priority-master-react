@@ -3,6 +3,7 @@ package com.prioritymaster;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.mehcode.reactnative.splashscreen.SplashScreenPackage;
 import com.horcrux.svg.SvgPackage;
 import com.react.rnspinkit.RNSpinkitPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
@@ -29,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new SplashScreenPackage(),
             new SvgPackage(),
             new RNSpinkitPackage(),
             new ReactNativeLocalizationPackage(),
