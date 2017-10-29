@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions,ActivityIndicator  } from 'react-native';
+import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { StartPage, LoginPage, MainPage } from './pages';
 import { StackNavigator } from 'react-navigation';
 import { PageProps, LocalStorageUserData } from './modules/index';
@@ -20,19 +20,20 @@ export class App extends React.Component<PageProps, any>
 
     public render()
     {
-        SplashScreen.hide();
-       if (this.state.isFinishedloading)
+        if (providers.strings.platform === 'ios')
+            SplashScreen.hide();
+        if (this.state.isFinishedloading)
         {
             return (
                 <this.navigator screenProps={{ ...providers }} />
             );
         }
         return (
-           <View style={{ flex: 1 }}>
-              <Image style={styles.image} source={require('../assets/img/splash.png')} >
-                <ActivityIndicator  style={styles.indicator} color="#fff"></ActivityIndicator>
-              </Image>
-           </View>
+            <View style={{ flex: 1 }}>
+                <Image style={styles.image} source={require('../assets/img/splash.png')} >
+                    <ActivityIndicator style={styles.indicator} color="#fff"></ActivityIndicator>
+                </Image>
+            </View>
         );
 
     }
@@ -140,10 +141,10 @@ const styles = StyleSheet.create({
     {
         height: ScreenHeight,
         width: ScreenWidth,
-        justifyContent:'center'
+        justifyContent: 'center'
     },
     indicator:
     {
-        marginTop:100
+        marginTop: 100
     }
 });
