@@ -1,19 +1,21 @@
-import { Alert, ActivityIndicator, ToastAndroid } from 'react-native';
+import { Alert, ActivityIndicator } from 'react-native';
 import { Strings } from '../modules';
 import { MessageOptions } from '../modules/messageOptions.class';
+import Toast from 'react-native-simple-toast';
 
 export class MessageHandler
 {
     // private dnotAskMeAgain: boolean;
-  
-    constructor(private   strings: Strings)
+
+    constructor(private strings: Strings)
     {
-       
+
     }
     // ******************************************** Toast ***************************************************
-    public showToast(message: string, dur = ToastAndroid.SHORT)
+    public showToast(message: string, isLong: boolean = false)
     {
-        ToastAndroid.showWithGravity(message,dur,ToastAndroid.TOP);
+        let dur = isLong ? Toast.LONG : Toast.SHORT;
+        Toast.showWithGravity(message, dur, Toast.TOP);
         // if (this.alert == null && this.loading == null)
         // {
         //     toast.setMessage(message);
@@ -80,14 +82,14 @@ export class MessageHandler
     /**Presents an alert with two buttons: 'ok' and 'cancel'. Buttons text can be overridden by sending a different text in 'messageOptions'. 
      * Calls 'onApprove' when the 'ok' button is clicked. Calls 'onCancel' when the 'cancel' button is clicked.
      * Used to show an error or a warning message. */
-    public showErrorOrWarning(isError: boolean, message: string, onApprove = () => {}, onCancel = () => {}, messageOptions: MessageOptions = {})
+    public showErrorOrWarning(isError: boolean, message: string, onApprove = () => { }, onCancel = () => { }, messageOptions: MessageOptions = {})
     {
 
         // message buttons
         let buttonsArr = [];
         let approveText = this.strings.ok;
         let cancelText = this.strings.cancel;
-        if (messageOptions.buttonsText  && messageOptions.buttonsText.length === 2)
+        if (messageOptions.buttonsText && messageOptions.buttonsText.length === 2)
         {
             approveText = messageOptions.buttonsText[0];
             cancelText = messageOptions.buttonsText[1];

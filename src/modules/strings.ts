@@ -1,4 +1,4 @@
-import LocalizedStrings from 'react-native-localization/LocalizedStrings';
+import LocalizedStrings from 'react-native-localization';
 import { Platform } from "react-native";
 class String
 {
@@ -13,9 +13,9 @@ export class Strings
     dirOpposite: string;
 
     /** Device */
-    deviceLang: string;
+    deviceDirection: string;
     platform: string;
-    private _localInfo: LocalizedStrings;
+    private localInfo: LocalizedStrings;
 
     /** First Launch */
     private _scanInstructions: String = { value: "", code: 0 };
@@ -409,14 +409,16 @@ export class Strings
 
     constructor()
     {
-        this._localInfo = new LocalizedStrings({ "en-US": {}, "iw": {} });
-        if (this._localInfo.getLanguage() === 'iw')
+        this.localInfo = new LocalizedStrings({});
+        if (this.localInfo.getInterfaceLanguage().startsWith('he') || this.localInfo.getInterfaceLanguage().startsWith('iw'))
         {
+            this.deviceDirection="rtl";
             this.setFirstRtlConstants();
             this.setRtlConstants();
         }
         else
         {
+            this.deviceDirection="ltr";
             this.setFirstLtrConstants();
             this.setLtrConstants();
         }

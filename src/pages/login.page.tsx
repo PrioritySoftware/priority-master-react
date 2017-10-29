@@ -8,10 +8,10 @@ import
 } from 'react-native';
 import { PageProps, Strings } from '../modules';
 import { SVG } from '../components/svg';
-import { Header, Text } from 'react-native-elements';
-import {  AppService } from '../providers/app.service';
+import { Header, Text, Button } from 'react-native-elements';
+import { AppService } from '../providers/app.service';
 import TextField from 'react-native-md-textinput';
-import { colors, center,header } from '../styles/common';
+import { colors, center, header } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
@@ -52,7 +52,7 @@ export class LoginPage extends React.Component<PageProps, any>
                 if (!this.configService.getCurrentCompany())
                     this.messageHandler.showErrorOrWarning(true, reason.message);
                 else if (!this.configService.passwordExpired)
-                    this.messageHandler.showToast(reason.message, 3000);
+                    this.messageHandler.showToast(reason.message, true);
                 else
                     this.setState({ isPasswordExpired: true });
             });
@@ -66,7 +66,7 @@ export class LoginPage extends React.Component<PageProps, any>
                 this.password = this.newPassword;
                 this.login();
             })
-            .catch(reason => this.messageHandler.showToast(reason.message, 3000));
+            .catch(reason => this.messageHandler.showToast(reason.message, true));
     }
     goToMainPage()
     {
@@ -84,6 +84,12 @@ export class LoginPage extends React.Component<PageProps, any>
     }
     renderLogin()
     {
+        let isRTL;
+        if (this.strings.platform === 'ios')
+            isRTL = this.strings.dirByLang === 'rtl';
+        else
+            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
+        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
@@ -99,7 +105,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         label={this.strings.usrTitle}
                         onChangeText={(text) => this.username = text}
                         highlightColor={'#1f9bd1'}
-                        labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0 } : { left: 0 }}
+                        labelStyle={labelStyle}
                         inputStyle={{ textAlign: this.strings.sideByLang }}
                         height={38}
                     />
@@ -107,12 +113,18 @@ export class LoginPage extends React.Component<PageProps, any>
                         label={this.strings.pswTitle}
                         onChangeText={(text) => this.password = text}
                         highlightColor={'#1f9bd1'}
-                        labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0 } : { left: 0 }}
+                        labelStyle={labelStyle}
                         inputStyle={{ textAlign: this.strings.sideByLang }}
                         secureTextEntry={true}
                         height={38}
                     />
-                    <Text style={[styles.login, center]} onPress={() => this.login()}>{this.strings.loginBtn}</Text>
+                    <Button title={this.strings.loginBtn}
+                        onPress={() => this.login()}
+                        buttonStyle={[styles.login, center]}
+                        backgroundColor="#fff"
+                        textStyle={{ color: colors.primaryColor }}
+                        fontWeight="bold"
+                        activeOpacity={0.7} />
                     <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
                 </ScrollView>
             </View>
@@ -138,7 +150,7 @@ export class LoginPage extends React.Component<PageProps, any>
                             label={this.strings.oldPsw}
                             onChangeText={(text) => this.oldPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0 } : { left: 0 }}
+                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
                             height={38}
                         />
@@ -146,7 +158,7 @@ export class LoginPage extends React.Component<PageProps, any>
                             label={this.strings.newPsw}
                             onChangeText={(text) => this.newPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0 } : { left: 0 }}
+                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
                             secureTextEntry={true}
                             height={38}
@@ -155,11 +167,17 @@ export class LoginPage extends React.Component<PageProps, any>
                             label={this.strings.confirmNewPsw}
                             onChangeText={(text) => this.confirmNewPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0 } : { left: 0 }}
+                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
                             height={38}
                         />
-                        <Text style={[styles.login, styles.changePass, center]} onPress={() => this.changePasword()}>{this.strings.changePswBtn}</Text>
+                        <Button title={this.strings.changePswBtn}
+                            onPress={() => this.changePasword()}
+                            buttonStyle={[styles.login, styles.changePass, center]}
+                            backgroundColor="#fff"
+                            textStyle={{ color: colors.primaryColor }}
+                            fontWeight="bold"
+                            activeOpacity={0.7} />
                         <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
                     </View>
                 </ScrollView>
@@ -197,15 +215,13 @@ const styles = StyleSheet.create({
     },
     login:
     {
-        padding: 10,
+        paddingTop: 15,
         paddingRight: 40,
         paddingLeft: 40,
         borderColor: colors.primaryColor,
         borderWidth: 1,
         borderRadius: 2,
         marginTop: 45,
-        fontWeight: 'bold',
-        color: colors.primaryColor
     },
     forgotPassword:
     {

@@ -50,7 +50,7 @@ export class MainPage extends React.Component<PageProps, any>
                     <Header
                         centerComponent={<SVG svg={SVG.headerLogo} height="30" />}
                         outerContainerStyles={header}
-                        innerContainerStyles={center}
+                        innerContainerStyles={[center,{marginTop:10}]}
                     />
                 </View>
                 <ScrollView style={{ paddingHorizontal: 10 }}>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     },
     headerContainer:
     {
-        flex: 0.1,
+        flex: 0.11,
     },
     cardContainer:
     {

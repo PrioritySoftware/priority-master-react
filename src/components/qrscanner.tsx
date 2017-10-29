@@ -35,15 +35,16 @@ export class QRCodeScanner extends Component<PageProps, any> {
   _renderCameraMarker()
   {
     let icon = null;
+    let isIOS = this.strings.platform === 'ios';
     if (this.strings.dirByLang === 'rtl')
     {
-      let iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
+      let iconName = isIOS ? 'ios-arrow-forward' : 'md-arrow-forward';
       icon = <Icon
         name={iconName}
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButton}
+        style={isIOS ? styles.backButtonRight : styles.backButtonLeft}
       />;
     }
     else
@@ -54,7 +55,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButton}
+        style={styles.backButtonLeft}
       />;
     }
     return (
@@ -108,10 +109,16 @@ const styles = StyleSheet.create({
     borderColor: '#00FF00',
     backgroundColor: 'transparent',
   },
-  backButton:
+  backButtonLeft:
   {
     position: 'absolute',
-    top: 10,
+    top: 12,
     left: 0
+  },
+  backButtonRight:
+  {
+    position: 'absolute',
+    top: 12,
+    right: 0
   }
 })
