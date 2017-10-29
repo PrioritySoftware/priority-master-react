@@ -13,9 +13,9 @@ export class Strings
     dirOpposite: string;
 
     /** Device */
-    deviceLang: string;
+    deviceDirection: string;
     platform: string;
-    private _localInfo: LocalizedStrings;
+    private localInfo: LocalizedStrings;
 
     /** First Launch */
     private _scanInstructions: String = { value: "", code: 0 };
@@ -409,14 +409,16 @@ export class Strings
 
     constructor()
     {
-        this._localInfo = new LocalizedStrings({});
-        if (this._localInfo.getInterfaceLanguage().startsWith('he'))
+        this.localInfo = new LocalizedStrings({});
+        if (this.localInfo.getInterfaceLanguage().startsWith('he') || this.localInfo.getInterfaceLanguage().startsWith('iw'))
         {
+            this.deviceDirection="rtl";
             this.setFirstRtlConstants();
             this.setRtlConstants();
         }
         else
         {
+            this.deviceDirection="ltr";
             this.setFirstLtrConstants();
             this.setLtrConstants();
         }

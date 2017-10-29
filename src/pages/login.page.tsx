@@ -84,6 +84,12 @@ export class LoginPage extends React.Component<PageProps, any>
     }
     renderLogin()
     {
+        let isRTL;
+        if (this.strings.platform === 'ios')
+            isRTL = this.strings.dirByLang === 'rtl';
+        else
+            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
+        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
@@ -99,7 +105,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         label={this.strings.usrTitle}
                         onChangeText={(text) => this.username = text}
                         highlightColor={'#1f9bd1'}
-                        labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
+                        labelStyle={labelStyle}
                         inputStyle={{ textAlign: this.strings.sideByLang }}
                         height={38}
                     />
@@ -107,7 +113,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         label={this.strings.pswTitle}
                         onChangeText={(text) => this.password = text}
                         highlightColor={'#1f9bd1'}
-                        labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
+                        labelStyle={labelStyle}
                         inputStyle={{ textAlign: this.strings.sideByLang }}
                         secureTextEntry={true}
                         height={38}

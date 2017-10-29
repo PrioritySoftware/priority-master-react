@@ -35,15 +35,16 @@ export class QRCodeScanner extends Component<PageProps, any> {
   _renderCameraMarker()
   {
     let icon = null;
+    let isIOS = this.strings.platform === 'ios';
     if (this.strings.dirByLang === 'rtl')
     {
-      let iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
+      let iconName = isIOS ? 'ios-arrow-forward' : 'md-arrow-forward';
       icon = <Icon
         name={iconName}
         type='ionicon'
         color='#517fa4'
         onPress={() => { this.goBack() }}
-        style={styles.backButtonRight}
+        style={isIOS ? styles.backButtonRight : styles.backButtonLeft}
       />;
     }
     else
