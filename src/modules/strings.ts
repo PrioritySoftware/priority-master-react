@@ -33,6 +33,11 @@ export class Strings
     {
         return this.getString(this._scanError);
     }
+    private _scanPermissionError: String = { value: "", code: 0 };
+    public get scanPermissionError(): string
+    {
+        return this.getString(this._scanPermissionError);
+    }
     private _preparingApp: String = { value: "", code: 0 };
     public get preparingApp(): string
     {
@@ -435,6 +440,7 @@ export class Strings
         this._scanInstructions.value = "סרוק את הקוד QR כדי להתחיל";
         this._scanButton.value = "סרוק";
         this._scanError.value = "היתה בעיה עם סריקת הברקוד, נסו שוב";
+        this._scanPermissionError.value="אין הרשאה להשתמש במצלמה. אנא בדוק את ההגדרות.";
         this._preparingApp.value = "מכין עבורך את האפליקציה, אנא המתן";
         this._failedToReadJsonError.value = "קובץ קונפיגורציה לא תקין.";
         this._failedToLoadJsonError.value = "נכשל בטעינת קובץ קונפיגורציה. אנא בדוק את החיבור ל WIFI.";
@@ -531,6 +537,7 @@ export class Strings
         this._scanInstructions.value = "Scan your QR code to get started";
         this._scanButton.value = "Scan";
         this._scanError.value = "QR code scan failed. Try again";
+        this._scanPermissionError.value="There is no permission to use the camera. Please check out the settings.";
         this._preparingApp.value = "Preparing your app. Please wait";
         this._failedToReadJsonError.value = "Invalid configuration file";
         this._failedToLoadJsonError.value = "There was a problem loading the configuration file.\nCheck your Wi-Fi connection.";

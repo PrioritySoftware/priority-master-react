@@ -15,6 +15,7 @@ import { colors, center, header } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 export class LoginPage extends React.Component<PageProps, any>
 {
@@ -82,14 +83,8 @@ export class LoginPage extends React.Component<PageProps, any>
     {
         Linking.openURL(this.configService.getForgotPasswordURL());
     }
-    renderLogin()
+    renderLogin(labelStyle)
     {
-        let isRTL;
-        if (this.strings.platform === 'ios')
-            isRTL = this.strings.dirByLang === 'rtl';
-        else
-            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
-        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
@@ -99,7 +94,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         innerContainerStyles={center}
                     />
                 </View>
-                <ScrollView style={styles.inputContainer}>
+                <KeyboardAwareScrollView style={styles.inputContainer} keyboardOpeningTime={0}>
                     <Text h4 style={[styles.appname, center]}>{this.appService.currentApp.title}</Text>
                     <TextField
                         label={this.strings.usrTitle}
@@ -126,13 +121,13 @@ export class LoginPage extends React.Component<PageProps, any>
                         fontWeight="bold"
                         activeOpacity={0.7} />
                     <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
-                </ScrollView>
+                 </KeyboardAwareScrollView>
             </View>
         );
     }
-    renderForgotpassword()
+    renderForgotpassword(labelStyle)
     {
-        return (
+        return ( 
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <Header
@@ -141,8 +136,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         innerContainerStyles={center}
                     />
                 </View>
-
-                <ScrollView >
+                <KeyboardAwareScrollView keyboardOpeningTime={0}> 
                     <Text h5 style={[styles.changePassTitle, styles.changePassFirstTitle, center]}>{this.strings.changePswHeader1}</Text>
                     <Text h5 style={[styles.changePassTitle, center]}>{this.strings.changePswHeader2}</Text>
                     <View style={styles.inputContainer}>
@@ -150,15 +144,16 @@ export class LoginPage extends React.Component<PageProps, any>
                             label={this.strings.oldPsw}
                             onChangeText={(text) => this.oldPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
+                            labelStyle={labelStyle}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
+                            secureTextEntry={true}
                             height={38}
                         />
                         <TextField
                             label={this.strings.newPsw}
                             onChangeText={(text) => this.newPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
+                            labelStyle={labelStyle}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
                             secureTextEntry={true}
                             height={38}
@@ -167,8 +162,9 @@ export class LoginPage extends React.Component<PageProps, any>
                             label={this.strings.confirmNewPsw}
                             onChangeText={(text) => this.confirmNewPassword = text}
                             highlightColor={'#1f9bd1'}
-                            labelStyle={this.strings.dirByLang === 'rtl' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }}
+                            labelStyle={labelStyle}
                             inputStyle={{ textAlign: this.strings.sideByLang }}
+                            secureTextEntry={true}
                             height={38}
                         />
                         <Button title={this.strings.changePswBtn}
@@ -180,15 +176,21 @@ export class LoginPage extends React.Component<PageProps, any>
                             activeOpacity={0.7} />
                         <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
                     </View>
-                </ScrollView>
+                     </KeyboardAwareScrollView>
             </View>
         );
     }
     render() 
     {
-        if (this.state.isPasswordExpired)
-            return this.renderForgotpassword();
-        return this.renderLogin();
+        let isRTL;
+        if (this.strings.platform === 'ios')
+            isRTL = this.strings.dirByLang === 'rtl';
+        else
+            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
+        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
+       if (this.state.isPasswordExpired)
+            return this.renderForgotpassword(labelStyle);
+        return this.renderLogin(labelStyle);
     }
 
 }
@@ -226,6 +228,7 @@ const styles = StyleSheet.create({
     forgotPassword:
     {
         marginTop: 15,
+        marginBottom:20,
         textDecorationLine: 'underline',
         color: colors.primaryColor
     },

@@ -15,6 +15,7 @@ import Spinner from 'react-native-spinkit';
 import { colors } from '../styles/common';
 import { ConfigService } from '../providers/config.service';
 import { AppService } from '../providers/app.service';
+const Permissions = require('react-native-permissions');
 
 export class StartPage extends React.Component<PageProps, any>
 {
@@ -70,7 +71,7 @@ export class StartPage extends React.Component<PageProps, any>
       <View style={styles.container}>
         <Image style={styles.image} source={require('../../assets/img/start_bg.png')} >
           <View style={styles.top}>
-            <Image  source={require('../../assets/img/start_logo.png')} />
+            <Image source={require('../../assets/img/start_logo.png')} />
           </View>
           {footer}
         </Image>
@@ -86,7 +87,23 @@ export class StartPage extends React.Component<PageProps, any>
    */
   scan = () =>
   {
-    this.props.navigation.navigate('QRCodeScanner', { onRead: this.scanFinished });
+    if (this.strings.platform === 'ios')
+    {
+      Permissions.check("camera")
+        .then(result =>
+        {
+          if (result === "authorized" || result==="undetermined")
+            this.props.navigation.navigate('QRCodeScanner', { onRead: this.scanFinished });
+          else
+            this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
+        })
+        .catch(error => this.messageHandler.showErrorOrWarning(true, this.strings.scanError));
+    }
+    else
+    {
+      this.props.navigation.navigate('QRCodeScanner', { onRead: this.scanFinished });
+    }
+
   }
 
   /**
