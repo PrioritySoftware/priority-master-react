@@ -49,7 +49,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
         type='ionicon'
         color='white'
         onPress={() => { this.goBack() }}
-        style={[isIOS ? styles.backButtonRight : styles.backButtonLeft, isIOS ? { marginTop: 20 } : {}]}
+        style={[styles.backButtonRight , isIOS ? { marginTop: 20 } : {}]}
         underlayColor="transparent"
       />;
     }

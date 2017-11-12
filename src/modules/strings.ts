@@ -13,7 +13,6 @@ export class Strings
     dirOpposite: string;
 
     /** Device */
-    deviceDirection: string;
     platform: string;
     private localInfo: LocalizedStrings;
 
@@ -417,13 +416,11 @@ export class Strings
         this.localInfo = new LocalizedStrings({});
         if (this.localInfo.getInterfaceLanguage().startsWith('he') || this.localInfo.getInterfaceLanguage().startsWith('iw'))
         {
-            this.deviceDirection="rtl";
             this.setFirstRtlConstants();
             this.setRtlConstants();
         }
         else
         {
-            this.deviceDirection="ltr";
             this.setFirstLtrConstants();
             this.setLtrConstants();
         }

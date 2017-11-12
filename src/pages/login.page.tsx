@@ -86,10 +86,7 @@ export class LoginPage extends React.Component<PageProps, any>
     render() 
     {
         let isRTL;
-        if (this.strings.platform === 'ios')
-            isRTL = this.strings.dirByLang === 'rtl';
-        else
-            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
+        isRTL = this.strings.dirByLang === 'rtl';
         let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         if (this.state.isPasswordExpired)
             return this.renderForgotpassword(labelStyle);
