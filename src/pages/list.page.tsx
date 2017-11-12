@@ -118,13 +118,13 @@ export class ListPage extends React.Component<PageProps, any>
         let rightComp = {};
         if (this.strings.dirByLang === 'rtl')
         {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'arrow-forward';
-            rightComp = { icon: iconName, color: 'white', underlayColor: 'transparent', onPress: () => { this.goBack() } };
+            iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
+            rightComp = this.renderBackIcon(iconName);
         }
         else
         {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'arrow-back';
-            leftComp = { icon: iconName, color: 'white', underlayColor: 'transparent', onPress: () => { this.goBack() } };
+            iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'md-arrow-back';
+            leftComp = this.renderBackIcon(iconName);
         }
         return (
             <View style={styles.headerContainer}>
@@ -137,6 +137,18 @@ export class ListPage extends React.Component<PageProps, any>
                 />
             </View>
         );
+    }
+    renderBackIcon(iconName: string)
+    {
+        let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
+        return ({
+            type: 'ionicon',
+            icon: iconName,
+            onPress: () => { this.goBack() },
+            color: 'white',
+            underlayColor: 'transparent',
+            style: style
+        });
     }
 
     /**
@@ -170,8 +182,8 @@ export class ListPage extends React.Component<PageProps, any>
                     renderRow={this.renderRow}
                     renderHiddenRow={this.renderHiddenRow}
                     distanceToLoadMore={20}
-                    leftOpenValue={scale(75)}
-                    rightOpenValue={scale(-75)}
+                    leftOpenValue={scale(80)}
+                    rightOpenValue={scale(-80)}
                     disableRightSwipe={!isRTL}
                     disableLeftSwipe={isRTL}
                 />
@@ -310,7 +322,7 @@ const styles = StyleSheet.create({
     // hidden buttons
     rowBack:
     {
-        flex: 0.944,
+        flex: 0.943,
         flexDirection: 'column',
         top: 11,
     },
@@ -332,7 +344,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         flex: 2,
         paddingHorizontal: 15,
-        minWidth: 70
+        minWidth: 80
     },
     hiddenIcon:
     {

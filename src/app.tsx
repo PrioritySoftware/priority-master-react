@@ -15,7 +15,7 @@ export class App extends React.Component<PageProps, any>
     {
         super(props);
         this.state = { isFinishedloading: false };
-        this.init(); 
+        this.init();
     }
 
     public render()
@@ -39,14 +39,17 @@ export class App extends React.Component<PageProps, any>
     }
     setNavigationStack(root: string)
     {
-        this.navigator = StackNavigator({
-            Start: { screen: StartPage },
-            QRCodeScanner: { screen: QRCodeScanner },
-            Login: { screen: LoginPage },
-            Main: { screen: MainPage },
-            List: { screen: ListPage }
-        },
-            { initialRouteName: root });
+        this.navigator = StackNavigator(
+            {
+                Start: { screen: StartPage },
+                QRCodeScanner: { screen: QRCodeScanner },
+                Login: { screen: LoginPage },
+                Main: { screen: MainPage },
+                List: { screen: ListPage }
+            },
+            {
+                initialRouteName: root
+            });
         this.setState({ isFinishedloading: true });
 
     }

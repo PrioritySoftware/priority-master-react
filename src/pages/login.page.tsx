@@ -83,6 +83,18 @@ export class LoginPage extends React.Component<PageProps, any>
     {
         Linking.openURL(this.configService.getForgotPasswordURL());
     }
+    render() 
+    {
+        let isRTL;
+        if (this.strings.platform === 'ios')
+            isRTL = this.strings.dirByLang === 'rtl';
+        else
+            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
+        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
+        if (this.state.isPasswordExpired)
+            return this.renderForgotpassword(labelStyle);
+        return this.renderLogin(labelStyle);
+    }
     renderLogin(labelStyle)
     {
         return (
@@ -121,13 +133,13 @@ export class LoginPage extends React.Component<PageProps, any>
                         fontWeight="bold"
                         activeOpacity={0.7} />
                     <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
-                 </KeyboardAwareScrollView>
+                </KeyboardAwareScrollView>
             </View>
         );
     }
     renderForgotpassword(labelStyle)
     {
-        return ( 
+        return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <Header
@@ -136,7 +148,7 @@ export class LoginPage extends React.Component<PageProps, any>
                         innerContainerStyles={center}
                     />
                 </View>
-                <KeyboardAwareScrollView keyboardOpeningTime={0}> 
+                <KeyboardAwareScrollView keyboardOpeningTime={0}>
                     <Text h5 style={[styles.changePassTitle, styles.changePassFirstTitle, center]}>{this.strings.changePswHeader1}</Text>
                     <Text h5 style={[styles.changePassTitle, center]}>{this.strings.changePswHeader2}</Text>
                     <View style={styles.inputContainer}>
@@ -176,23 +188,10 @@ export class LoginPage extends React.Component<PageProps, any>
                             activeOpacity={0.7} />
                         <Text style={[styles.forgotPassword, center]} onPress={() => this.openForgotPasswordUrl()}>{this.strings.forgotPassword}</Text>
                     </View>
-                     </KeyboardAwareScrollView>
+                </KeyboardAwareScrollView>
             </View>
         );
     }
-    render() 
-    {
-        let isRTL;
-        if (this.strings.platform === 'ios')
-            isRTL = this.strings.dirByLang === 'rtl';
-        else
-            isRTL = this.strings.deviceDirection !== this.strings.dirByLang;
-        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
-       if (this.state.isPasswordExpired)
-            return this.renderForgotpassword(labelStyle);
-        return this.renderLogin(labelStyle);
-    }
-
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
@@ -211,8 +210,7 @@ const styles = StyleSheet.create({
     },
     inputContainer:
     {
-        marginRight: 45,
-        marginLeft: 45,
+        paddingHorizontal: 45
 
     },
     login:
@@ -228,7 +226,7 @@ const styles = StyleSheet.create({
     forgotPassword:
     {
         marginTop: 15,
-        marginBottom:20,
+        marginBottom: 20,
         textDecorationLine: 'underline',
         color: colors.primaryColor
     },

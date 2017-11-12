@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -44,7 +43,6 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		85000D85D68646E29DF789B5 /* libLRDRCTSimpleToast.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 14CC155F01C648F3A6E10327 /* libLRDRCTSimpleToast.a */; };
 		960E2113EC44405BB67148E4 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C8D85062D9D04DEFA4B63447 /* EvilIcons.ttf */; };
-		9938BB7430274CE982F3F1E1 /* libRNLaunchImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1445285986B445F39BBFFF36 /* libRNLaunchImage.a */; };
 		9DB215AEAAEF4BBA9B176097 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 36C4164C48374B0CADC745FD /* Ionicons.ttf */; };
 		A938442CFE26440087DD0F16 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AA4D722C8332448F924936D0 /* MaterialCommunityIcons.ttf */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
@@ -248,13 +246,6 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
-		8B09E3F61FB07EA70067C83C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5C6962082A384F2D8A9E5522 /* RNLaunchImage.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 134814201AA4EA6300B7C361;
-			remoteInfo = RNLaunchImage;
-		};
 		8B09E43D1FB083ED0067C83C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AFAAF355FFC742C9BBF98B95 /* ReactNativePermissions.xcodeproj */;
@@ -388,7 +379,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = PriorityMaster/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = PriorityMaster/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = PriorityMaster/main.m; sourceTree = "<group>"; };
-		1445285986B445F39BBFFF36 /* libRNLaunchImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNLaunchImage.a; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		14CC155F01C648F3A6E10327 /* libLRDRCTSimpleToast.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libLRDRCTSimpleToast.a; sourceTree = "<group>"; };
 		16F9EE7D8EBC48B9A06D3F29 /* libRNSpinkit.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSpinkit.a; sourceTree = "<group>"; };
@@ -402,7 +392,6 @@
 		48C00D27425E4925B95FA71F /* libReactNativeLocalization.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativeLocalization.a; sourceTree = "<group>"; };
 		543D86BB4FF349C2BDB996A1 /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
 		5B63FD17A31341A683CDA86C /* RNSVG.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNSVG.xcodeproj; path = "../node_modules/react-native-svg/ios/RNSVG.xcodeproj"; sourceTree = "<group>"; };
-		5C6962082A384F2D8A9E5522 /* RNLaunchImage.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNLaunchImage.xcodeproj; path = "../node_modules/react-native-launch-image/ios/RNLaunchImage.xcodeproj"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7B02915331044730AE098429 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -457,7 +446,6 @@
 				7DA2989832494FE897E5176F /* libRNSVG.a in Frameworks */,
 				F018C44B06F0401B99C461DB /* libRCTCamera.a in Frameworks */,
 				85000D85D68646E29DF789B5 /* libLRDRCTSimpleToast.a in Frameworks */,
-				9938BB7430274CE982F3F1E1 /* libRNLaunchImage.a in Frameworks */,
 				CDF2EE17BCF84325BF3BE71D /* libRCTSplashScreen.a in Frameworks */,
 				09F51B1AB20142218E336B03 /* libReactNativePermissions.a in Frameworks */,
 			);
@@ -637,7 +625,6 @@
 				0E6884C4D1404394A88E0FFD /* RCTCamera.xcodeproj */,
 				9141CF40A7514F98AFF8A9F4 /* LRDRCTSimpleToast.xcodeproj */,
 				F4842AA7E70C470982B66EEC /* RCTSplashScreen.xcodeproj */,
-				5C6962082A384F2D8A9E5522 /* RNLaunchImage.xcodeproj */,
 				AFAAF355FFC742C9BBF98B95 /* ReactNativePermissions.xcodeproj */,
 			);
 			name = Libraries;
@@ -692,14 +679,6 @@
 				7CC118035FA742828187D49C /* libReactNativePermissions.a */,
 			);
 			name = "Recovered References";
-			sourceTree = "<group>";
-		};
-		8B09E3D01FB07EA60067C83C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8B09E3F71FB07EA70067C83C /* libRNLaunchImage.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		8B09E43A1FB083ED0067C83C /* Products */ = {
@@ -982,10 +961,6 @@
 					ProjectRef = AFAAF355FFC742C9BBF98B95 /* ReactNativePermissions.xcodeproj */;
 				},
 				{
-					ProductGroup = 8B09E3D01FB07EA60067C83C /* Products */;
-					ProjectRef = 5C6962082A384F2D8A9E5522 /* RNLaunchImage.xcodeproj */;
-				},
-				{
 					ProductGroup = 8BAD63A01F9DD70F0084C0C7 /* Products */;
 					ProjectRef = B0AAAC7D2EEA4B7A8A5204DF /* RNSpinkit.xcodeproj */;
 				},
@@ -1182,13 +1157,6 @@
 			fileType = archive.ar;
 			path = libRCTText.a;
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		8B09E3F71FB07EA70067C83C /* libRNLaunchImage.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNLaunchImage.a;
-			remoteRef = 8B09E3F61FB07EA70067C83C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		8B09E43E1FB083ED0067C83C /* libReactNativePermissions.a */ = {
@@ -1448,10 +1416,7 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = PriorityMasterTests/Info.plist;
@@ -1459,7 +1424,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1484,10 +1448,7 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = PriorityMasterTests/Info.plist;
@@ -1495,7 +1456,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1523,10 +1483,7 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = PriorityMaster/Info.plist;
@@ -1560,10 +1517,7 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = PriorityMaster/Info.plist;
@@ -1602,17 +1556,13 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = "PriorityMaster-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1647,17 +1597,13 @@
 					"$(SRCROOT)..\node_modules\neact-native-svgios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-simple-toast/ios/LRDRCTSimpleToast",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/rn-splash-screen/ios/RCTSplashScreen",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
-					"$(SRCROOT)/../node_modules/react-native-launch-image/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/**",
 				);
 				INFOPLIST_FILE = "PriorityMaster-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1687,7 +1633,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.PriorityMaster-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1713,7 +1658,6 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.PriorityMaster-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
