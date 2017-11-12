@@ -488,7 +488,7 @@ export class Strings
         this._isExitApp.value = "האם אתה בטוח שברצונך לצאת מהמערכת?";
         this._maxLengthForField.value = 'מספר התוים המקסימלי עבור השדה הוא: ';
         this._search.value = "חפש";
-        this._scrollLoadingText.value = "טוען רשומות";
+        this._scrollLoadingText.value = "טוען רשומות...";
         this._cameraError.value = "פתיחת מצלמה נכשלה";
         this._showAllItems.value = "הצג את כל הרשומות";
         this._directActivationsTitle.value = "הפעלות ישירות";
@@ -537,7 +537,7 @@ export class Strings
         this._scanInstructions.value = "Scan your QR code to get started";
         this._scanButton.value = "Scan";
         this._scanError.value = "QR code scan failed. Try again";
-        this._scanPermissionError.value="There is no permission to use the camera. Please check out the settings.";
+        this._scanPermissionError.value="Permission has not been given to use the camera. Please enable it in the settings.";
         this._preparingApp.value = "Preparing your app. Please wait";
         this._failedToReadJsonError.value = "Invalid configuration file";
         this._failedToLoadJsonError.value = "There was a problem loading the configuration file.\nCheck your Wi-Fi connection.";
@@ -586,7 +586,7 @@ export class Strings
         this._maxLengthForField.value = 'Maximum length for this field is: ';
         this._search.value = " Search";
         this._searchError.value = "No search fields defined"
-        this._scrollLoadingText.value = "Loading more data";
+        this._scrollLoadingText.value = "Loading records...";
         this._cameraError.value = "Failed to open camera";
         this._showAllItems.value = "Show all items";
         this._directActivationsTitle.value = "Direct Activations";

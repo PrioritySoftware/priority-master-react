@@ -11,20 +11,39 @@ import { Header } from 'react-native-elements'
 import { SVG } from '../components/svg';
 import { center, header, container, colors } from '../styles/common';
 import { Card } from '../components/card';
+import { MessageHandler } from '../components/message.handler';
+import { FormService } from '../providers/form.service';
+import { NavigationActions } from 'react-navigation';
 
 export class MainPage extends React.Component<PageProps, any>
 {
-    //   messageHandler: MessageHandler;
     static navigationOptions = { header: null }
 
     configService: ConfigService;
+    formService: FormService;
     strings: Strings;
+    messageHandler: MessageHandler;
 
     constructor(props)
     {
         super(props);
         this.configService = this.props.screenProps.configService;
+        this.formService = this.props.screenProps.formService;
+        this.messageHandler = this.props.screenProps.messageHandler;
         this.strings = this.props.screenProps.strings;
+
+        this.formService.initFormsConfig(this.configService.entitiesData);
+        // When a fatal error occurs, navigate to main page. 
+        this.formService.onFatalError = () =>
+        {
+            let resetAction = NavigationActions.reset({
+                index: 0,
+                actions: [
+                    NavigationActions.navigate({ routeName: 'Main' })
+                ]
+            });
+            this.props.navigation.dispatch(resetAction);
+        };
     }
     render() 
     {
@@ -40,7 +59,8 @@ export class MainPage extends React.Component<PageProps, any>
                 <Card title={ent.title}
                     cardContainerStyle={[styles.cardContainer, marginTopStyle]}
                     cardStyle={borderStye}
-                    cardTextStyle={styles.cardText} />
+                    cardTextStyle={styles.cardText}
+                    onPress={() => this.entityChosen(ent)} />
             cards.push(newCard);
 
         }
@@ -50,7 +70,7 @@ export class MainPage extends React.Component<PageProps, any>
                     <Header
                         centerComponent={<SVG svg={SVG.headerLogo} height="30" />}
                         outerContainerStyles={header}
-                        innerContainerStyles={[center,{marginTop:10}]}
+                        innerContainerStyles={[center, { marginTop: 10 }]}
                     />
                 </View>
                 <ScrollView style={{ paddingHorizontal: 10 }}>
@@ -62,36 +82,24 @@ export class MainPage extends React.Component<PageProps, any>
     }
     entityChosen(ent: Entity)
     {
-        //     if (ent.type === 'P' || ent.type === 'R')
-        //     {
-        //         // this.messageHandler.showTransLoading();
-        //         this.procService.startProcedure(ent.name, ent.type, this.configService.configuration.profileConfig)
-        //             .then(() =>
-        //             {
-        //                 this.messageHandler.hideLoading();
-        //             })
-        //             .catch(() =>
-        //             {
-        //                 this.messageHandler.hideLoading();
-        //             });
+        if (ent.type === 'P' || ent.type === 'R')
+        {
+            // // this.messageHandler.showTransLoading();
+            // this.procService.startProcedure(ent.name, ent.type, this.configService.configuration.profileConfig)
+            //     .then(() =>
+            //     {
+            //         this.messageHandler.hideLoading();
+            //     })
+            //     .catch(() =>
+            //     {
+            //         this.messageHandler.hideLoading();
+            //     });
 
-        //     }
-        //     else if (ent.type == 'F')
-        //     {
-
-        //         this.messageHandler.showLoading(this.strings.wait);
-        //         this.formService.startFormAndGetRows(ent.name, this.configService.configuration.profileConfig).then(
-        //             form =>
-        //             {
-        //                 this.messageHandler.hideLoading();
-        //                 this.nav.push(ListPage,
-        //                     {
-        //                         form: form
-        //                     },
-        //                     { animate: true });
-        //             },
-        //             reason => { this.messageHandler.hideLoading(); });
-        //     }
+        }
+        else if (ent.type === 'F')
+        {
+            this.props.navigation.navigate('List', { form: ent }); 
+        }
     }
 
 }

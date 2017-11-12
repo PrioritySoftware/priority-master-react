@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
-import { StartPage, LoginPage, MainPage } from './pages';
+import { StartPage, LoginPage, MainPage, ListPage } from './pages';
 import { StackNavigator } from 'react-navigation';
 import { PageProps, LocalStorageUserData } from './modules/index';
 import { QRCodeScanner } from './components/qrscanner';
@@ -15,7 +15,7 @@ export class App extends React.Component<PageProps, any>
     {
         super(props);
         this.state = { isFinishedloading: false };
-        this.init();
+        this.init(); 
     }
 
     public render()
@@ -43,7 +43,8 @@ export class App extends React.Component<PageProps, any>
             Start: { screen: StartPage },
             QRCodeScanner: { screen: QRCodeScanner },
             Login: { screen: LoginPage },
-            Main: { screen: MainPage }
+            Main: { screen: MainPage },
+            List: { screen: ListPage }
         },
             { initialRouteName: root });
         this.setState({ isFinishedloading: true });

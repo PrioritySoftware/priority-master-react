@@ -3,7 +3,6 @@
       "member-access": false,
       "member-ordering": [
         true,
-        "public-before-private",
         "static-before-instance",
         "variables-before-functions"
       ],
@@ -46,10 +45,6 @@
       "eofline": false,
       "indent": [
         true
-      ],
-      "max-line-length": [
-        true,
-        150
       ],
       "no-require-imports": false,
       "object-literal-sort-keys": false,

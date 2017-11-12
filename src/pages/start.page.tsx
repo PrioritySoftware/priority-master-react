@@ -26,7 +26,6 @@ export class StartPage extends React.Component<PageProps, any>
   appService: AppService;
   strings: Strings;
 
-  navigateToLoginAction: NavigationActions;
 
   constructor(props)
   {
@@ -37,10 +36,6 @@ export class StartPage extends React.Component<PageProps, any>
     this.configService = this.props.screenProps.configService;
     this.messageHandler = this.props.screenProps.messageHandler;
     this.strings = this.props.screenProps.strings;
-    this.navigateToLoginAction = NavigationActions.navigate({
-      routeName: 'Login',
-      params: {}
-    })
   }
   render() 
   {

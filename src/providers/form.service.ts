@@ -1,62 +1,80 @@
 import { FormConfig } from "../modules/formConfig.class";
 import { Entity } from "../modules/index";
+import { MessageHandler } from "../components/message.handler";
+import { Strings } from "../modules/strings";
+import { ProfileConfig } from "../modules/profileConfig.class";
+import { ServerResponse } from "../modules/srvResponse.class";
+import { Form } from "../modules/form.class";
+import { ServerResponseCode } from "../modules/srvResponseCode.class";
+import { MessageOptions } from "../modules/messageOptions.class";
+import { ServerResponseType } from "../modules/srvResponseType.class";
+import { Filter } from "../modules/filter.class";
 
 export class FormService
 {
     formsConfig: { [key: string]: FormConfig } = {};
+    onFatalError;
+    private forms: { [key: string]: Form };
+    RowsBatchSize: number = 115;
 
-     // // ********************************* Forms Config **************************************
+    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings)
+    {
+        this.forms = {};
+    }
+    // // ********************************* Forms Config **************************************
 
     // /** Returns a formConfig object according to the supplied form (in json format) */
-    // prepareForm(form: Entity): FormConfig
-    // {
-    //     let formConfig: FormConfig = {
-    //         name: form.name,
-    //         searchColumns: [],
-    //         subforms: [],
-    //         listColumnsOptions: {},
-    //         detailsColumnsOptions: {},
-    //         parentForm: form.fatname,
-    //         pos: form.pos,
-    //         activations: {}
-    //     };
+    prepareForm(form: Entity): FormConfig
+    {
+        let formConfig: FormConfig = {
+            name: form.name,
+            searchColumns: [],
+            subforms: [],
+            listColumnsOptions: {},
+            detailsColumnsOptions: {},
+            parentForm: form.fatname,
+            pos: form.pos,
+            activations: {}
+        };
+        if (form.columns)
+            form.columns = form.columns.sort((ent1, ent2) => ent2.pos - ent1.pos);
+        for (let colInd in form.columns)
+        {
+            if (form.columns.hasOwnProperty(colInd))
+            {
+                let column = form.columns[colInd];
+                if (column.tabview === 1)
+                {
+                    formConfig.listColumnsOptions[column.name] = {};
+                    formConfig.listColumnsOptions[column.name].isShow = true;
+                    formConfig.listColumnsOptions[column.name].isShowTitle = true;
+                    formConfig.listColumnsOptions[column.name].pos = column.pos;
 
-    //     for (var ind in form.columns)
-    //     {
-    //         let column = form.columns[ind];
-    //         if (column.tabview == 1)
-    //         {
-    //             formConfig.listColumnsOptions[column.name] = {};
-    //             formConfig.listColumnsOptions[column.name].isShow = true;
-    //             formConfig.listColumnsOptions[column.name].isShowTitle = true;
-    //             formConfig.listColumnsOptions[column.name].pos = column.pos;
-
-    //         }
-    //         if (column.lineview == 1)
-    //         {
-    //             formConfig.detailsColumnsOptions[column.name] = {};
-    //             formConfig.detailsColumnsOptions[column.name].isShow = true;
-    //             formConfig.detailsColumnsOptions[column.name].isShowTitle = true;
-    //             formConfig.detailsColumnsOptions[column.name].pos = column.pos;
-    //         }
-    //         if (column.special == 'B' || column.barcode == 1)// backward compatibility for barcode
-    //         {
-    //             formConfig.detailsColumnsOptions[column.name].subtype = "barcode";
-    //         }
-    //         if (column.special == 'P')
-    //         {
-    //             formConfig.detailsColumnsOptions[column.name].subtype = "phone";
-    //         }
-    //         //Treatment searching by date currently not supported will be treated as part of the development of filters
-    //         if (column.searchfield == 1 && column.type !== "DATE" && column.type !== "TIME")
-    //         {
-    //             formConfig.searchColumns.push(column.name);
-    //         }
-    //     }
-    //     return formConfig;
-    // }
-
-  
+                }
+                if (column.lineview === 1)
+                {
+                    formConfig.detailsColumnsOptions[column.name] = {};
+                    formConfig.detailsColumnsOptions[column.name].isShow = true;
+                    formConfig.detailsColumnsOptions[column.name].isShowTitle = true;
+                    formConfig.detailsColumnsOptions[column.name].pos = column.pos;
+                }
+                if (column.special === 'B' || column.barcode === 1)// backward compatibility for barcode
+                {
+                    formConfig.detailsColumnsOptions[column.name].subtype = "barcode";
+                }
+                if (column.special === 'P')
+                {
+                    formConfig.detailsColumnsOptions[column.name].subtype = "phone";
+                }
+                // Treatment searching by date currently not supported will be treated as part of the development of filters
+                if (column.searchfield === 1 && column.type !== "DATE" && column.type !== "TIME")
+                {
+                    formConfig.searchColumns.push(column.name);
+                }
+            }
+        }
+        return formConfig;
+    }
 
     // /** Returns the formConfig object according to the form name and parent form name */
     // getFormConfig(form, parentForm)
@@ -80,7 +98,7 @@ export class FormService
             if (entity.type === 'F')
             {
                 let form = entity;
-               // let preparedForm = this.prepareForm(form);
+                let preparedForm = this.prepareForm(form);
                 let key = form.name;
                 if (!parentForms[form.name])
                     parentForms[form.name] = [];
@@ -93,7 +111,7 @@ export class FormService
                 {
                     parentForms[form.name].push("");
                 }
-             //   this.formsConfig[key] = preparedForm;
+                this.formsConfig[key] = preparedForm;
             }
             else
             {
@@ -155,5 +173,422 @@ export class FormService
                 }
             }
         }
+    }
+
+    // ******** Form **********
+    public getForm(formName: string, parentFrom: Form = null): Form
+    {
+        if (parentFrom)
+        {
+            return parentFrom.subForms[formName];
+        }
+        else
+        {
+            return this.forms[formName];
+        }
+    }
+
+    /****** General */
+    /** Handles API rejections. If the rejection reason is a fatal error, calls 'onFatalError' else calls 'reject'. */
+    rejectionHandler(reason: ServerResponse, reject)
+    {
+        if (reason.fatal && this.onFatalError !== undefined)
+        {
+            this.onFatalError();
+            reject(reason);
+        }
+        reject(reason);
+    }
+    cancelWarn = (form: Form) =>
+    {
+        form.warningConfirm(0);
+    }
+    approveWarn = (form: Form) =>
+    {
+        form.warningConfirm(1);
+    }
+    /** Global error and warning handler passed to api with formStart. */
+    errorAndWarningMsgHandler = (serverMsg: ServerResponse) =>
+    {
+        if (serverMsg.code === ServerResponseCode.FailedPreviousRequest)
+        {
+            return;
+        }
+        let isError;
+        let options: MessageOptions = {};
+        if (serverMsg.fatal)
+        {
+            // If the error is a fatal error adds strings.fatalErrorMsg to the message.
+            this.messageHandler.showErrorOrWarning(true, this.strings.fatalErrorMsg + "\n" + serverMsg.message);
+            return;
+        }
+        if (serverMsg.code === ServerResponseCode.ReadWrite)
+        {
+            // Sets buttons text for a text-form message.
+            options.buttonsText = new Array();
+            options.buttonsText.push(this.strings.approveReadOnly);
+            options.buttonsText.push(this.strings.approveEditText);
+        }
+
+        // Sets is'Error' and message title.
+        if (serverMsg.type === ServerResponseType.Error || serverMsg.type === ServerResponseType.APIError || serverMsg.code === ServerResponseCode.Stop)
+        {
+            isError = true;
+            options.title = serverMsg.code === ServerResponseCode.Information ? this.strings.defaultMsgTitle : this.strings.errorTitle;
+        }
+        else
+        {
+            isError = false;
+            options.title = this.strings.warningTitle;
+        }
+        if (serverMsg.code === ServerResponseCode.Stop)
+        {
+            this.messageHandler.showErrorOrWarning(isError, serverMsg.message)
+            return;
+        }
+        this.messageHandler.showErrorOrWarning(isError, serverMsg.message,
+            () =>
+            {
+                this.approveWarn(serverMsg.form);
+            },
+            () =>
+            {
+                this.cancelWarn(serverMsg.form);
+            },
+            options);
+    }
+
+    /** Global callback for all forms,rows,fileds updates returned from api - passed to api with formStart */
+    updateFormsData = (result, parentForm: Form) =>
+    {
+        // loop on all formname in the result object
+        for (let formName in result)
+        {
+            if (result.hasOwnProperty(formName))
+            {
+                let form = this.getForm(formName, parentForm);
+                if (form == undefined)
+                {
+                    form = this.getForm(formName);
+                }
+                if (form !== undefined && form.rows !== undefined)
+                {
+                    // loop on rows for form in result object
+                    for (let rowInd in result[formName])
+                    {
+                        if (result[formName].hasOwnProperty(rowInd))
+                        {
+                            let row = this.getFormRow(form, rowInd);
+                            let newRow = result[formName][rowInd];
+                            if (row !== undefined)
+                            {
+                                // loop on properties for row in result object and assign them to row
+                                for (let key in newRow)
+                                {
+                                    // skip loop if the property is from prototype
+                                    if (!newRow.hasOwnProperty(key))
+                                        continue;
+                                    let newValue = newRow[key];
+                                    row[key] = newValue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /****** Form start and end */
+    /** Sets a form returned from formStart in the forms object by it's name */
+    private mergeForm(form: Form, parentFrom: Form = null)
+    {
+        let localform;
+        let forms;
+        // assign localform and forms
+        if (parentFrom)
+        {
+            localform = parentFrom.subForms[form.name];
+            if (localform && localform.rows == undefined)
+            {
+                localform.rows = {};
+            }
+            forms = parentFrom.subForms;
+        }
+        else
+        {
+            localform = this.forms[form.name];
+            forms = this.forms;
+        }
+
+        // set form in forms - first time no need to merge
+        if (localform == undefined)
+        {
+            form.rows = {};
+            forms[form.name] = form;
+        }
+        // merge local form and form and set in forms
+        else
+        {
+            // merge form with local form
+            forms[form.name] = Object.assign(localform, form);
+        }
+    }
+    /** Starts parent form. */
+    startParentForm(formName: string, profileConfig: ProfileConfig, autoRetriveFirstRows?: number, errorAndWarningHandler = null, updateFormsDataHandler = null): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            errorAndWarningHandler = errorAndWarningHandler ? errorAndWarningHandler : this.errorAndWarningMsgHandler;
+            updateFormsDataHandler = updateFormsDataHandler ? updateFormsDataHandler : this.updateFormsData;
+            this.priorityService.formStart(formName, errorAndWarningHandler, updateFormsDataHandler, profileConfig, autoRetriveFirstRows).then(
+                (form: Form) =>
+                {
+                    this.mergeForm(form);
+                    resolve(this.getForm(form.name));
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+
+                });
+        });
+    }
+    /** Starts parent form and retrieves its rows according to the given filter if there is one. */
+    startFormAndGetRows(formName: string, profileConfig, filter: Filter = null, autoRetriveFirstRows?: number): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.startParentForm(formName, profileConfig, autoRetriveFirstRows).then(
+                form =>
+                {
+                    this.setSearchFilter(form, filter).then(
+                        res =>
+                        {
+                            this.getRowsAndReplace(form).then(
+                                rows =>
+                                {
+                                    resolve(form);
+                                },
+                                (reason: ServerResponse) =>
+                                {
+                                    this.rejectionHandler(reason, reject);
+                                });
+                        },
+                        (reason: ServerResponse) =>
+                        {
+                            this.rejectionHandler(reason, reject);
+                        });
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /** Ends from. */
+    endForm(form: Form): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.endCurrentForm().then(
+                () =>
+                {
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /****** Form Rows */
+    public getLocalRows(form: Form)
+    {
+        return form.rows;
+    }
+    private setLocalRows(form: Form, rows: any, isMerge: boolean)
+    {
+        if (isMerge)
+        {
+            form.rows = Object.assign(form.rows, rows);
+        }
+        else
+        {
+            form.rows = rows;
+        }
+    }
+    public clearLocalRows(form)
+    {
+        form.rows = {};
+    }
+    /** Returns items of selected entity, starting from a wanted row according to a filter */
+    getRows(form: Form, fromRow: number, isMerge: boolean = true): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.getRows(fromRow).then(
+                result =>
+                {
+                    this.setLocalRows(form, result[form.name], isMerge);
+                    resolve(result[form.name]);
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /** Clears rows of a given form and then retrieves new ones. */
+    getRowsAndReplace(form: Form): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.clearRows(form).then(
+                result =>
+                {
+                    this.getRows(form, 1).then(
+                        rows => { resolve(); },
+                        (reason: ServerResponse) =>
+                        {
+                            this.rejectionHandler(reason, reject);
+                        });
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /** Clears rows of a given form. */
+    clearRows(form: Form): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.clearRows().then(
+                result =>
+                {
+
+                    this.clearLocalRows(form);
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /** Delets a list row with the given index. */
+    deleteListRow(form: Form, rowInd): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.setActiveRow(form, rowInd).then(
+                res =>
+                {
+                    this.deleteRow(form).then(
+                        delres =>
+                        {
+                            resolve(delres);
+                        },
+                        (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+                },
+                (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+        });
+    }
+    /***** Filter */
+    /** Clears search filter for the current form */
+    clearSearchFilter(form: Form): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.clearSearchFilter().then(
+                () =>
+                {
+
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+
+                });
+        });
+    }
+
+    /** Sets search filter for rows retrievel */
+    setSearchFilter(form: Form, filter: Filter)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.setSearchFilter(filter).then(
+                () =>
+                {
+
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+
+                });
+        });
+    }
+    /****** Row */
+    public getFormRow(form: Form, rowInd)
+    {
+        return form.rows[rowInd];
+    }
+    private deleteLocalRow(form: Form, rowInd)
+    {
+        delete form.rows[rowInd];
+    }
+    /** Sets the selected items row */
+    setActiveRow(form: Form, rowInd): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (!rowInd)
+            {
+                reject({
+                    form: form,
+                    message: "rowInd is undefined!",
+                    type: "apiError"
+                });
+                return;
+            }
+            form.setActiveRow(rowInd).then(
+                result =>
+                {
+
+                    resolve(this.getFormRow(form, rowInd));
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+    /** Delets the current row from the given form. */
+    deleteRow(form: Form): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.delRow().then(
+                result =>
+                {
+                    // 'rowIndex' is the index of the last row which was already deleted in 'updateFormsData'.
+                    //  Here we just need to update the local rows object.
+                    if (result && result.rowindex)
+                    {
+                        let rowInd = result.rowindex;
+                        this.deleteLocalRow(form, rowInd.toString());
+                    }
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
     }
 }

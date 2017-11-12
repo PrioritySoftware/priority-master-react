@@ -6,6 +6,6 @@ export interface Entity
     name: string;
     title: string;
     fatname?: string;
-    columns?: {[key:string]: Column};
+    columns?: Column[];
     pos: number;
 }
