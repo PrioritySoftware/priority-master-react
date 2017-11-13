@@ -187,8 +187,8 @@ export class ListPage extends React.Component<PageProps, any>
                     renderRow={this.renderRow}
                     renderHiddenRow={this.renderHiddenRow}
                     distanceToLoadMore={20}
-                    leftOpenValue={scale(80)}
-                    rightOpenValue={scale(-80)}
+                    leftOpenValue={scale(85)}
+                    rightOpenValue={scale(-85)}
                     disableRightSwipe={!isRTL}
                     disableLeftSwipe={isRTL}
                 />
@@ -235,8 +235,14 @@ export class ListPage extends React.Component<PageProps, any>
                 {
                     column =
                         <View style={styles.textContainer}>
-                            <Text style={[styles.text, titleStyle]}>{colTitle + ":"}</Text>
-                            <Text style={[styles.text, valueStyle, styles.bold]}>{row[colName]}</Text>
+                            <Text style={[styles.text, titleStyle]}>
+                                {colTitle + ":"}
+                            </Text>
+                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]}
+                                ellipsizeMode='tail'
+                                numberOfLines={1}>
+                                {row[colName]}
+                            </Text>
                         </View>;
                 }
                 else 
@@ -333,6 +339,10 @@ const styles = StyleSheet.create({
     {
         position: 'absolute',
     },
+    valueText:
+    {
+        maxWidth: '60%'
+    },
     textContainer:
     {
         paddingVertical: 15,
@@ -344,9 +354,9 @@ const styles = StyleSheet.create({
     // hidden buttons
     rowBack:
     {
-        flex: verticalScale(1.015),
+        flex: verticalScale(1.023),
         flexDirection: 'column',
-        top: 11,
+        top: scale(11.06),
     },
     rtlFlex:
     {
@@ -366,7 +376,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         flex: 2,
         paddingHorizontal: 15,
-        minWidth: 80
+        minWidth: scale(80)
     },
     hiddenIcon:
     {
