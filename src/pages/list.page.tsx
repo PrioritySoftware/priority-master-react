@@ -6,6 +6,7 @@ import
     ActivityIndicator,
     ListView,
     Text,
+    Image
 } from 'react-native';
 import { PageProps, Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
@@ -13,7 +14,7 @@ import { center, header, colors } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Card } from '../components/card';
-import { scale } from '../utils/scale';
+import { scale, verticalScale } from '../utils/scale';
 import { Header, Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import { MessageHandler } from '../components/message.handler';
@@ -171,8 +172,12 @@ export class ListPage extends React.Component<PageProps, any>
         let isRTL = this.strings.dirByLang === "rtl";
         let padding = this.state.isLoading ? 70 : 10;
 
+        // in case there are no rows
+        if (Object.keys(this.state.rows).length === 0)
+            return this.renderEmptyState();
+
         return (
-            <View style={{ flex: 0.89 }}>
+            <View style={styles.listContainer}>
                 <SwipeListView
                     contentContainerStyle={{ paddingBottom: padding }}
                     renderScrollComponent={props => <InfiniteScrollView {...props} />}
@@ -188,12 +193,25 @@ export class ListPage extends React.Component<PageProps, any>
                     disableLeftSwipe={isRTL}
                 />
                 {/* Loading indicator for loading more rows */}
-                <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center', display: this.state.isLoading ? 'flex' : 'none' }}>
+                <View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]}>
                     <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
                     <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
                 </View>
-                {/* Loading indicator for row deleting */}
-                {<Spinner visible={this.state.isDeletingRow} color={colors.darkGray} overlayColor={colors.overlay} size="small"></Spinner>}
+                {/* Loading indicator for row deletion  */}
+                {<Spinner visible={this.state.isDeletingRow} color={colors.primaryColor} overlayColor={colors.overlay} size="small"></Spinner>}
+            </View>
+        );
+    }
+    renderEmptyState()
+    {
+        let scaleX = this.strings.dirByLang === "rtl" ? -1 : 0;
+        let flex = this.strings.dirByLang === "rtl" ? 'flex-start' : 'flex-end';
+        return (
+            <View style={styles.emptyState}>
+                <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
+                <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>
+                <Image source={require('../../assets/img/EmptyStateArrow.png')}
+                    style={[styles.emptyStateArrow, { alignSelf: flex, transform: [{ scaleX: scaleX }] }]} />
             </View>
         );
     }
@@ -294,7 +312,11 @@ const styles = StyleSheet.create({
     },
     headerContainer:
     {
-        flex: 0.11,
+        flex: 0.12,
+    },
+    listContainer:
+    {
+        flex: 0.88
     },
     cardContainer:
     {
@@ -322,7 +344,7 @@ const styles = StyleSheet.create({
     // hidden buttons
     rowBack:
     {
-        flex: 0.943,
+        flex: verticalScale(1.015),
         flexDirection: 'column',
         top: 11,
     },
@@ -349,5 +371,25 @@ const styles = StyleSheet.create({
     hiddenIcon:
     {
         marginRight: 0
-    }
+    },
+    // indicator for loading more rows
+    rowsIndicator:
+    {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center'
+    },
+    // empty state
+    emptyState: {
+        flex: 1,
+        alignItems: 'center',
+        marginTop: verticalScale(10)
+    },
+    emptyStateArrow: {
+        resizeMode: 'contain',
+        marginTop: verticalScale(20),
+        height: verticalScale(370),
+        width: verticalScale(222),
+        marginHorizontal: scale(20)
+    },
 });

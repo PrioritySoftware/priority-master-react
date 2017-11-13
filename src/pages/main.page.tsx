@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     },
     headerContainer:
     {
-        flex: 0.11,
+        flex: 0.14,
     },
     cardContainer:
     {

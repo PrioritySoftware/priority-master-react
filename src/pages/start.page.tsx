@@ -140,8 +140,6 @@ export class StartPage extends React.Component<PageProps, any>
   }
 }
 /*********** style ************* */
-let ScreenWidth = Dimensions.get("window").width;
-let ScreenHeight = Dimensions.get("window").height;
 const styles = StyleSheet.create({
   container: {
     flex: 1
@@ -166,8 +164,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'
   },
   image: {
-    width: ScreenWidth,
-    height: ScreenHeight
+    width: '100%',
+    height: '100%'
   },
   top: {
     flex: 1,
