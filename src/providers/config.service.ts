@@ -81,7 +81,7 @@ export class ConfigService
     {
         return new Promise((resolve, reject) =>
         {
-            fetch(serverUrl + '/wcf/wcf/service.svc', { method: 'HEAD' })
+            fetch(serverUrl + '/wcf/wcf/Service.svc', { method: 'HEAD' })
                 .then(response =>
                 {
                     if (response.status === 400)
