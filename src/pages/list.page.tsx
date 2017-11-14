@@ -20,6 +20,8 @@ import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import { MessageHandler } from '../components/message.handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 const SpinnerIndicator = require('react-native-spinkit');
+import ActionButton from 'react-native-action-button';
+import * as moment from 'moment';
 
 export class ListPage extends React.Component<PageProps, any>
 {
@@ -192,6 +194,7 @@ export class ListPage extends React.Component<PageProps, any>
                     disableRightSwipe={!isRTL}
                     disableLeftSwipe={isRTL}
                 />
+                {this.renderAddBtn()}
                 {/* Loading indicator for loading more rows */}
                 <View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]}>
                     <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
@@ -212,6 +215,7 @@ export class ListPage extends React.Component<PageProps, any>
                 <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>
                 <Image source={require('../../assets/img/EmptyStateArrow.png')}
                     style={[styles.emptyStateArrow, { alignSelf: flex, transform: [{ scaleX: scaleX }] }]} />
+                {this.renderAddBtn()}
             </View>
         );
     }
@@ -227,33 +231,36 @@ export class ListPage extends React.Component<PageProps, any>
         {
             if (formColumns.hasOwnProperty(colName) && row[colName] !== undefined && row[colName] !== '')
             {
-                let colTitle = form.columns[colName].title;
+                let column = form.columns[colName];
+                let colTitle = column.title;
+                let colValue = row[colName];
+                // Date values are displayed according to the column's 'format' property.
+                if (column.type === 'date')
+                    colValue = moment.utc(colValue).format(column.format);
                 let titleStyle = this.strings.dirByLang === "rtl" ? { right: 0 } : { left: 0 };
                 let valueStyle = this.strings.dirByLang === "rtl" ? { left: 0 } : { right: 0 };
-                let column;
+                let columnComp;
                 if (columns.length !== 0)
                 {
-                    column =
+                    columnComp =
                         <View style={styles.textContainer}>
                             <Text style={[styles.text, titleStyle]}>
                                 {colTitle + ":"}
                             </Text>
-                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]}
-                                ellipsizeMode='tail'
-                                numberOfLines={1}>
-                                {row[colName]}
+                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
+                                {colValue}
                             </Text>
                         </View>;
                 }
                 else 
                 {
                     // The first column is shown without title.
-                    column =
+                    columnComp =
                         <View style={styles.textContainer}>
                             <Text style={[styles.text, titleStyle, styles.bold]}>{row[colName]}</Text>
                         </View>;
                 }
-                columns.push(column);
+                columns.push(columnComp);
             }
         }
         return (
@@ -300,6 +307,24 @@ export class ListPage extends React.Component<PageProps, any>
                     icon={{ name: 'delete', style: styles.hiddenIcon }}
                 />
             </View>
+        );
+    }
+    renderAddBtn()
+    {
+        let offsetX = this.strings.dirByLang === "rtl" ? -25 : 20;
+        let position = this.strings.dirByLang === "rtl" ? 'left' : 'right';
+        return (
+
+            <ActionButton
+                position={position}
+                offsetY={20}
+                offsetX={offsetX}
+                buttonColor={colors.primaryColor}
+                buttonTextStyle={{ fontSize: scale(27) }}
+                fixNativeFeedbackRadius={true}
+                onPress={() => { console.log("hi") }}
+            />
+
         );
     }
 }

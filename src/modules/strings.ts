@@ -496,8 +496,8 @@ export class Strings
         this._maxLengthForField.value = 'מספר התוים המקסימלי עבור השדה הוא: ';
         this._search.value = "חפש";
         this._scrollLoadingText.value = "טוען רשומות...";
-        this._noRecords.value="לא נמצאו רשומות.";
-        this._clickAddButton.value="לחץ על הכפתור הכחול על מנת להוסיף נתונים.";
+        this._noRecords.value="אף רשומה לא עמדה בתנאי השליפה.";
+        this._clickAddButton.value="לחץ על ה + להוספת רשומה חדשה";
         this._cameraError.value = "פתיחת מצלמה נכשלה";
         this._showAllItems.value = "הצג את כל הרשומות";
         this._directActivationsTitle.value = "הפעלות ישירות";
@@ -596,8 +596,8 @@ export class Strings
         this._search.value = " Search";
         this._searchError.value = "No search fields defined"
         this._scrollLoadingText.value = "Loading records...";
-        this._noRecords.value="You don't have any records yet.";
-        this._clickAddButton.value="Click the Blue button to add items.";
+        this._noRecords.value="You don't have any records.";
+        this._clickAddButton.value="tap the + button to add one";
         this._cameraError.value = "Failed to open camera";
         this._showAllItems.value = "Show all items";
         this._directActivationsTitle.value = "Direct Activations";
