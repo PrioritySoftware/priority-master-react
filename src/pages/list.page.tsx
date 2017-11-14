@@ -207,7 +207,7 @@ export class ListPage extends React.Component<PageProps, any>
     }
     renderEmptyState()
     {
-        let scaleX = this.strings.dirByLang === "rtl" ? -1 : 0;
+        let scaleX = this.strings.dirByLang === "rtl" ? -1 : 1;
         let flex = this.strings.dirByLang === "rtl" ? 'flex-start' : 'flex-end';
         return (
             <View style={styles.emptyState}>
@@ -311,13 +311,19 @@ export class ListPage extends React.Component<PageProps, any>
     }
     renderAddBtn()
     {
-        let offsetX = this.strings.dirByLang === "rtl" ? -25 : 20;
+        let offsetX = 30;
+        let offsetY = 30;
+        if (this.strings.platform === 'android')
+        {
+            offsetX = this.strings.dirByLang === "rtl" ? -25 : 20;
+            offsetY = 20;
+        }
         let position = this.strings.dirByLang === "rtl" ? 'left' : 'right';
         return (
 
             <ActionButton
                 position={position}
-                offsetY={20}
+                offsetY={offsetY}
                 offsetX={offsetX}
                 buttonColor={colors.primaryColor}
                 buttonTextStyle={{ fontSize: scale(27) }}
@@ -423,7 +429,7 @@ const styles = StyleSheet.create({
     },
     emptyStateArrow: {
         resizeMode: 'contain',
-        marginTop: verticalScale(20),
+        marginTop: verticalScale(22),
         height: verticalScale(370),
         width: verticalScale(222),
         marginHorizontal: scale(20)
