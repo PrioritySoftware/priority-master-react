@@ -354,9 +354,10 @@ const styles = StyleSheet.create({
     // hidden buttons
     rowBack:
     {
-        flex: verticalScale(1.023),
+        flex: 2,
         flexDirection: 'column',
-        top: scale(11.06),
+        top: verticalScale(12),
+        paddingBottom: verticalScale(13.4)
     },
     rtlFlex:
     {
