@@ -1,5 +1,6 @@
 import { Column } from "./column.class";
 import { DirectActivation } from "./directActivation.class";
+import { ObservableMap } from "mobx/lib/types/observablemap";
 export declare class Form
 {
 
@@ -15,7 +16,7 @@ export declare class Form
 
 	oneline: number;
 
-	rows: Object;
+	rows: ObservableMap<any>;
 
 	subForms: { [key: string]: Form };
 	

@@ -12,7 +12,7 @@
       "allowJs": true,
       "sourceMap": true,
       "noImplicitReturns": true,
-      
+      "experimentalDecorators": true,
       "noUnusedLocals": true,
       "watch": true
     },

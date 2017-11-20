@@ -10,6 +10,7 @@
     "build": "npm run clean && npm run tsc --"
   },
   "dependencies": {
+    "mobx-react": "4.3.4",
     "moment": "2.19.2",
     "priority-web-sdk": "1.8.6",
     "react": "16.0.0-alpha.12",

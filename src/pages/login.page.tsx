@@ -2,11 +2,10 @@ import React from 'react';
 import
 {
     StyleSheet,
-    ScrollView,
     View,
     Linking
 } from 'react-native';
-import { PageProps, Strings } from '../modules';
+import { Strings } from '../modules';
 import { SVG } from '../components/svg';
 import { Header, Text, Button } from 'react-native-elements';
 import { AppService } from '../providers/app.service';
@@ -15,9 +14,12 @@ import { colors, center, header } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Pages } from '.';
+import { inject } from 'mobx-react';
 
-export class LoginPage extends React.Component<PageProps, any>
+@inject("appService", "configService", "messageHandler", "strings")
+export class LoginPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
 
@@ -38,10 +40,10 @@ export class LoginPage extends React.Component<PageProps, any>
     constructor(props)
     {
         super(props);
-        this.appService = this.props.screenProps.appService;
-        this.configService = this.props.screenProps.configService;
-        this.strings = this.props.screenProps.strings;
-        this.messageHandler = this.props.screenProps.messageHandler;
+        this.appService = this.props.appService;
+        this.configService = this.props.configService;
+        this.strings = this.props.strings;
+        this.messageHandler = this.props.messageHandler;
         this.state = { isPasswordExpired: false };
     }
     login()
@@ -74,7 +76,7 @@ export class LoginPage extends React.Component<PageProps, any>
         let resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-                NavigationActions.navigate({ routeName: 'Main' })
+                NavigationActions.navigate({ routeName: Pages.Main.name })
             ]
         });
         this.props.navigation.dispatch(resetAction);
@@ -197,46 +199,46 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     appname:
-    {
-        marginTop: 40,
+        {
+            marginTop: 40,
 
-    },
+        },
     headerContainer:
-    {
-        flex: 0.4,
-    },
+        {
+            flex: 0.4,
+        },
     inputContainer:
-    {
-        paddingHorizontal: 45
+        {
+            paddingHorizontal: 45
 
-    },
+        },
     login:
-    {
-        paddingTop: 15,
-        paddingRight: 40,
-        paddingLeft: 40,
-        borderColor: colors.primaryColor,
-        borderWidth: 1,
-        borderRadius: 2,
-        marginTop: 45,
-    },
+        {
+            paddingTop: 15,
+            paddingRight: 40,
+            paddingLeft: 40,
+            borderColor: colors.primaryColor,
+            borderWidth: 1,
+            borderRadius: 2,
+            marginTop: 45,
+        },
     forgotPassword:
-    {
-        marginTop: 15,
-        marginBottom: 20,
-        textDecorationLine: 'underline',
-        color: colors.primaryColor
-    },
+        {
+            marginTop: 15,
+            marginBottom: 20,
+            textDecorationLine: 'underline',
+            color: colors.primaryColor
+        },
     changePassTitle:
-    {
-        fontSize: 20
-    },
+        {
+            fontSize: 20
+        },
     changePassFirstTitle:
-    {
-        marginTop: 30,
-    },
+        {
+            marginTop: 30,
+        },
     changePass:
-    {
-        marginTop: 35
-    }
+        {
+            marginTop: 35
+        }
 });

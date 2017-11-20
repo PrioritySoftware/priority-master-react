@@ -7,10 +7,12 @@ import
   View
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { PageProps, Strings } from '../modules';
-
+import { Strings } from '../modules';
 import Camera from 'react-native-camera'
-export class QRCodeScanner extends Component<PageProps, any> {
+import { inject } from 'mobx-react';
+
+@inject("strings")
+export class QRCodeScanner extends Component<any, any> {
 
   static navigationOptions = { header: null };
 
@@ -21,7 +23,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
   constructor(props) 
   {
     super(props);
-    this.strings = this.props.screenProps.strings;
+    this.strings = this.props.strings;
     this.params = this.props.navigation.state.params;
   }
 
@@ -29,7 +31,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
   {
     if (!this.isScannedOnce)
     {
-      this.isScannedOnce=true;
+      this.isScannedOnce = true;
       Vibration.vibrate([0, 500, 200, 500], false);
       this.props.navigation.goBack();
       if (this.params && this.params.onRead)
@@ -49,7 +51,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
         type='ionicon'
         color='white'
         onPress={() => { this.goBack() }}
-        style={[styles.backButtonRight , isIOS ? { marginTop: 20 } : {}]}
+        style={[styles.backButtonRight, isIOS ? { marginTop: 20 } : {}]}
         underlayColor="transparent"
       />;
     }
@@ -75,7 +77,7 @@ export class QRCodeScanner extends Component<PageProps, any> {
 
   render()
   {
-    this.isScannedOnce=false;
+    this.isScannedOnce = false;
     return (
       <View style={styles.mainContainer}>
         <Camera style={styles.camera} onBarCodeRead={this._handleBarCodeRead.bind(this)}>
@@ -118,19 +120,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   backButtonLeft:
-  {
-    position: 'absolute',
-    top: 12,
-    left: -15,
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
+    {
+      position: 'absolute',
+      top: 12,
+      left: -15,
+      paddingHorizontal: 20,
+      paddingBottom: 30,
+    },
   backButtonRight:
-  {
-    position: 'absolute',
-    top: 12,
-    right: -15,
-    paddingHorizontal: 20,
-    paddingBottom: 30
-  }
+    {
+      position: 'absolute',
+      top: 12,
+      right: -15,
+      paddingHorizontal: 20,
+      paddingBottom: 30
+    }
 })

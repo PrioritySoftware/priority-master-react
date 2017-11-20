@@ -10,19 +10,25 @@ import
 } from 'react-native';
 import { PageProps, Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { center, header, colors } from '../styles/common';
+import { colors } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { Card } from '../components/card';
 import { scale, verticalScale } from '../utils/scale';
-import { Header, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import { MessageHandler } from '../components/message.handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 const SpinnerIndicator = require('react-native-spinkit');
 import ActionButton from 'react-native-action-button';
 import * as moment from 'moment';
+import { HeaderComp } from '../components/header';
+import { Pages } from './index';
+import { observer, inject } from 'mobx-react';
+import { ObservableMap, observable } from 'mobx';
 
+@inject("formService", "configService", "messageHandler", "strings")
+@observer
 export class ListPage extends React.Component<PageProps, any>
 {
     static navigationOptions = { header: null };
@@ -31,74 +37,92 @@ export class ListPage extends React.Component<PageProps, any>
     configService: ConfigService;
     formService: FormService;
     strings: Strings;
+
+    // Props
     form: Form;
+    parentForm: Form;
+
     ds;
+    @observable rows: ObservableMap<any>;
 
     constructor(props)
     {
         super(props);
-        this.configService = this.props.screenProps.configService;
-        this.formService = this.props.screenProps.formService;
-        this.strings = this.props.screenProps.strings;
-        this.messageHandler = this.props.screenProps.messageHandler;
+        this.configService = this.props.configService;
+        this.formService = this.props.formService;
+        this.strings = this.props.strings;
+        this.messageHandler = this.props.messageHandler;
 
+        // props
         this.form = this.props.navigation.state.params.form;
+        this.parentForm = this.props.navigation.state.params.parentForm;
+
+        // state
         this.state =
             {
-                rows: null,
                 canLoadMoreContent: true,
                 isLoading: false,
                 isDeletingRow: false
             };
 
-        this.formService.startFormAndGetRows(this.form.name, this.configService.config.profileConfig).then(
+        // get form rows
+        this.formService.startFormAndGetRows(this.form.name, this.configService.config.profileConfig, 1).then(
             form =>
             {
                 this.form = form;
-                this.setState({ rows: form.rows });
-
+                this.rows = this.form.rows;
             },
             reason => { });
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     }
+    componentWillUnmount()
+    {
+        if (this.form.endCurrentForm)
+            this.formService.endForm(this.form);
+    }
     loadMoreData = () =>
     {
         this.setState({ isLoading: true });
-        let recordsCount = Object.keys(this.state.rows).length;
+        let recordsCount = this.rows.size;
         this.formService.getRows(this.form, recordsCount + 1, true)
             .then(rows =>
             {
-                // enables infinite scroll when there are no more rows
+                let canLoadMoreContent = this.state.canLoadMoreContent;
+
+                // disables infinite scroll when there are no more rows
                 if (Object.keys(rows).length < 100)
-                {
-                    this.state.canLoadMoreContent = false;
-                }
-                this.setState({ rows: this.formService.getLocalRows(this.form), isLoading: false });
+                    canLoadMoreContent = false;
+
+                this.setState({ isLoading: false, canLoadMoreContent: canLoadMoreContent });
             })
             .catch(() => { });
     }
     goBack()
     {
-        this.props.navigation.goBack()
-        this.formService.endForm(this.form);
+        this.props.navigation.goBack();
     }
-    editRow(row)
+    editRow(rowTitle: string, rowIndex: number)
     {
-
+        rowIndex++;
+        this.formService.setActiveRow(this.form, rowIndex);
+        this.props.navigation.navigate(Pages.Details.name,
+            {
+                title: rowTitle,
+                itemIndex: rowIndex,
+                form: this.form,
+                parentForm: this.parentForm
+            });
     }
     deleteRow(rowInd)
     {
+        rowInd++;
         let delFunc = () =>
         {
             this.setState({ isDeletingRow: true });
             this.formService.deleteListRow(this.form, rowInd)
                 .then(() => 
                 {
-                    // updating state with new rows after delete.
-                    this.setState({
-                        rows: this.formService.getLocalRows(this.form),
-                        isDeletingRow: false
-                    });
+                    this.setState({ isDeletingRow: false });
                 })
                 .catch(() => this.setState({ isDeletingRow: false }));
         }
@@ -109,49 +133,10 @@ export class ListPage extends React.Component<PageProps, any>
     {
         return (
             <View style={{ flex: 1 }}>
-                {this.rennderHeader()}
-                {this.state.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
+                <HeaderComp title={this.form.title} goBack={() => this.goBack()} />
+                {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
         );
-    }
-    rennderHeader()
-    {
-        let iconName;
-        let leftComp = {};
-        let rightComp = {};
-        if (this.strings.dirByLang === 'rtl')
-        {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
-            rightComp = this.renderBackIcon(iconName);
-        }
-        else
-        {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'md-arrow-back';
-            leftComp = this.renderBackIcon(iconName);
-        }
-        return (
-            <View style={styles.headerContainer}>
-                <Header
-                    centerComponent={{ text: this.form.title, style: styles.headerTitleStyle }}
-                    rightComponent={rightComp}
-                    leftComponent={leftComp}
-                    outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
-                    innerContainerStyles={[center, this.strings.platform === 'ios' ? { marginTop: 10 } : {}]}
-                />
-            </View>
-        );
-    }
-    renderBackIcon(iconName: string)
-    {
-        let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
-        return ({
-            type: 'ionicon',
-            icon: iconName,
-            onPress: () => { this.goBack() },
-            color: 'white',
-            underlayColor: 'transparent',
-            style: style
-        });
     }
 
     /**
@@ -175,7 +160,7 @@ export class ListPage extends React.Component<PageProps, any>
         let padding = this.state.isLoading ? 70 : 10;
 
         // in case there are no rows
-        if (Object.keys(this.state.rows).length === 0)
+        if (this.rows.size===0)
             return this.renderEmptyState();
 
         return (
@@ -185,10 +170,10 @@ export class ListPage extends React.Component<PageProps, any>
                     renderScrollComponent={props => <InfiniteScrollView {...props} />}
                     canLoadMore={this.state.canLoadMoreContent}
                     onLoadMoreAsync={this.loadMoreData}
-                    dataSource={this.ds.cloneWithRows(this.state.rows)}
+                    dataSource={this.ds.cloneWithRows(this.rows.values())}
                     renderRow={this.renderRow}
                     renderHiddenRow={this.renderHiddenRow}
-                    distanceToLoadMore={20}
+                    distanceToLoadMore={30}
                     leftOpenValue={scale(85)}
                     rightOpenValue={scale(-85)}
                     disableRightSwipe={!isRTL}
@@ -227,6 +212,7 @@ export class ListPage extends React.Component<PageProps, any>
         let formColumns = this.formService.formsConfig[formName].listColumnsOptions;
 
         let columns = [];
+        row.title = '';
         for (let colName in formColumns)
         {
             if (formColumns.hasOwnProperty(colName) && row[colName] !== undefined && row[colName] !== '')
@@ -243,7 +229,7 @@ export class ListPage extends React.Component<PageProps, any>
                 if (columns.length !== 0)
                 {
                     columnComp =
-                        <View style={styles.textContainer}>
+                        <View style={styles.textContainer} key={column.name}>
                             <Text style={[styles.text, titleStyle]}>
                                 {colTitle + ":"}
                             </Text>
@@ -255,17 +241,19 @@ export class ListPage extends React.Component<PageProps, any>
                 else 
                 {
                     // The first column is shown without title.
+                    row.title  = row[colName];
                     columnComp =
-                        <View style={styles.textContainer}>
-                            <Text style={[styles.text, titleStyle, styles.bold]}>{row[colName]}</Text>
+                        <View style={styles.textContainer} key={column.name}>
+                            <Text style={[styles.text, titleStyle, styles.bold]}>{row.title }</Text>
                         </View>;
                 }
                 columns.push(columnComp);
             }
         }
         return (
-            <Card content={columns}
-                onPress={() => { this.editRow(row) }}
+            <Card key={rowId}
+                content={columns}
+                onPress={() => { this.editRow(row.title , rowId) }}
                 cardContainerStyle={[styles.cardContainer]}>
             </Card>
         );
@@ -289,7 +277,7 @@ export class ListPage extends React.Component<PageProps, any>
 
                 <Button
                     title={this.strings.editBtnText}
-                    onPress={() => { this.editRow(row) }}
+                    onPress={() => { this.editRow(row.title , rowId) }}
                     containerViewStyle={[styles.hiddenBtnContainer]}
                     buttonStyle={styles.hiddenBtn}
                     backgroundColor={colors.darkBlue}
@@ -338,89 +326,79 @@ export class ListPage extends React.Component<PageProps, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-    {
-        backgroundColor: colors.lightGray
-    },
-    headerTitleStyle:
-    {
-        alignSelf: 'center',
-        color: 'white',
-        fontSize: 19
-    },
-    headerContainer:
-    {
-        flex: 0.12,
-    },
+        {
+            backgroundColor: colors.lightGray
+        },
     listContainer:
-    {
-        flex: 0.88
-    },
+        {
+            flex: 0.88
+        },
     cardContainer:
-    {
-        marginTop: 10,
-        borderRadius: 2,
-        borderWidth: 1,
-        backgroundColor: 'white',
-        borderColor: colors.gray,
-        padding: 15,
-        marginHorizontal: 10
+        {
+            marginTop: 10,
+            borderRadius: 2,
+            borderWidth: 1,
+            backgroundColor: 'white',
+            borderColor: colors.gray,
+            padding: 15,
+            marginHorizontal: 10
 
-    },
+        },
     text:
-    {
-        position: 'absolute',
-    },
+        {
+            position: 'absolute',
+        },
     valueText:
-    {
-        maxWidth: '60%'
-    },
+        {
+            maxWidth: '60%'
+        },
     textContainer:
-    {
-        paddingVertical: 15,
-    },
+        {
+            paddingVertical: 15,
+        },
     bold:
-    {
-        fontWeight: 'bold'
-    },
+        {
+            fontWeight: 'bold'
+        },
     // hidden buttons
     rowBack:
-    {
-        flex: 2,
-        flexDirection: 'column',
-        top: verticalScale(12),
-        paddingBottom: verticalScale(13.4)
-    },
+        {
+            flex: 2,
+            flexDirection: 'column',
+            top: verticalScale(12),
+            paddingBottom: verticalScale(13.4)
+        },
     rtlFlex:
-    {
-        alignItems: 'flex-start'
-    },
+        {
+            alignItems: 'flex-start'
+        },
     ltrFlex:
-    {
-        alignItems: 'flex-end'
-    },
+        {
+            alignItems: 'flex-end'
+        },
     hiddenBtnContainer:
-    {
-        flex: 2,
+        {
+            flex: 2,
 
-    },
+        },
     hiddenBtn:
-    {
-        flexDirection: 'column',
-        flex: 2,
-        paddingHorizontal: 15,
-        minWidth: scale(80)
-    },
+        {
+            flexDirection: 'column',
+            flex: 2,
+            paddingHorizontal: 15,
+            minWidth: scale(80)
+        },
     hiddenIcon:
-    {
-        marginRight: 0
-    },
+        {
+            marginRight: 0
+        },
     // indicator for loading more rows
     rowsIndicator:
-    {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center'
-    },
+        {
+            flex: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'center'
+        },
     // empty state
     emptyState: {
         flex: 1,

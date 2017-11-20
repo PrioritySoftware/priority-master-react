@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component,PropTypes } from 'react';
 import
 {
     StyleSheet,
@@ -9,7 +9,6 @@ import
     Platform
 } from 'react-native';
 import { colors } from "../styles/common";
-import PropTypes from 'prop-types';
 
 export class Card extends Component<any, any>
 {
@@ -35,7 +34,7 @@ export class Card extends Component<any, any>
             PropTypes.array,
             PropTypes.number,
             PropTypes.shape({}),
-        ]),
+        ])
     };
 
     render()
