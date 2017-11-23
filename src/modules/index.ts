@@ -1,4 +1,3 @@
-export * from "./pageProps";
 export * from './srvResponse.class';
 export * from './srvResponseCode.class';
 export * from './srvResponseType.class';

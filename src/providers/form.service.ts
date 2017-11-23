@@ -9,14 +9,14 @@ import { ServerResponseCode } from "../modules/srvResponseCode.class";
 import { MessageOptions } from "../modules/messageOptions.class";
 import { ServerResponseType } from "../modules/srvResponseType.class";
 import { Filter } from "../modules/filter.class";
-import { observable, action } from 'mobx';
+import { observable } from 'mobx';
 import { ObservableMap } from "mobx/lib/types/observablemap";
 
 export class FormService
 {
     formsConfig: { [key: string]: FormConfig } = {};
     onFatalError;
-    @observable private forms: { [key: string]: Form };
+    private forms: { [key: string]: Form };
     RowsBatchSize: number = 115;
 
     constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings)
@@ -39,8 +39,6 @@ export class FormService
             pos: form.pos,
             activations: {}
         };
-        if (form.columns)
-            form.columns = form.columns.sort((ent1, ent2) => ent2.pos - ent1.pos);
         for (let colInd in form.columns)
         {
             if (form.columns.hasOwnProperty(colInd))
@@ -60,15 +58,16 @@ export class FormService
                     formConfig.detailsColumnsOptions[column.name].isShow = true;
                     formConfig.detailsColumnsOptions[column.name].isShowTitle = true;
                     formConfig.detailsColumnsOptions[column.name].pos = column.pos;
+                    if (column.special === 'B' || column.barcode === 1)// backward compatibility for barcode
+                    {
+                        formConfig.detailsColumnsOptions[column.name].subtype = "barcode";
+                    }
+                    if (column.special === 'P')
+                    {
+                        formConfig.detailsColumnsOptions[column.name].subtype = "phone";
+                    }
                 }
-                if (column.special === 'B' || column.barcode === 1)// backward compatibility for barcode
-                {
-                    formConfig.detailsColumnsOptions[column.name].subtype = "barcode";
-                }
-                if (column.special === 'P')
-                {
-                    formConfig.detailsColumnsOptions[column.name].subtype = "phone";
-                }
+
                 // Treatment searching by date currently not supported will be treated as part of the development of filters
                 if (column.searchfield === 1 && column.type !== "DATE" && column.type !== "TIME")
                 {
@@ -251,7 +250,6 @@ export class FormService
     }
 
     /** Global callback for all forms,rows,fileds updates returned from api - passed to api with formStart */
-    @action
     updateFormsData = (result, parentForm: Form) =>
     {
         // loop on all formname in the result object
@@ -259,12 +257,15 @@ export class FormService
         {
             if (result.hasOwnProperty(formName))
             {
-                let form = this.getForm(formName, parentForm);
-                if (form == undefined)
-                {
-                    form = this.getForm(formName);
-                }
-                if (form !== undefined && form.rows !== undefined)
+                // retrieve the current form 
+                let parentFormPath = parentForm ? parentForm.path : '';
+                let formToSearch = formName;
+                // when the form is a parent form 'parentFormPath' is equal to 'formName'.
+                if (parentFormPath !== formName)
+                    formToSearch = formName + parentFormPath;
+                let form = this.getForm(formToSearch);
+
+                if (parentFormPath !== undefined && form !== undefined && form.rows !== undefined)
                 {
                     // loop on rows for form in result object
                     for (let rowInd in result[formName])
@@ -294,50 +295,31 @@ export class FormService
 
     // ****** Form start and end ******
 
-    public getForm(formName: string, parentFrom: Form = null): Form
+    public getForm(formName: string): Form
     {
-        if (parentFrom)
-        {
-            return parentFrom.subForms[formName];
-        }
-        else
-        {
-            return this.forms[formName];
-        }
+        return this.forms[formName];
     }
 
     /** Sets a form returned from formStart in the forms object by it's name */
-    private mergeForm(form: Form, parentFrom: Form = null)
+    private mergeForm(form: Form, parentForm: Form = null)
     {
         let localform;
-        let forms;
-        // assign localform and forms
-        if (parentFrom)
-        {
-            localform = parentFrom.subForms[form.name];
-            if (localform && localform.rows == undefined)
-            {
-                localform.rows = observable.map();
-            }
-            forms = parentFrom.subForms;
-        }
-        else
-        {
-            localform = this.forms[form.name];
-            forms = this.forms;
-        }
+        let parentPath = parentForm ? parentForm.path : '';
+        let formName = form.name + parentPath;
 
+        localform = this.forms[formName];
         // set form in forms - first time no need to merge
-        if (localform == undefined)
+        if (localform === undefined)
         {
+            form.path = formName;
             form.rows = observable.map();
-            forms[form.name] = form;
+            this.forms[formName] = form;
         }
         // merge local form and form and set in forms
         else
         {
             // merge form with local form
-            forms[form.name] = Object.assign(localform, form);
+            this.forms[formName] = Object.assign(localform, form);
         }
     }
     /** Starts parent form. */
@@ -435,7 +417,6 @@ export class FormService
     }
 
     // ****** Form Rows ******
-    @observable
     public getLocalRows(form: Form): ObservableMap<any>
     {
         return form.rows;
@@ -444,11 +425,13 @@ export class FormService
     {
         if (!isMerge)
             form.rows.clear();
+        let newRows = observable.map();
         Object.keys(rows).map((rowNum, index, arr) =>
         {
-            let row = observable(rows[rowNum]);
-            form.rows.set(rowNum, row);
+            let row = rows[rowNum];
+            newRows.set(rowNum, row);
         });
+        form.rows.merge(newRows);
     }
     public clearLocalRows(form)
     {
@@ -576,7 +559,7 @@ export class FormService
     }
     public setIsRowChangesSaved(form: Form, rowInd, isSaved: boolean)
     {
-        form.rows.get(rowInd).isChangesSaved = isSaved;
+        form.rows.get(rowInd)[this.strings.isChangesSaved] = isSaved;
     }
     public getIsRowChangesSaved(form: Form, rowInd)
     {
@@ -584,19 +567,19 @@ export class FormService
         {
             return true;
         }
-        return form.rows.get(rowInd).isChangesSaved;
+        return form.rows.get(rowInd)[this.strings.isChangesSaved];
     }
     private addFormRow(form: Form, newRowInd)
     {
-        form.rows.set(newRowInd, { isNewRow: true });
+        form.rows.set(newRowInd, observable.map({ isNewRow: true }));
     }
     public getIsNewRow(form: Form, rowInd)
     {
-        return form.rows.get(rowInd).isNewRow;
+        return form.rows.get(rowInd)[this.strings.isNewRow];
     }
     private setNotNewRow(form: Form, rowInd)
     {
-        delete form.rows.get(rowInd).isNewRow;
+        delete form.rows.get(rowInd)[this.strings.isNewRow];
     }
     public deleteLastFormRow(form: Form)
     {

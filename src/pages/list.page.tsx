@@ -8,7 +8,7 @@ import
     Text,
     Image
 } from 'react-native';
-import { PageProps, Strings, Form } from '../modules';
+import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
 import { colors } from '../styles/common';
 import { FormService } from '../providers/form.service';
@@ -29,7 +29,7 @@ import { ObservableMap, observable } from 'mobx';
 
 @inject("formService", "configService", "messageHandler", "strings")
 @observer
-export class ListPage extends React.Component<PageProps, any>
+export class ListPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null };
 
@@ -38,9 +38,10 @@ export class ListPage extends React.Component<PageProps, any>
     formService: FormService;
     strings: Strings;
 
-    // Props
     form: Form;
-    parentForm: Form;
+    formName: string;
+    formTitle: string;
+    parentPath: string;
 
     ds;
     @observable rows: ObservableMap<any>;
@@ -54,8 +55,9 @@ export class ListPage extends React.Component<PageProps, any>
         this.messageHandler = this.props.messageHandler;
 
         // props
-        this.form = this.props.navigation.state.params.form;
-        this.parentForm = this.props.navigation.state.params.parentForm;
+        this.formName = this.props.navigation.state.params.formName;
+        this.formTitle = this.props.navigation.state.params.formTitle;
+        this.parentPath = this.props.navigation.state.params.parentPath;
 
         // state
         this.state =
@@ -66,22 +68,39 @@ export class ListPage extends React.Component<PageProps, any>
             };
 
         // get form rows
-        this.formService.startFormAndGetRows(this.form.name, this.configService.config.profileConfig, 1).then(
+        this.startForm();
+        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    }
+    componentWillUnmount()
+    {
+        if (this.form && this.form.endCurrentForm)
+            this.formService.endForm(this.form);
+    }
+    startForm()
+    {
+        if (this.parentPath)
+            this.startSubForm();
+        else
+            this.startParentForm();
+    }
+    startParentForm()
+    {
+        this.formService.startFormAndGetRows(this.formName, this.configService.config.profileConfig, 1).then(
             form =>
             {
                 this.form = form;
                 this.rows = this.form.rows;
             },
             reason => { });
-        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     }
-    componentWillUnmount()
+    startSubForm()
     {
-        if (this.form.endCurrentForm)
-            this.formService.endForm(this.form);
+
     }
     loadMoreData = () =>
     {
+        if (this.state.isLoading)
+            return;
         this.setState({ isLoading: true });
         let recordsCount = this.rows.size;
         this.formService.getRows(this.form, recordsCount + 1, true)
@@ -104,13 +123,17 @@ export class ListPage extends React.Component<PageProps, any>
     editRow(rowTitle: string, rowIndex: number)
     {
         rowIndex++;
-        this.formService.setActiveRow(this.form, rowIndex);
+        this.formService.setActiveRow(this.form, rowIndex).catch(() => { });
+
+        let parentName = this.parentPath;
+        let parentFormName = parentName ? this.formService.getForm(parentName).name : '';
+
         this.props.navigation.navigate(Pages.Details.name,
             {
                 title: rowTitle,
                 itemIndex: rowIndex,
-                form: this.form,
-                parentForm: this.parentForm
+                formPath: this.form.path,
+                parentName: parentFormName
             });
     }
     deleteRow(rowInd)
@@ -133,7 +156,7 @@ export class ListPage extends React.Component<PageProps, any>
     {
         return (
             <View style={{ flex: 1 }}>
-                <HeaderComp title={this.form.title} goBack={() => this.goBack()} />
+                <HeaderComp title={this.formTitle} goBack={() => this.goBack()} />
                 {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
         );
@@ -160,7 +183,7 @@ export class ListPage extends React.Component<PageProps, any>
         let padding = this.state.isLoading ? 70 : 10;
 
         // in case there are no rows
-        if (this.rows.size===0)
+        if (this.rows.size === 0)
             return this.renderEmptyState();
 
         return (
@@ -207,7 +230,7 @@ export class ListPage extends React.Component<PageProps, any>
 
     renderRow = (row, secId, rowId, rowsMap) =>
     {
-        let form: Form = this.formService.getForm(this.form.name);
+        let form: Form = this.formService.getForm(this.form.path);
         let formName = form.name;
         let formColumns = this.formService.formsConfig[formName].listColumnsOptions;
 
@@ -215,11 +238,13 @@ export class ListPage extends React.Component<PageProps, any>
         row.title = '';
         for (let colName in formColumns)
         {
-            if (formColumns.hasOwnProperty(colName) && row[colName] !== undefined && row[colName] !== '')
+            if (formColumns.hasOwnProperty(colName))
             {
                 let column = form.columns[colName];
                 let colTitle = column.title;
                 let colValue = row[colName];
+                if (colValue === undefined || colValue === '')
+                    continue;
                 // Date values are displayed according to the column's 'format' property.
                 if (column.type === 'date')
                     colValue = moment.utc(colValue).format(column.format);
@@ -241,10 +266,10 @@ export class ListPage extends React.Component<PageProps, any>
                 else 
                 {
                     // The first column is shown without title.
-                    row.title  = row[colName];
+                    row.title = colValue;
                     columnComp =
                         <View style={styles.textContainer} key={column.name}>
-                            <Text style={[styles.text, titleStyle, styles.bold]}>{row.title }</Text>
+                            <Text style={[styles.text, titleStyle, styles.bold]}>{row.title}</Text>
                         </View>;
                 }
                 columns.push(columnComp);
@@ -253,7 +278,7 @@ export class ListPage extends React.Component<PageProps, any>
         return (
             <Card key={rowId}
                 content={columns}
-                onPress={() => { this.editRow(row.title , rowId) }}
+                onPress={() => { this.editRow(row.title, rowId) }}
                 cardContainerStyle={[styles.cardContainer]}>
             </Card>
         );
@@ -277,7 +302,7 @@ export class ListPage extends React.Component<PageProps, any>
 
                 <Button
                     title={this.strings.editBtnText}
-                    onPress={() => { this.editRow(row.title , rowId) }}
+                    onPress={() => { this.editRow(row.title, rowId) }}
                     containerViewStyle={[styles.hiddenBtnContainer]}
                     buttonStyle={styles.hiddenBtn}
                     backgroundColor={colors.darkBlue}

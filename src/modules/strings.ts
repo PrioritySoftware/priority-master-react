@@ -7,6 +7,9 @@ class String
 }
 export class Strings
 {
+    isChangesSaved='isChangesSaved';
+    isNewRow='isNewRow';
+
     /** Style  */
     dirByLang: string;
     sideByLang: string;

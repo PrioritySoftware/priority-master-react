@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { View, Keyboard, StyleSheet, EmitterSubscription } from 'react-native';
-import { scale, verticalScale } from '../../utils/scale';
+import {  Keyboard, StyleSheet, EmitterSubscription } from 'react-native';
+import {  verticalScale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 
@@ -23,7 +22,7 @@ export default class TextControl extends Component<any, any> {
         {
             value: ''
         };
-    @observable text: string;
+    text: string;
     keyboardWillHideSub: EmitterSubscription;
     textInput;
 

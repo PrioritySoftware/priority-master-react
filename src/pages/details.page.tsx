@@ -14,7 +14,6 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { ColumnOptions } from '../modules/columnOptions.class';
 import { ItemInput } from '../components/itemInput';
 import { observer, inject } from 'mobx-react';
-import { observable } from 'mobx';
 
 @inject("formService", "configService", "messageHandler", "strings")
 @observer
@@ -30,10 +29,10 @@ export class DetailsPage extends React.Component<any, any>
     // Props
     title: string;
     form: Form;
-    parentForm: Form;
+    parentForm;
 
-    @observable item;
     itemIndex: number;
+    item:Object;
 
     constructor(props)
     {
@@ -44,14 +43,24 @@ export class DetailsPage extends React.Component<any, any>
         this.strings = this.props.strings;
 
         this.title = this.props.navigation.state.params.title;
-        this.form = this.props.navigation.state.params.form;
-        this.parentForm = this.props.navigation.state.params.parentForm;
+        this.form = this.formService.getForm(this.props.navigation.state.params.formPath);
         this.itemIndex = this.props.navigation.state.params.itemIndex;
         this.item = this.formService.getFormRow(this.form, this.itemIndex);
+        this.parentForm = { name: this.props.navigation.state.params.parentName };
     }
     goBack()
     {
         this.props.navigation.goBack();
+    }
+    updateField(colName: string, newValue: string)
+    {
+        let oldValue = this.item[colName];
+        this.formService.updateField(this.form, this.itemIndex, colName, newValue)
+            .then(result => { })
+            .catch(error =>
+            {
+                this.formService.updateField(this.form, this.itemIndex, colName, oldValue).catch(() => { });
+            });
     }
     render() 
     {
@@ -62,10 +71,9 @@ export class DetailsPage extends React.Component<any, any>
                 <KeyboardAwareScrollView style={styles.inputContainer} keyboardOpeningTime={0}>
                     {
                         Object.keys(columns).map(fieldName =>
-                            <ItemInput
-                                key={fieldName}
-                                item={this.item}
-                                itemIndex={this.itemIndex}
+                            <ItemInput key={fieldName}
+                                value={this.item[fieldName]}
+                                onUpdate={newVal => this.updateField(fieldName, newVal)}
                                 form={this.form}
                                 colName={fieldName}
                                 direction={this.strings.sideByLang}

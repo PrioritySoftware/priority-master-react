@@ -102,7 +102,11 @@ export class MainPage extends React.Component<any, any>
         }
         else if (ent.type === 'F')
         {
-            this.props.navigation.navigate(Pages.List.name, { form: ent });
+            this.props.navigation.navigate(Pages.List.name, 
+                { 
+                    formName:ent.name,
+                    formTitle:ent.title
+                });
         }
     }
 

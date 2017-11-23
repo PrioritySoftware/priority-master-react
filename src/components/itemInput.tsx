@@ -8,55 +8,56 @@ import
 import TextControl from './Controls/textControl';
 import { FormService } from '../providers/form.service';
 import { Form } from '../modules/index';
-import { observer } from 'mobx-react';
-import providers from '../providers';
+import { observer, inject } from 'mobx-react';
 import DateControl from './Controls/dateControl';
 import { Column } from '../modules/column.class';
 import { FormLabel, Icon } from 'react-native-elements'
 import { scale, verticalScale } from '../utils/scale';
 import NumberControl from './Controls/numberControl';
 import ToggleControl from './Controls/toggleControl';
-import { observable } from 'mobx';
 
+@inject("formService")
 @observer
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
         {
-            item: PropTypes.object.isRequired,
-            itemIndex:PropTypes.number.isRequired,
+            value: PropTypes.string.isRequired,
             form: PropTypes.object.isRequired,
             colName: PropTypes.string.isRequired,
-            direction: PropTypes.string.isRequired
+            onUpdate: PropTypes.func.isRequired,
+            direction: PropTypes.string
         };
-
+    static defaultProps =
+        {
+            direction: 'left',
+            value: ''
+        };
     formService: FormService;
 
+    // props
     form: Form;
     colName: string;
-    @observable item;
-    @observable value: string;
     formCol: Column;
+
+    value: string;
 
     constructor(props)
     {
         super(props);
-        this.formService = providers.formService;
+        this.formService = this.props.formService;
 
         this.form = this.props.form;
         this.colName = this.props.colName;
-        this.item = this.props.item;
-        this.value = this.item[this.colName];
-        this.formCol = this.form.columns[this.colName];
+        this.formCol = this.form.columns[this.props.colName];
+        this.value = this.props.value;
     }
-    updateField(newValue: string)
+    componentWillReceiveProps(nextProps)
     {
-        this.formService.updateField(this.form, this.props.itemIndex, this.props.colName, newValue)
-            .then(result => { })
-            .catch(error =>
-            {
-                this.formService.updateField(this.form, this.props.itemIndex, this.props.colName, this.value).catch(()=>{});
-            });
+        if (this.value !== nextProps.value)
+        {
+            this.value = nextProps.value;
+        }
     }
     isReadonly(): boolean
     {
@@ -115,7 +116,7 @@ export class ItemInput extends Component<any, any>
                 value={this.value}
                 disabled={this.isReadonly()}
                 maxLength={this.formCol.maxLength}
-                onUpdate={value => this.updateField(value)}
+                onUpdate={newVal => this.props.onUpdate(newVal)}
                 direction={this.props.direction}
             />
         );
@@ -128,7 +129,7 @@ export class ItemInput extends Component<any, any>
                 format={this.formCol.format}
                 mode={this.formCol.type}
                 disabled={this.isReadonly()}
-                onUpdate={value => this.updateField(value)}
+                onUpdate={newVal => this.props.onUpdate(newVal)}
                 direction={this.props.direction}
             />
         );
@@ -143,7 +144,7 @@ export class ItemInput extends Component<any, any>
                 prefix=''
                 code={this.formCol.code}
                 disabled={this.isReadonly()}
-                onUpdate={value => this.updateField(value)}
+                onUpdate={newVal => this.props.onUpdate(newVal)}
                 direction={this.props.direction}
             />
         );
@@ -154,7 +155,7 @@ export class ItemInput extends Component<any, any>
             <ToggleControl key={this.colName}
                 value={this.value}
                 disabled={this.isReadonly()}
-                onUpdate={value => this.updateField(value)}
+                onUpdate={newVal => this.props.onUpdate(newVal)}
                 direction={this.props.direction}
             />
         );

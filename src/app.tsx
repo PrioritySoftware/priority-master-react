@@ -7,7 +7,6 @@ import { Pages } from './pages';
 import SplashScreen from "rn-splash-screen";
 import { Provider } from "mobx-react";
 
-// https://stackoverflow.com/questions/45670065/mobx-react-native-way-to-inject-stores
 export class App extends React.Component<any, any>
 {
     navigator;

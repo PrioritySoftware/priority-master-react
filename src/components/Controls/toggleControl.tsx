@@ -21,56 +21,55 @@ export default class ToggleControl extends Component<any, any>
             direction: 'left',
             value: ''
         };
-    // @observable selected;
+
+    @observable selected: string;
 
     constructor(props)
     {
         super(props);
-        // this.selected = props.value;
+        this.selected = this.props.value;
         this.handleToggle = this.handleToggle.bind(this);
     }
 
-    // componentWillReceiveProps(nextProps)
-    // {
-    //     if (this.selected !== nextProps.value)
-    //     {
-    //         this.selected = nextProps.value;
-    //     }
-    // }
+    get isSelected(): boolean
+    {
+        return this.selected === 'Y';
+    }
+
+    componentWillReceiveProps(nextProps)
+    {
+        if (this.selected !== nextProps.value)
+        {
+            this.selected = nextProps.value;
+        }
+    }
 
     handleToggle(toggleValue)
     {
         const { onUpdate } = this.props;
-        if (toggleValue !== this.getIsSelected())
+        if (toggleValue !== this.isSelected)
         {
-            let newVal = toggleValue ? 'Y' : '';
-            // this.selected = toggleValue;
-            onUpdate(newVal);
+            this.selected = toggleValue ? 'Y' : '';
+            onUpdate(this.selected);
         }
-    }
-
-    @observable
-    getIsSelected(): boolean
-    {
-        return this.props.value === 'Y';
     }
 
     render()
     {
         let onTintColor = colors.middleBlue;
         let tintColor = colors.gray;
-        let thumbTintColor = this.getIsSelected() ? colors.primaryColor : 'white';
+        let thumbTintColor = this.isSelected ? colors.primaryColor : 'white';
         if (this.props.disabled)
         {
             onTintColor = 'rgba(0, 173, 238, 0.2)';
             tintColor = 'rgba(226, 226, 226, 0.6)';
-            thumbTintColor = this.getIsSelected() ? colors.blueDisabled : 'rgba(255, 255, 255, 0.75)';
+            thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(255, 255, 255, 0.75)';
         }
         let alignItems = this.props.direction === 'right' ? 'flex-start' : 'flex-end';
         return (
             <View style={[styles.switchContainer, { alignItems: alignItems }]}>
                 <Switch
-                    value={this.getIsSelected()}
+                    value={this.isSelected}
                     onValueChange={newVal => { this.handleToggle(newVal) }}
                     disabled={this.props.disabled}
                     onTintColor={onTintColor}

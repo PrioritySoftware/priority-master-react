@@ -13,16 +13,15 @@ import { FormInput } from 'react-native-elements'
 export default class NumberControl extends Component<any, any> {
 
     static defaultProps = {
-        decimal: 2,
         prefix: '',
         placeholder: '',
         value: ''
     }
 
     static propTypes = {
-        value: PropTypes.any,
-        maxLength: PropTypes.number,
-        decimal: PropTypes.number,
+        value: PropTypes.any.isRequired,
+        maxLength: PropTypes.number.isRequired,
+        decimal: PropTypes.number.isRequired,
         prefix: PropTypes.string,
         code: PropTypes.string,
         onUpdate: PropTypes.func.isRequired,

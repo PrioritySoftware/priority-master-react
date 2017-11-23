@@ -16,9 +16,9 @@ export declare class Form
 
 	oneline: number;
 
-	rows: ObservableMap<any>;
+	rows: ObservableMap<Object>;
 
-	subForms: { [key: string]: Form };
+	path:string;
 	
 	activations: { [key: string]: DirectActivation };
 
