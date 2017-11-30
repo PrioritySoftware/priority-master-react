@@ -1,3 +1,7 @@
+import
+{
+    Platform
+} from 'react-native';
 export const colors =
     {
         primaryColor: "#1f9bd1",
@@ -13,9 +17,9 @@ export const colors =
         // blue
         darkBlue: "#175676",
         blue: "#00adee",
-        middleBlue:'#96DDF7',
+        middleBlue: '#96DDF7',
         blueHighlight: '#edf9fe',
-        blueDisabled:'#85C4DF',
+        blueDisabled: '#85C4DF',
 
         // red
         red: "#D62839",
@@ -39,3 +43,9 @@ export const header =
         backgroundColor: colors.primaryColor,
         height: '100%'
     }
+
+export const iconName = (name) =>
+{
+    let OSprefix = Platform.OS === 'android' ? 'md' : 'ios';
+    return OSprefix + "-" + name;
+};

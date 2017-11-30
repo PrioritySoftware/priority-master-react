@@ -14,6 +14,7 @@ export class Strings
     dirByLang: string;
     sideByLang: string;
     dirOpposite: string;
+    flexDir:string;
 
     /** Device */
     platform: string;
@@ -538,6 +539,7 @@ export class Strings
         this.dirByLang = "rtl";
         this.dirOpposite = "ltr";
         this.sideByLang = "right";
+        this.flexDir="row-reverse";
 
         this._decimalValidErr.value = "דיוק עשרוני שגוי";
         this._numberValidErr.value = "הכנס ספרות בלבד";
@@ -553,6 +555,7 @@ export class Strings
         this._preparingApp.value = "Preparing your app. Please wait";
         this._failedToReadJsonError.value = "Invalid configuration file";
         this._failedToLoadJsonError.value = "There was a problem loading the configuration file.\nCheck your Wi-Fi connection.";
+        this._certificateProblem.value="Please verify your certificate validity.";
         this._scanNewConfigurationFile.value = " \nContact your system administrator or scan a new QR code";
 
         this.dirByLang = "ltr";
@@ -636,6 +639,7 @@ export class Strings
         this.dirByLang = "ltr";
         this.dirOpposite = "rtl";
         this.sideByLang = "left";
+        this.flexDir="row";
 
         this._decimalValidErr.value = "Wrong decimal precision";
         this._numberValidErr.value = "Digits only";

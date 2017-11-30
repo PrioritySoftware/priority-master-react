@@ -13,7 +13,6 @@ import { ItemInput } from '../components/itemInput';
 import { observer, inject } from 'mobx-react';
 import { Column } from '../modules/column.class';
 import { Form } from '../modules/form.class';
-import { ObservableMap } from 'mobx';
 
 @inject("formService", )
 @observer

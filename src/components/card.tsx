@@ -45,7 +45,7 @@ export class Card extends Component<any, any>
         let onPress= this.props.onPress || (() => { });
         let content = <Text style={[styles.cardText, this.props.cardTextStyle]}>{title}</Text>;
         return (
-            <Comp background={background} onPress={onPress} underlayColor={colors.lightGray} activeOpacity={0.6}>
+            <Comp background={background} onPress={onPress} underlayColor={colors.lightGray} activeOpacity={0.6} delayPressIn={100}>
                 <View style={[styles.cardContainer, this.props.cardContainerStyle]}>
                     <View style={[styles.card, this.props.cardStyle]}>
                         {this.props.content ? this.props.content : content}

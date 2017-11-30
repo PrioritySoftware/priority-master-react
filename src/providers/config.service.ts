@@ -57,7 +57,7 @@ export class ConfigService
                                 reject(this.reason);
                             });
                     }
-                    else if (request.status === 0 && request.responseText === '')
+                    else if (request.status === 0 && (request.responseText === '' || request.responseText.includes("certification")))
                     {
                         this.reason.message = this.strings.certificateProblem;
                         reject(this.reason);
@@ -84,7 +84,7 @@ export class ConfigService
             fetch(serverUrl + '/wcf/wcf/Service.svc', { method: 'HEAD' })
                 .then(response =>
                 {
-                    if (response.status === 400)
+                    if (response.status === 400 || response.status === 200)
                         resolve(serverUrl);
                     else
                     {

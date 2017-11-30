@@ -118,6 +118,7 @@ export class LoginPage extends React.Component<any, any>
                     <TextField
                         label={this.strings.pswTitle}
                         onChangeText={(text) => this.password = text}
+                        onEndEditing={() => this.login()}
                         highlightColor={'#1f9bd1'}
                         labelStyle={labelStyle}
                         inputStyle={{ textAlign: this.strings.sideByLang }}
