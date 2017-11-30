@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react';
+import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Image, Text, StyleSheet, Platform } from 'react-native';
+import { Text, StyleSheet, Platform } from 'react-native';
 import DatePicker from './DatePicker/datePicker';
 import moment from 'moment';
 import { scale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { Icon } from 'react-native-elements';
+import { Strings } from '../../modules/strings';
 
+@inject("strings")
 @observer
 export default class DateControl extends Component<any, any>
 
@@ -18,14 +20,15 @@ export default class DateControl extends Component<any, any>
         format: PropTypes.string.isRequired,
         onUpdate: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
-        direction: PropTypes.string.isRequired,
         mode: PropTypes.string
     };
     static defaultProps =
         {
             mode: 'date',
-            value:''
+            value: ''
         };
+
+    strings: Strings;
 
     @observable selectedDate;
     @observable formatedDate;
@@ -33,6 +36,7 @@ export default class DateControl extends Component<any, any>
     constructor(props)
     {
         super(props);
+        this.strings = this.props.strings;
         if (props.mode === 'date')
         {
             this.selectedDate = props.value !== '' ? new Date(props.value) : null;
@@ -92,7 +96,6 @@ export default class DateControl extends Component<any, any>
 
     render()
     {
-        let flexDirection = this.props.direction === 'right' ? 'row-reverse' : 'row';
         let iconName = this.props.mode === 'date' ? 'calendar' : 'time';
         let OSprefix = Platform.OS === 'android' ? 'md' : 'ios';
         iconName = OSprefix + "-" + iconName;
@@ -100,7 +103,7 @@ export default class DateControl extends Component<any, any>
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
             <DatePicker
-                containerStyle={[styles.container, { flexDirection: flexDirection }]}
+                containerStyle={[styles.container, { flexDirection: this.strings.flexDir }]}
                 initialDate={this.selectedDate}
                 mode={this.props.mode}
                 onDone={this.handleChange}
@@ -110,12 +113,12 @@ export default class DateControl extends Component<any, any>
                     style={[
                         styles.text,
                         {
-                            textAlign: this.props.direction,
+                            textAlign: this.strings.sideByLang,
                             color: textColor
                         }]}>
                     {this.formatedDate}
                 </Text>
-                <Icon type='ionicon' name={iconName} color={iconColor} />
+                <Icon type='ionicon' name={iconName} size={23} color={iconColor} />
             </DatePicker>
         )
     }
@@ -124,8 +127,8 @@ let styles = StyleSheet.create({
     container:
         {
             borderBottomWidth: 1,
-            borderBottomColor: colors.middleGray,
-            marginHorizontal: 3,
+            borderBottomColor: colors.gray,
+            paddingHorizontal: scale(2.5),
             marginBottom: 10,
             paddingTop: 4.5,
             paddingBottom: 3.5,

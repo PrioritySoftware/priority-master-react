@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react';
+import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Switch } from 'react-native';
 import { colors } from '../../styles/common';
+import { scale, verticalScale } from '../../utils/scale';
+import { Strings } from '../../modules/strings';
 
+@inject("strings")
 @observer
 export default class ToggleControl extends Component<any, any>
 {
@@ -22,11 +25,16 @@ export default class ToggleControl extends Component<any, any>
             value: ''
         };
 
+    strings: Strings;
+
     @observable selected: string;
 
     constructor(props)
     {
         super(props);
+
+        this.strings = this.props.strings;
+
         this.selected = this.props.value;
         this.handleToggle = this.handleToggle.bind(this);
     }
@@ -65,7 +73,7 @@ export default class ToggleControl extends Component<any, any>
             tintColor = 'rgba(226, 226, 226, 0.6)';
             thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(255, 255, 255, 0.75)';
         }
-        let alignItems = this.props.direction === 'right' ? 'flex-start' : 'flex-end';
+        let alignItems = this.strings.sideByLang === 'right' ? 'flex-start' : 'flex-end';
         return (
             <View style={[styles.switchContainer, { alignItems: alignItems }]}>
                 <Switch
@@ -87,13 +95,14 @@ const styles = StyleSheet.create({
     switchContainer:
         {
             borderBottomWidth: 1,
-            borderBottomColor: colors.middleGray,
-            paddingBottom: 3,
-            marginTop: -6,
-            marginBottom: 8,
-            marginHorizontal: 3,
+            borderBottomColor: colors.gray,
+            paddingBottom: 4,
+            marginTop: verticalScale(0),
+            marginBottom: verticalScale(1),
+
         },
     switch: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginHorizontal: scale(-3)
     }
 })

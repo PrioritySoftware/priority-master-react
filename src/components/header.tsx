@@ -4,23 +4,23 @@ import
     StyleSheet,
     View
 } from 'react-native';
-import {  header, center } from "../styles/common";
+import { header, center } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
-import { Header } from 'react-native-elements';
+import { Header, Icon } from 'react-native-elements';
 
 export class HeaderComp extends Component<any, any>
 {
     static propTypes =
-    {
-        title: PropTypes.string.isRequired,
-        specialComponent: PropTypes.object,
-        goBack: PropTypes.func.isRequired
-    };
+        {
+            title: PropTypes.string.isRequired,
+            specialComponent: PropTypes.object,
+            goBack: PropTypes.func.isRequired
+        };
     static defaultProps =
-    {
-        specialComponent: {}
-    };
+        {
+            specialComponent: {}
+        };
     strings: Strings;
     constructor(props)
     {
@@ -45,7 +45,7 @@ export class HeaderComp extends Component<any, any>
         return (
             <View style={styles.headerContainer}>
                 <Header
-                    centerComponent={{ text: this.props.title, style: styles.headerTitleStyle }}
+                    centerComponent={{ text: this.props.title, style: styles.headerTitleStyle, ellipsizeMode: 'tail', numberOfLines: 1 }}
                     rightComponent={rightComp}
                     leftComponent={leftComp}
                     outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
@@ -56,27 +56,30 @@ export class HeaderComp extends Component<any, any>
     }
     renderBackIcon(iconName: string)
     {
+        let padding = this.strings.dirByLang === 'rtl' ? { paddingLeft: 30 } : { paddingRight: 30 };
         let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
-        return ({
-            type: 'ionicon',
-            icon: iconName,
-            onPress: () => { this.props.goBack() },
-            color: 'white',
-            underlayColor: 'transparent',
-            style: style
-        });
+        return (<Icon
+            type='ionicon'
+            name={iconName}
+            onPress={() => { this.props.goBack() }}
+            color='white'
+            underlayColor='transparent'
+            size={22}
+            containerStyle={[style, padding]} />
+        );
     }
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
     headerTitleStyle:
-    {
-        alignSelf: 'center',
-        color: 'white',
-        fontSize: 19
-    },
+        {
+            alignSelf: 'center',
+            color: 'white',
+            fontSize: 19,
+            maxWidth:'85%'
+        },
     headerContainer:
-    {
-        flex: 0.12,
-    },
+        {
+            flex: 0.12,
+        },
 });

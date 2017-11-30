@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
 import { observable } from 'mobx';
-import { observer } from 'mobx-react';
+import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { View, TextInput, Keyboard, Platform, StyleSheet, EmitterSubscription } from 'react-native';
+import {  Keyboard, StyleSheet, EmitterSubscription } from 'react-native';
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
-import { scale, verticalScale } from '../../utils/scale';
+import {  verticalScale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
+import { Strings } from '../../modules/strings';
 
+@inject("strings")
 @observer
 export default class NumberControl extends Component<any, any> {
 
@@ -29,6 +31,8 @@ export default class NumberControl extends Component<any, any> {
         disabled: PropTypes.bool
     }
 
+    strings:Strings;
+
     @observable number;
     @observable inputLength;
 
@@ -38,6 +42,9 @@ export default class NumberControl extends Component<any, any> {
     constructor(props)
     {
         super(props);
+
+        this.strings=this.props.strings;
+
         this.number = props.prefix + displayUtils.number(props.value, props.code === 'Real' ? props.decimal : 0);
         this.inputLength = this.calcInputLength(this.number);
         this.handleChange = this.handleChange.bind(this);
@@ -121,7 +128,7 @@ export default class NumberControl extends Component<any, any> {
 
     render()
     {
-        let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
             <FormInput
                 textInputRef={textInput => this.textInput = textInput}
@@ -132,9 +139,9 @@ export default class NumberControl extends Component<any, any> {
                 maxLength={this.inputLength + this.props.decimal}
                 onChangeText={this.handleChange}
                 onEndEditing={this.handleEndEditing}
-                underlineColorAndroid={colors.gray}
+                underlineColorAndroid='transparent'
                 containerStyle={styles.inputContainer}
-                inputStyle={[styles.input, { textAlign: this.props.direction, color: textColor }]}
+                inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
             />
         )
     }
@@ -143,17 +150,18 @@ export default class NumberControl extends Component<any, any> {
 const styles = StyleSheet.create({
     inputContainer:
         {
-            marginTop: -10,
+            marginTop: verticalScale(-6),
             marginLeft: 0,
-            marginRight: 0
+            marginRight: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
         },
     input:
         {
             fontWeight: 'bold',
             minHeight: verticalScale(5),
             marginLeft: 0,
-            marginRight: 0
-        },
-
-
+            marginRight: 0,
+            marginBottom:verticalScale(-5),
+        }
 });

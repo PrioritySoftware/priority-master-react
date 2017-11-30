@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import { observer } from 'mobx-react';
+import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import {  Keyboard, StyleSheet, EmitterSubscription } from 'react-native';
-import {  verticalScale } from '../../utils/scale';
+import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
+import { verticalScale, scale } from '../../utils/scale';
 import { colors } from '../../styles/common';
-import { FormInput } from 'react-native-elements'
+import { FormInput, Icon } from 'react-native-elements'
+import { observable } from 'mobx';
+import { Strings } from '../../modules/strings';
 
+@inject("strings")
 @observer
 export default class TextControl extends Component<any, any> {
 
@@ -16,19 +19,26 @@ export default class TextControl extends Component<any, any> {
             onUpdate: PropTypes.func.isRequired,
             placeholder: PropTypes.string,
             disabled: PropTypes.bool,
-            direction: PropTypes.string
+            direction: PropTypes.string,
+            icon: PropTypes.string,
+            iconClick: PropTypes.func
         };
     static defaultProps =
         {
-            value: ''
+            value: '',
+            icon: ''
         };
-    text: string;
+
+    strings: Strings;
+
+    @observable text: string;
     keyboardWillHideSub: EmitterSubscription;
     textInput;
 
     constructor(props)
     {
         super(props);
+        this.strings = this.props.strings;
         this.text = props.value;
     }
 
@@ -60,12 +70,12 @@ export default class TextControl extends Component<any, any> {
         }
     }
 
-    handleChange(text)
+    handleChange = (text) =>
     {
         this.text = text;
     }
 
-    handleEndEditing=()=>
+    handleEndEditing = () =>
     {
         const { onUpdate, value } = this.props;
         if (this.text !== value)
@@ -78,43 +88,68 @@ export default class TextControl extends Component<any, any> {
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
-            <FormInput
-                textInputRef={textInput => this.textInput = textInput}
-                editable={!this.props.disabled}
-                caretHidden={false}
-                placeholder={this.props.placeholder}
-                placeholderTextColor={colors.middleGray}
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={this.text}
-                maxLength={this.props.maxLength}
-                onChangeText={this.handleChange}
-                onBlur={this.handleEndEditing}
-                underlineColorAndroid={colors.middleGray}
-                containerStyle={styles.inputContainer}
-                inputStyle={[styles.input, { textAlign: this.props.direction, color: textColor }]}
-            />
+            <View style={{ flexDirection: this.strings.flexDir }}>
+                <FormInput
+                    textInputRef={textInput => this.textInput = textInput}
+                    editable={!this.props.disabled}
+                    caretHidden={false}
+                    placeholder={this.props.placeholder}
+                    placeholderTextColor={colors.middleGray}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={this.text}
+                    maxLength={this.props.maxLength}
+                    onChangeText={this.handleChange}
+                    onBlur={this.handleEndEditing}
+                    underlineColorAndroid='transparent'
+                    containerStyle={styles.inputContainer}
+                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
+                />
+                {this.renderIcon()}
+            </View>
         )
+    }
+    renderIcon()
+    {
+        let iconColor = this.props.disabled ? colors.gray : colors.darkGray;
+        let padding = this.strings.sideByLang === 'right' ? { paddingRight: scale(20) } : { paddingLeft: scale(20) };
+        let { icon, iconClick } = this.props;
+        let iconMargin = icon === 'ios-arrow-down' ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
+        if (icon !== '')
+        {
+            return (
+                <Icon type='ionicon' name={icon}
+                    size={23} color={iconColor} style={[styles.icon, padding, iconMargin]}
+                    underlayColor='transparent'
+                    onPress={() => iconClick()} />
+            );
+        }
+        return (null);
+
     }
 }
 
 const styles = StyleSheet.create({
     inputContainer:
         {
-            marginTop: -10,
+            marginTop: verticalScale(-6),
             marginLeft: 0,
-            marginRight: 0
+            marginRight: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
+            width: '100%',
         },
     input:
         {
             fontWeight: 'bold',
             minHeight: verticalScale(5),
             marginLeft: 0,
-            marginRight: 0
+            marginRight: 0,
+            marginBottom: verticalScale(-5),
+            width: '100%'
         },
-    errorMsgContainer:
+    icon:
         {
-            position: 'absolute',
-            top: 10
+            marginTop: verticalScale(12)
         }
 });
