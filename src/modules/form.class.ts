@@ -16,10 +16,10 @@ export declare class Form
 
 	oneline: number;
 
-	rows: ObservableMap<Object>;
+	rows: ObservableMap<ObservableMap<any>>;
 
-	path:string;
-	
+	path: string;
+
 	activations: { [key: string]: DirectActivation };
 
 	title: string;

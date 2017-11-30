@@ -10,10 +10,9 @@ import
 } from 'react-native';
 import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { colors } from '../styles/common';
+import { colors, container } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { Card } from '../components/card';
 import { scale, verticalScale } from '../utils/scale';
 import { Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
@@ -21,11 +20,11 @@ import { MessageHandler } from '../components/message.handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 const SpinnerIndicator = require('react-native-spinkit');
 import ActionButton from 'react-native-action-button';
-import * as moment from 'moment';
 import { HeaderComp } from '../components/header';
 import { Pages } from './index';
 import { observer, inject } from 'mobx-react';
 import { ObservableMap, observable } from 'mobx';
+import { Row } from '../components/Row';
 
 @inject("formService", "configService", "messageHandler", "strings")
 @observer
@@ -74,7 +73,10 @@ export class ListPage extends React.Component<any, any>
     componentWillUnmount()
     {
         if (this.form && this.form.endCurrentForm)
+        {
+            this.formService.deleLocalForm(this.form.path);
             this.formService.endForm(this.form);
+        }
     }
     startForm()
     {
@@ -120,9 +122,8 @@ export class ListPage extends React.Component<any, any>
     {
         this.props.navigation.goBack();
     }
-    editRow(rowTitle: string, rowIndex: number)
+    editRow = (rowTitle: string, rowIndex: number) =>
     {
-        rowIndex++;
         this.formService.setActiveRow(this.form, rowIndex).catch(() => { });
 
         let parentName = this.parentPath;
@@ -138,7 +139,6 @@ export class ListPage extends React.Component<any, any>
     }
     deleteRow(rowInd)
     {
-        rowInd++;
         let delFunc = () =>
         {
             this.setState({ isDeletingRow: true });
@@ -148,14 +148,14 @@ export class ListPage extends React.Component<any, any>
                     this.setState({ isDeletingRow: false });
                 })
                 .catch(() => this.setState({ isDeletingRow: false }));
-        }
+        };
         this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
     }
     /********* rendering functions *********/
     render()
     {
         return (
-            <View style={{ flex: 1 }}>
+            <View style={container}>
                 <HeaderComp title={this.formTitle} goBack={() => this.goBack()} />
                 {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
@@ -171,7 +171,7 @@ export class ListPage extends React.Component<any, any>
     renderActivityIndicator(text: string)
     {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',width:'100%' }}>
                 <Text>{text}</Text>
                 <ActivityIndicator style={{ marginTop: 10 }} ></ActivityIndicator>
             </View>
@@ -180,37 +180,41 @@ export class ListPage extends React.Component<any, any>
     renderList()
     {
         let isRTL = this.strings.dirByLang === "rtl";
-        let padding = this.state.isLoading ? 70 : 10;
 
         // in case there are no rows
         if (this.rows.size === 0)
             return this.renderEmptyState();
-
         return (
             <View style={styles.listContainer}>
                 <SwipeListView
-                    contentContainerStyle={{ paddingBottom: padding }}
-                    renderScrollComponent={props => <InfiniteScrollView {...props} />}
-                    canLoadMore={this.state.canLoadMoreContent}
-                    onLoadMoreAsync={this.loadMoreData}
+                    contentContainerStyle={{ paddingBottom: scale(10) }}
                     dataSource={this.ds.cloneWithRows(this.rows.values())}
                     renderRow={this.renderRow}
                     renderHiddenRow={this.renderHiddenRow}
-                    distanceToLoadMore={30}
                     leftOpenValue={scale(85)}
                     rightOpenValue={scale(-85)}
                     disableRightSwipe={!isRTL}
                     disableLeftSwipe={isRTL}
+                    renderScrollComponent={props => <InfiniteScrollView {...props} />}
+                    canLoadMore={this.state.canLoadMoreContent}
+                    onLoadMoreAsync={this.loadMoreData}
+                    distanceToLoadMore={500}
+                    renderFooter={this.renderFooter}
                 />
                 {this.renderAddBtn()}
-                {/* Loading indicator for loading more rows */}
-                <View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]}>
-                    <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
-                    <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
-                </View>
                 {/* Loading indicator for row deletion  */}
                 {<Spinner visible={this.state.isDeletingRow} color={colors.primaryColor} overlayColor={colors.overlay} size="small"></Spinner>}
             </View>
+        );
+    }
+    renderFooter =()=> 
+    {
+        {/* Loading indicator for loading more rows */ }
+        return (
+            < View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]} >
+                <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
+                <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
+            </View >
         );
     }
     renderEmptyState()
@@ -230,72 +234,29 @@ export class ListPage extends React.Component<any, any>
 
     renderRow = (row, secId, rowId, rowsMap) =>
     {
-        let form: Form = this.formService.getForm(this.form.path);
-        let formName = form.name;
-        let formColumns = this.formService.formsConfig[formName].listColumnsOptions;
-
-        let columns = [];
-        row.title = '';
-        for (let colName in formColumns)
-        {
-            if (formColumns.hasOwnProperty(colName))
-            {
-                let column = form.columns[colName];
-                let colTitle = column.title;
-                let colValue = row[colName];
-                if (colValue === undefined || colValue === '')
-                    continue;
-                // Date values are displayed according to the column's 'format' property.
-                if (column.type === 'date')
-                    colValue = moment.utc(colValue).format(column.format);
-                let titleStyle = this.strings.dirByLang === "rtl" ? { right: 0 } : { left: 0 };
-                let valueStyle = this.strings.dirByLang === "rtl" ? { left: 0 } : { right: 0 };
-                let columnComp;
-                if (columns.length !== 0)
-                {
-                    columnComp =
-                        <View style={styles.textContainer} key={column.name}>
-                            <Text style={[styles.text, titleStyle]}>
-                                {colTitle + ":"}
-                            </Text>
-                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
-                                {colValue}
-                            </Text>
-                        </View>;
-                }
-                else 
-                {
-                    // The first column is shown without title.
-                    row.title = colValue;
-                    columnComp =
-                        <View style={styles.textContainer} key={column.name}>
-                            <Text style={[styles.text, titleStyle, styles.bold]}>{row.title}</Text>
-                        </View>;
-                }
-                columns.push(columnComp);
-            }
-        }
+        rowId++;
         return (
-            <Card key={rowId}
-                content={columns}
-                onPress={() => { this.editRow(row.title, rowId) }}
-                cardContainerStyle={[styles.cardContainer]}>
-            </Card>
+            <Row
+                formPath={this.form.path}
+                rowId={rowId}
+                editRow={this.editRow}
+            />
         );
     }
 
     /**
      * Hidden buttons. Shown when the user swipes a row.
-     * 
-     * @param {any} row 
-     * @param {any} secId 
-     * @param {any} rowId 
-     * @param {any} rowsMap 
-     * @returns 
+     *
+     * @param {any} row
+     * @param {any} secId
+     * @param {any} rowId
+     * @param {any} rowsMap
+     * @returns
      * @memberof ListPage
      */
     renderHiddenRow = (row, secId, rowId, rowsMap) =>
     {
+        rowId++;
         let isRTL = this.strings.dirByLang === "rtl";
         return (
             <View style={[styles.rowBack, isRTL ? styles.rtlFlex : styles.ltrFlex]} >
@@ -358,33 +319,6 @@ const styles = StyleSheet.create({
         {
             flex: 0.88
         },
-    cardContainer:
-        {
-            marginTop: 10,
-            borderRadius: 2,
-            borderWidth: 1,
-            backgroundColor: 'white',
-            borderColor: colors.gray,
-            padding: 15,
-            marginHorizontal: 10
-
-        },
-    text:
-        {
-            position: 'absolute',
-        },
-    valueText:
-        {
-            maxWidth: '60%'
-        },
-    textContainer:
-        {
-            paddingVertical: 15,
-        },
-    bold:
-        {
-            fontWeight: 'bold'
-        },
     // hidden buttons
     rowBack:
         {
@@ -422,7 +356,8 @@ const styles = StyleSheet.create({
         {
             flex: 1,
             justifyContent: 'flex-end',
-            alignItems: 'center'
+            alignItems: 'center',
+            paddingTop: scale(10)
         },
     // empty state
     emptyState: {

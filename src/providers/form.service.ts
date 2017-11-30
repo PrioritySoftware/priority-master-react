@@ -11,6 +11,8 @@ import { ServerResponseType } from "../modules/srvResponseType.class";
 import { Filter } from "../modules/filter.class";
 import { observable } from 'mobx';
 import { ObservableMap } from "mobx/lib/types/observablemap";
+import { SearchAction } from "../modules/searchAction.class";
+import { Search } from "../modules/search.class";
 
 export class FormService
 {
@@ -275,17 +277,7 @@ export class FormService
                             let row = this.getFormRow(form, rowInd);
                             let newRow = result[formName][rowInd];
                             if (row !== undefined)
-                            {
-                                // loop on properties for row in result object and assign them to row
-                                for (let key in newRow)
-                                {
-                                    // skip loop if the property is from prototype
-                                    if (!newRow.hasOwnProperty(key))
-                                        continue;
-                                    let newValue = newRow[key];
-                                    row[key] = newValue;
-                                }
-                            }
+                                row.merge(newRow);
                         }
                     }
                 }
@@ -299,7 +291,10 @@ export class FormService
     {
         return this.forms[formName];
     }
-
+    deleLocalForm(formPath: string)
+    {
+        delete this.forms[formPath];
+    }
     /** Sets a form returned from formStart in the forms object by it's name */
     private mergeForm(form: Form, parentForm: Form = null)
     {
@@ -421,14 +416,14 @@ export class FormService
     {
         return form.rows;
     }
-    private setLocalRows(form: Form, rows: any, isMerge: boolean)
+    public setLocalRows(form: Form, rows: any, isMerge: boolean)
     {
         if (!isMerge)
             form.rows.clear();
         let newRows = observable.map();
         Object.keys(rows).map((rowNum, index, arr) =>
         {
-            let row = rows[rowNum];
+            let row = observable.map(rows[rowNum]);
             newRows.set(rowNum, row);
         });
         form.rows.merge(newRows);
@@ -559,7 +554,7 @@ export class FormService
     }
     public setIsRowChangesSaved(form: Form, rowInd, isSaved: boolean)
     {
-        form.rows.get(rowInd)[this.strings.isChangesSaved] = isSaved;
+        form.rows.get(rowInd).set(this.strings.isChangesSaved, isSaved);
     }
     public getIsRowChangesSaved(form: Form, rowInd)
     {
@@ -567,7 +562,7 @@ export class FormService
         {
             return true;
         }
-        return form.rows.get(rowInd)[this.strings.isChangesSaved];
+        return form.rows.get(rowInd).get(this.strings.isChangesSaved);
     }
     private addFormRow(form: Form, newRowInd)
     {
@@ -579,7 +574,7 @@ export class FormService
     }
     private setNotNewRow(form: Form, rowInd)
     {
-        delete form.rows.get(rowInd)[this.strings.isNewRow];
+        form.rows.get(rowInd).delete(this.strings.isNewRow);
     }
     public deleteLastFormRow(form: Form)
     {
@@ -649,7 +644,7 @@ export class FormService
         });
     }
     /** Saves changes made in the current row */
-    saveRow(form: Form, rowInd, isBackToPrevForm: number): Promise<any>
+    saveRow(form: Form, rowInd, isBackToPrevForm: number = 0): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
@@ -718,6 +713,46 @@ export class FormService
                         this.deleteLocalRow(form, rowInd.toString());
                     }
                     resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+
+    // ******  Search and Choose ******
+
+    /* Opens a Search or a Choose list according to the current field.
+    * If there was a value in the fileld the returned list will contain results matching this value.
+    * Active row must be set before opening Search or Choose!!!
+    */
+    openSearchOrChoose(form: Form, colName, fieldVal): Promise<any>
+    {
+
+        return new Promise((resolve, reject) =>
+        {
+            form.choose(colName, fieldVal).then(
+                (result: Search) =>
+                {
+                    resolve(result);
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+
+    }
+    /* Returns search result for the given value. Default action is SearchAction.TextChange = 4.*/
+    search(form: Form, val, action: number = SearchAction.TextChange): Promise<Search>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.searchAction(action, val).then(
+                result =>
+                {
+                    resolve(result);
                 },
                 (reason: ServerResponse) =>
                 {

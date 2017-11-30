@@ -3,7 +3,8 @@ import
 {
     StyleSheet,
     View,
-    Platform
+    Platform,
+    Linking
 } from 'react-native';
 import TextControl from './Controls/textControl';
 import { FormService } from '../providers/form.service';
@@ -15,49 +16,58 @@ import { FormLabel, Icon } from 'react-native-elements'
 import { scale, verticalScale } from '../utils/scale';
 import NumberControl from './Controls/numberControl';
 import ToggleControl from './Controls/toggleControl';
+import { ColumnOptions } from '../modules/columnOptions.class';
+import Communications from 'react-native-communications';
+import DurationControl from './Controls/durationControl';
+import { Pages } from '../pages/index';
+import { MessageHandler } from './message.handler';
+import { Strings } from '../modules/strings';
+import { colors, iconName } from '../styles/common';
 
-@inject("formService")
+@inject("formService", "messageHandler", "strings")
 @observer
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
         {
-            value: PropTypes.string.isRequired,
-            form: PropTypes.object.isRequired,
+            formPath: PropTypes.string.isRequired,
+            parentForm: PropTypes.any,
             colName: PropTypes.string.isRequired,
-            onUpdate: PropTypes.func.isRequired,
-            direction: PropTypes.string
+            itemIndex: PropTypes.number.isRequired,
+            itemOptions: PropTypes.object
         };
     static defaultProps =
         {
-            direction: 'left',
-            value: ''
+            itemOptions: {}
         };
     formService: FormService;
+    messageHandler: MessageHandler;
+    strings: Strings;
 
     // props
     form: Form;
+    parentForm;
     colName: string;
+    itemIndex: number;
+    item;
     formCol: Column;
-
+    colConfig: ColumnOptions;
     value: string;
 
     constructor(props)
     {
         super(props);
         this.formService = this.props.formService;
+        this.messageHandler = this.props.messageHandler;
+        this.strings = this.props.strings;
 
-        this.form = this.props.form;
+        this.form = this.formService.getForm(this.props.formPath);
+        this.parentForm = { name: this.props.parentName };
         this.colName = this.props.colName;
+        this.itemIndex = this.props.itemIndex;
+        this.item = this.formService.getFormRow(this.form, this.itemIndex);
         this.formCol = this.form.columns[this.props.colName];
-        this.value = this.props.value;
-    }
-    componentWillReceiveProps(nextProps)
-    {
-        if (this.value !== nextProps.value)
-        {
-            this.value = nextProps.value;
-        }
+        this.colConfig = this.formService.getFormConfig(this.form, this.parentForm).detailsColumnsOptions[this.colName];
     }
     isReadonly(): boolean
     {
@@ -69,15 +79,144 @@ export class ItemInput extends Component<any, any>
     {
         return this.formCol.type === "date" || (this.formCol.type === "time" && this.formCol.maxLength === 5);
     }
+    isBoolColumn()
+    {
+        return this.formCol.type === "bool";
+    }
 
+    isSearch()
+    {
+        return (this.formCol.zoom === "Search" || this.formCol.zoom === "Choose") && !this.isBoolColumn() && !this.isReadonly();
+    }
+
+    isBarcode()
+    {
+        return this.colConfig.subtype === "barcode";
+    }
+
+    isAttach()
+    {
+        return this.formCol.zoom === "Attach";
+    }
+
+    isPhone()
+    {
+        return this.colConfig.subtype === "phone";
+    }
+
+    isUrl()
+    {
+        return this.formCol.zoom === "URL";
+    }
+
+    isEmail()
+    {
+        return this.formCol.zoom === "EMail";
+    }
+
+    getIconName()
+    {
+        if (this.isBarcode())
+            return iconName("barcode");
+        if (this.isPhone())
+            return iconName("call");
+        if (this.isUrl())
+            return iconName("link");
+        if (this.isEmail())
+            return iconName("mail");
+        if (this.isSearch())
+            return "ios-arrow-down";
+        if (this.isAttach() && (!this.isReadonly() || this.value))
+            return iconName("attach");
+        return '';
+    }
+    // field operations
+    updateField = (newValue: string) =>
+    {
+        this.formService.updateField(this.form, this.itemIndex, this.colName, newValue)
+            .catch(error =>
+            {
+                this.formService.updateField(this.form, this.itemIndex, this.colName, this.value).catch(() => { });
+            });
+    }
+    saveRow()
+    {
+        this.formService.saveRow(this.form, this.itemIndex)
+            .then(() =>
+            {
+            })
+            .catch(() => { });
+    }
+    // icons
+    iconClick()
+    {
+        if (this.isBarcode())
+        {
+            this.scan();
+        }
+        else if (this.isAttach())
+        {
+        }
+        else if (this.isPhone())
+        {
+            Communications.phonecall(this.value, false);
+        }
+        else if (this.isEmail())
+        {
+            Communications.email([this.value], null, null, null, null);
+        }
+        else if (this.isUrl())
+        {
+            if (this.value)
+            {
+                let prefix = 'http://';
+                Linking.openURL(encodeURI(prefix + this.value));
+            }
+        }
+        if (this.isSearch())
+        {
+            let { navigation } = this.props.itemOptions;
+            if (!navigation)
+                return;
+            navigation.navigate(Pages.Search.name, {
+                formPath: this.form.path,
+                searchVal: this.value,
+                colName: this.colName,
+                onUpdate: this.updateField
+            });
+        }
+    }
+    // barcode scanning
+    scan()
+    {
+        let { navigation } = this.props.itemOptions;
+        if (!navigation)
+            return;
+        navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
+    }
+    scanFinished = (data) =>
+    {
+        if (data == undefined || data === "")
+        {
+            this.messageHandler.showToast(this.strings.scanError, true);
+        }
+        else
+        {
+            this.updateField(data);
+        }
+    }
+    // rendering
     render()
     {
-        let flexDir = this.props.direction === 'right' ? 'row-reverse' : 'row';
+        this.value = this.item.get(this.colName);
+        let { isFirst, isLast } = this.props.itemOptions;
         let mandatoryDisplay = this.formCol.mandatory === 1 ? 'flex' : 'none';
+        let labelColor = this.isReadonly() ? colors.gray : colors.disabledGray;
+        let containerMargin = isFirst ? { marginTop: verticalScale(10) } : isLast ? { marginBottom: verticalScale(20) } : {};
         return (
-            <View style={styles.container}>
-                <View style={{ flexDirection: flexDir }}>
-                    <FormLabel labelStyle={styles.labelStyle}>{this.formCol.title} </FormLabel>
+            <View style={[styles.container, containerMargin]}>
+                <View style={{ flexDirection: this.strings.flexDir }}>
+                    <FormLabel labelStyle={[styles.labelStyle, { color: labelColor }]}>{this.formCol.title} </FormLabel>
                     <Icon type='material-community'
                         name='asterisk'
                         color='red'
@@ -91,15 +230,14 @@ export class ItemInput extends Component<any, any>
     }
     renderControl()
     {
-        const { form, colName } = this.props;
-        switch (form.columns[colName].type)
+        switch (this.formCol.type)
         {
             case 'time':
             case 'date':
                 {
                     if (this.isDateOrTimeColumn())
                         return this.renderDateControl();
-                    return this.renderTextControl();
+                    return this.renderDurationControl();
                 }
             case 'number':
                 return this.renderNumberControl();
@@ -116,8 +254,9 @@ export class ItemInput extends Component<any, any>
                 value={this.value}
                 disabled={this.isReadonly()}
                 maxLength={this.formCol.maxLength}
-                onUpdate={newVal => this.props.onUpdate(newVal)}
-                direction={this.props.direction}
+                onUpdate={this.updateField}
+                icon={this.getIconName()}
+                iconClick={() => this.iconClick()}
             />
         );
     }
@@ -129,8 +268,7 @@ export class ItemInput extends Component<any, any>
                 format={this.formCol.format}
                 mode={this.formCol.type}
                 disabled={this.isReadonly()}
-                onUpdate={newVal => this.props.onUpdate(newVal)}
-                direction={this.props.direction}
+                onUpdate={this.updateField}
             />
         );
     }
@@ -144,8 +282,7 @@ export class ItemInput extends Component<any, any>
                 prefix=''
                 code={this.formCol.code}
                 disabled={this.isReadonly()}
-                onUpdate={newVal => this.props.onUpdate(newVal)}
-                direction={this.props.direction}
+                onUpdate={this.updateField}
             />
         );
     }
@@ -155,8 +292,19 @@ export class ItemInput extends Component<any, any>
             <ToggleControl key={this.colName}
                 value={this.value}
                 disabled={this.isReadonly()}
-                onUpdate={newVal => this.props.onUpdate(newVal)}
-                direction={this.props.direction}
+                onUpdate={this.updateField}
+            />
+        );
+    }
+    renderDurationControl()
+    {
+        return (
+            <DurationControl key={this.colName}
+                value={this.value}
+                maxLength={this.formCol.maxLength}
+                disabled={this.isReadonly()}
+                onUpdate={this.updateField}
+
             />
         );
     }
