@@ -4,6 +4,7 @@ import { LoginPage } from "./login.page";
 import { MainPage } from "./main.page";
 import { ListPage } from "./list.page";
 import { DetailsPage } from "./details.page";
+import { SearchPage } from "./search.page";
 
 export const Pages =
     {
@@ -12,5 +13,6 @@ export const Pages =
         Login: { screen: LoginPage, name: 'Login' },
         Main: { screen: MainPage, name: 'Main' },
         List: { screen: ListPage, name: 'List' },
-        Details: { screen: DetailsPage, name: 'Details' }
+        Details: { screen: DetailsPage, name: 'Details' },
+        Search: { screen: SearchPage, name: 'Search' }
     };
