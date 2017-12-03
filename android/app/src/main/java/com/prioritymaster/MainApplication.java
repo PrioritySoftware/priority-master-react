@@ -1,7 +1,8 @@
 package com.prioritymaster;
 
 import android.app.Application;
-
+import com.prioritymaster.modules.DatePickerPackage;
+import com.prioritymaster.modules.TimePickerPackage;
 import com.facebook.react.ReactApplication;
 import com.mehcode.reactnative.splashscreen.SplashScreenPackage;
 import com.horcrux.svg.SvgPackage;
@@ -36,7 +37,9 @@ public class MainApplication extends Application implements ReactApplication {
             new RNSpinkitPackage(),
             new ReactNativeLocalizationPackage(),
             new VectorIconsPackage(),
-            new RCTCameraPackage()
+            new RCTCameraPackage(),
+            new DatePickerPackage(),
+            new TimePickerPackage()
       );
     }
     // @Override

@@ -13,10 +13,9 @@ import
     Text,
     Animated,
     StyleSheet,
-    DatePickerAndroid,
-    TimePickerAndroid
 } from 'react-native';
-// import { DatePickerAndroid } from './datePickerAndroid';
+ import { DatePickerAndroid } from './datePickerAndroid';
+ import { TimePickerAndroid } from './timePickerAndroid';
 import PropTypes from 'prop-types';
 import { colors } from '../../../styles/common'
 
