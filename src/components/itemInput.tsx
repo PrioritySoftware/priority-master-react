@@ -22,7 +22,7 @@ import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
 import { MessageHandler } from './message.handler';
 import { Strings } from '../modules/strings';
-import { colors, iconName } from '../styles/common';
+import { colors, iconNames } from '../styles/common';
 
 @inject("formService", "messageHandler", "strings")
 @observer
@@ -117,26 +117,27 @@ export class ItemInput extends Component<any, any>
     getIconName()
     {
         if (this.isBarcode())
-            return iconName("barcode");
+            return iconNames.barcode;
         if (this.isPhone())
-            return iconName("call");
+            return iconNames.phone;
         if (this.isUrl())
-            return iconName("link");
+            return iconNames.url;
         if (this.isEmail())
-            return iconName("mail");
+            return iconNames.email;
         if (this.isSearch())
-            return "ios-arrow-down";
+            return iconNames.search;
         if (this.isAttach() && (!this.isReadonly() || this.value))
-            return iconName("attach");
+            return iconNames.attach;
         return '';
     }
     // field operations
     updateField = (newValue: string) =>
     {
+        let oldVal = this.value;
         this.formService.updateField(this.form, this.itemIndex, this.colName, newValue)
             .catch(error =>
             {
-                this.formService.updateField(this.form, this.itemIndex, this.colName, this.value).catch(() => { });
+                this.formService.updateField(this.form, this.itemIndex, this.colName, oldVal).catch(() => { });
             });
     }
     saveRow()

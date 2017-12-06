@@ -49,3 +49,12 @@ export const iconName = (name) =>
     let OSprefix = Platform.OS === 'android' ? 'md' : 'ios';
     return OSprefix + "-" + name;
 };
+export const iconNames =
+    {
+        barcode: iconName("barcode"),
+        phone: iconName("call"),
+        url: iconName("link"),
+        email: iconName("mail"),
+        search: "ios-arrow-down",
+        attach: iconName("attach"),
+    };

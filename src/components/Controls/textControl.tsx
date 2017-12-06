@@ -3,7 +3,7 @@ import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
-import { colors } from '../../styles/common';
+import { colors, iconNames } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
 import { observable } from 'mobx';
 import { Strings } from '../../modules/strings';
@@ -87,6 +87,7 @@ export default class TextControl extends Component<any, any> {
     render()
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+        let inputPadding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(25) } : { paddingRight: scale(25) };
         return (
             <View style={{ flexDirection: this.strings.flexDir }}>
                 <FormInput
@@ -103,7 +104,7 @@ export default class TextControl extends Component<any, any> {
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
                     containerStyle={styles.inputContainer}
-                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
+                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor },inputPadding]}
                 />
                 {this.renderIcon()}
             </View>
@@ -114,7 +115,8 @@ export default class TextControl extends Component<any, any> {
         let iconColor = this.props.disabled ? colors.gray : colors.darkGray;
         let padding = this.strings.sideByLang === 'right' ? { paddingRight: scale(20) } : { paddingLeft: scale(20) };
         let { icon, iconClick } = this.props;
-        let iconMargin = icon === 'ios-arrow-down' ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
+        let isSmallIcon = icon === iconNames.search || icon === iconNames.attach;
+        let iconMargin = isSmallIcon ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
         if (icon !== '')
         {
             return (
@@ -146,7 +148,6 @@ const styles = StyleSheet.create({
             marginLeft: 0,
             marginRight: 0,
             marginBottom: verticalScale(-5),
-            width: '100%'
         },
     icon:
         {
