@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import {  LocalStorageUserData } from './modules/index';
+import { LocalStorageUserData } from './modules/index';
 import providers from './providers';
 import { Pages } from './pages';
 import SplashScreen from "rn-splash-screen";
 import { Provider } from "mobx-react";
+import { navigationTransition } from "./utils/navigation";
 
 export class App extends React.Component<any, any>
 {
@@ -40,7 +41,11 @@ export class App extends React.Component<any, any>
     }
     setNavigationStack(root: string)
     {
-        this.navigator = StackNavigator(Pages, { initialRouteName: root });
+        this.navigator = StackNavigator(Pages,
+            {
+                initialRouteName: root,
+                transitionConfig: navigationTransition(providers.strings.dirByLang === 'rtl')
+            });
         this.setState({ isFinishedloading: true });
 
     }
@@ -133,13 +138,13 @@ let ScreenWidth = Dimensions.get("window").width;
 let ScreenHeight = Dimensions.get("window").height;
 const styles = StyleSheet.create({
     image:
-        {
-            height: ScreenHeight,
-            width: ScreenWidth,
-            justifyContent: 'center'
-        },
+    {
+        height: ScreenHeight,
+        width: ScreenWidth,
+        justifyContent: 'center'
+    },
     indicator:
-        {
-            marginTop: 100
-        }
+    {
+        marginTop: 100
+    }
 });
