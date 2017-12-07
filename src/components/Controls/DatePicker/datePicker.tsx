@@ -14,8 +14,8 @@ import
     Animated,
     StyleSheet,
 } from 'react-native';
- import { DatePickerAndroid } from './datePickerAndroid';
- import { TimePickerAndroid } from './timePickerAndroid';
+import { DatePickerAndroid } from './datePickerAndroid';
+import { TimePickerAndroid } from './timePickerAndroid';
 import PropTypes from 'prop-types';
 import { colors } from '../../../styles/common'
 
@@ -24,37 +24,37 @@ const ANIM_DURATION = 300;
 export default class DatePicker extends Component<any, any>
 {
     static propTypes =
-        {
-            onDone: PropTypes.func.isRequired,
-            onCancel: PropTypes.func,
-            initialDate: PropTypes.oneOfType([
-                PropTypes.instanceOf(Date),
-                PropTypes.string
-            ]),
-            minDate: PropTypes.instanceOf(Date),
-            maxDate: PropTypes.instanceOf(Date),
-            cancelText: PropTypes.string,
-            doneText: PropTypes.string,
-            containerStyle: PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.number,
-                PropTypes.shape({}),
-            ]),
-            allowFontScaling: PropTypes.bool,
-            disabled: PropTypes.bool,
-            mode: PropTypes.string
-        };
+    {
+        onDone: PropTypes.func.isRequired,
+        onCancel: PropTypes.func,
+        initialDate: PropTypes.oneOfType([
+            PropTypes.instanceOf(Date),
+            PropTypes.string
+        ]),
+        minDate: PropTypes.instanceOf(Date),
+        maxDate: PropTypes.instanceOf(Date),
+        cancelText: PropTypes.string,
+        doneText: PropTypes.string,
+        containerStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+        allowFontScaling: PropTypes.bool,
+        disabled: PropTypes.bool,
+        mode: PropTypes.string
+    };
 
     static defaultProps =
-        {
-            cancelText: 'Cancel',
-            doneText: 'Done',
-            clearText: 'Clear',
-            containerStyle: {},
-            allowFontScaling: true,
-            disabled: true,
-            mode: 'date'
-        };
+    {
+        cancelText: 'Cancel',
+        doneText: 'Done',
+        clearText: 'Clear',
+        containerStyle: {},
+        allowFontScaling: true,
+        disabled: true,
+        mode: 'date'
+    };
 
     isReady: boolean;
 
@@ -116,7 +116,25 @@ export default class DatePicker extends Component<any, any>
 
         this.isReady = true;
     }
-
+    /*
+     * Returns an object containg the selected hour and the selected minute.
+     * If 'selectedDate' is a date object returns an object in which both the hour and the minute are 'undefined'.
+     */
+    getSelectedTime()
+    {
+        let hour;
+        let minute;
+        if (typeof this.state.selectedDate === 'string')
+        {
+            let date = this.state.selectedDate.split(":");
+            if (date.length === 2)
+            {
+                hour = Number(date[0]);
+                minute = Number(date[1]);
+            }
+        }
+        return { hour: hour, minute: minute };
+    }
     setModalVisible(visible)
     {
         if (visible)
@@ -190,20 +208,10 @@ export default class DatePicker extends Component<any, any>
 
     openAndroidTimePicker()
     {
-        let hour;
-        let minute;
-        if (typeof this.state.selectedDate === 'string')
-        {
-            let date = this.state.selectedDate.split(":");
-            if (date.length === 2)
-            {
-                hour = Number(date[0]);
-                minute = Number(date[1]);
-            }
-        }
+        let time = this.getSelectedTime();
         TimePickerAndroid.open({
-            hour: hour,
-            minute: minute
+            hour: time.hour,
+            minute: time.minute
         })
             .then(({ action, hour, minute }) =>
             {
@@ -267,6 +275,14 @@ export default class DatePicker extends Component<any, any>
     {
         if (Platform.OS === 'ios')
         {
+            let date = this.state.selectedDate || new Date();
+            let time = this.getSelectedTime();
+            // For time picker - creates a new date and sets its time to be the selected time.
+            if (time.hour !== undefined)
+            {
+                date = new Date();
+                date.setHours(time.hour, time.minute);
+            }
             return (
                 <Modal
                     animationType="none"
@@ -323,7 +339,7 @@ export default class DatePicker extends Component<any, any>
                                         <View>
                                             <DatePickerIOS
                                                 mode={this.props.mode}
-                                                date={this.state.selectedDate ? this.state.selectedDate : new Date()}
+                                                date={date}
                                                 minimumDate={this.state.minDate}
                                                 maximumDate={this.state.maxDate}
                                                 onDateChange={this.handleDateChange}
@@ -380,7 +396,7 @@ let styles = StyleSheet.create({
         alignItems: 'center'
     },
     text:
-        {
-            color: colors.blue
-        }
+    {
+        color: colors.blue
+    }
 });

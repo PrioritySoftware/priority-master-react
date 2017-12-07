@@ -13,17 +13,17 @@ export default class ToggleControl extends Component<any, any>
 {
 
     static propTypes =
-        {
-            value: PropTypes.string.isRequired,
-            onUpdate: PropTypes.func.isRequired,
-            disabled: PropTypes.bool,
-            direction: PropTypes.string
-        };
+    {
+        value: PropTypes.string.isRequired,
+        onUpdate: PropTypes.func.isRequired,
+        disabled: PropTypes.bool,
+        direction: PropTypes.string
+    };
     static defaultProps =
-        {
-            direction: 'left',
-            value: ''
-        };
+    {
+        direction: 'left',
+        value: ''
+    };
 
     strings: Strings;
 
@@ -67,11 +67,15 @@ export default class ToggleControl extends Component<any, any>
         let onTintColor = colors.middleBlue;
         let tintColor = colors.gray;
         let thumbTintColor = this.isSelected ? colors.primaryColor : 'white';
+        if (this.strings.platform === 'ios')
+            thumbTintColor = this.isSelected ? colors.primaryColor : colors.gray;
         if (this.props.disabled)
         {
             onTintColor = 'rgba(0, 173, 238, 0.2)';
             tintColor = 'rgba(226, 226, 226, 0.6)';
             thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(255, 255, 255, 0.75)';
+            if (this.strings.platform === 'ios')
+                thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(226, 226, 226, 0.6)';
         }
         let alignItems = this.strings.sideByLang === 'right' ? 'flex-start' : 'flex-end';
         return (
@@ -93,14 +97,14 @@ export default class ToggleControl extends Component<any, any>
 
 const styles = StyleSheet.create({
     switchContainer:
-        {
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray,
-            paddingBottom: 4,
-            marginTop: verticalScale(0),
-            marginBottom: verticalScale(1),
+    {
+        borderBottomWidth: 1,
+        borderBottomColor: colors.gray,
+        paddingBottom: 4,
+        marginTop: verticalScale(0),
+        marginBottom: verticalScale(1),
 
-        },
+    },
     switch: {
         flexDirection: 'row',
         marginHorizontal: scale(-3)

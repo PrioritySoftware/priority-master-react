@@ -4,7 +4,8 @@ import
     StyleSheet,
     View,
     Platform,
-    Linking
+    Linking,
+    Text
 } from 'react-native';
 import TextControl from './Controls/textControl';
 import { FormService } from '../providers/form.service';
@@ -12,7 +13,7 @@ import { Form } from '../modules/index';
 import { observer, inject } from 'mobx-react';
 import DateControl from './Controls/dateControl';
 import { Column } from '../modules/column.class';
-import { FormLabel, Icon } from 'react-native-elements'
+import { FormLabel } from 'react-native-elements'
 import { scale, verticalScale } from '../utils/scale';
 import NumberControl from './Controls/numberControl';
 import ToggleControl from './Controls/toggleControl';
@@ -29,17 +30,17 @@ import { colors, iconNames } from '../styles/common';
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
-        {
-            formPath: PropTypes.string.isRequired,
-            parentForm: PropTypes.any,
-            colName: PropTypes.string.isRequired,
-            itemIndex: PropTypes.number.isRequired,
-            itemOptions: PropTypes.object
-        };
+    {
+        formPath: PropTypes.string.isRequired,
+        parentForm: PropTypes.any,
+        colName: PropTypes.string.isRequired,
+        itemIndex: PropTypes.number.isRequired,
+        itemOptions: PropTypes.object
+    };
     static defaultProps =
-        {
-            itemOptions: {}
-        };
+    {
+        itemOptions: {}
+    };
     formService: FormService;
     messageHandler: MessageHandler;
     strings: Strings;
@@ -174,7 +175,7 @@ export class ItemInput extends Component<any, any>
                 Linking.openURL(encodeURI(prefix + this.value));
             }
         }
-        if (this.isSearch())
+        else if (this.isSearch())
         {
             let { navigation } = this.props.itemOptions;
             if (!navigation)
@@ -218,11 +219,9 @@ export class ItemInput extends Component<any, any>
             <View style={[styles.container, containerMargin]}>
                 <View style={{ flexDirection: this.strings.flexDir }}>
                     <FormLabel labelStyle={[styles.labelStyle, { color: labelColor }]}>{this.formCol.title} </FormLabel>
-                    <Icon type='material-community'
-                        name='asterisk'
-                        color='red'
-                        size={10}
-                        style={[styles.asterisk, { display: mandatoryDisplay }]} />
+                    <Text style={[styles.asterisk, { display: mandatoryDisplay }]} >
+                        *
+                    </Text>
                 </View>
                 {this.renderControl()}
             </View>
@@ -317,29 +316,31 @@ const styles = StyleSheet.create({
         marginRight: 15,
         ...Platform.select({
             ios:
-                {
-                    marginLeft: 20,
-                    marginRight: 20,
-                },
+            {
+                marginLeft: 20,
+                marginRight: 20,
+            },
         }),
     },
     labelStyle:
-        {
-            fontWeight: 'normal',
-            marginTop: scale(10),
-            marginLeft: 0,
-            marginRight: 0,
-            ...Platform.select({
-                ios:
-                    {
-                        marginLeft: 5,
-                        marginRight: 5,
-                    },
-            }),
-        },
+    {
+        fontWeight: 'normal',
+        marginTop: scale(10),
+        marginLeft: 0,
+        marginRight: 0,
+        ...Platform.select({
+            ios:
+            {
+                marginLeft: 5,
+                marginRight: 5,
+            },
+        }),
+    },
     asterisk:
-        {
-            marginTop: verticalScale(10),
-            marginHorizontal: 1
-        }
+    {
+        marginTop: verticalScale(10),
+        marginHorizontal: 1,
+        color: 'red',
+        fontSize: 17
+    }
 });

@@ -143,6 +143,8 @@ let styles = StyleSheet.create({
     text:
         {
             flex: 1,
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            marginTop:scale(5),
+            fontSize:scale(14)
         }
 });

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
+import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
 import { colors, iconNames } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
@@ -13,21 +13,21 @@ import { Strings } from '../../modules/strings';
 export default class TextControl extends Component<any, any> {
 
     static propTypes =
-        {
-            value: PropTypes.string.isRequired,
-            maxLength: PropTypes.number,
-            onUpdate: PropTypes.func.isRequired,
-            placeholder: PropTypes.string,
-            disabled: PropTypes.bool,
-            direction: PropTypes.string,
-            icon: PropTypes.string,
-            iconClick: PropTypes.func
-        };
+    {
+        value: PropTypes.string.isRequired,
+        maxLength: PropTypes.number,
+        onUpdate: PropTypes.func.isRequired,
+        placeholder: PropTypes.string,
+        disabled: PropTypes.bool,
+        direction: PropTypes.string,
+        icon: PropTypes.string,
+        iconClick: PropTypes.func
+    };
     static defaultProps =
-        {
-            value: '',
-            icon: ''
-        };
+    {
+        value: '',
+        icon: ''
+    };
 
     strings: Strings;
 
@@ -103,8 +103,8 @@ export default class TextControl extends Component<any, any> {
                     onChangeText={this.handleChange}
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
-                    containerStyle={styles.inputContainer}
-                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor },inputPadding]}
+                    containerStyle={[styles.inputContainer,{flexDirection:this.strings.flexDir}]}
+                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }, inputPadding]}
                 />
                 {this.renderIcon()}
             </View>
@@ -133,24 +133,30 @@ export default class TextControl extends Component<any, any> {
 
 const styles = StyleSheet.create({
     inputContainer:
-        {
-            marginTop: verticalScale(-6),
-            marginLeft: 0,
-            marginRight: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray,
-            width: '100%',
-        },
+    {
+         marginTop: verticalScale(-10),
+        marginLeft: 0,
+        marginRight: 0,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.gray,
+        width: '100%',
+    },
     input:
-        {
-            fontWeight: 'bold',
-            minHeight: verticalScale(5),
-            marginLeft: 0,
-            marginRight: 0,
-            marginBottom: verticalScale(-5),
-        },
+    {
+        fontWeight: 'bold',
+        minHeight: verticalScale(5),
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: verticalScale(-8),
+           ...Platform.select({
+            ios:
+            {
+                minHeight: verticalScale(50),
+            },
+        })
+    },
     icon:
-        {
-            marginTop: verticalScale(12)
-        }
+    {
+        marginTop: verticalScale(6)
+    }
 });

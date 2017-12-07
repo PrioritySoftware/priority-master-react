@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import {  Keyboard, StyleSheet, EmitterSubscription } from 'react-native';
+import { Keyboard, StyleSheet, EmitterSubscription, Platform } from 'react-native';
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
 import {  verticalScale } from '../../utils/scale';
@@ -140,7 +140,7 @@ export default class NumberControl extends Component<any, any> {
                 onChangeText={this.handleChange}
                 onEndEditing={this.handleEndEditing}
                 underlineColorAndroid='transparent'
-                containerStyle={styles.inputContainer}
+                containerStyle={[styles.inputContainer,{flexDirection:this.strings.flexDir}]}
                 inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
             />
         )
@@ -150,7 +150,6 @@ export default class NumberControl extends Component<any, any> {
 const styles = StyleSheet.create({
     inputContainer:
         {
-            marginTop: verticalScale(-6),
             marginLeft: 0,
             marginRight: 0,
             borderBottomWidth: 1,
@@ -162,6 +161,11 @@ const styles = StyleSheet.create({
             minHeight: verticalScale(5),
             marginLeft: 0,
             marginRight: 0,
-            marginBottom:verticalScale(-5),
+            marginBottom:verticalScale(-4),
+            ...Platform.select({
+            ios:
+            {
+                minHeight: verticalScale(35),
+            },
         }
 });
