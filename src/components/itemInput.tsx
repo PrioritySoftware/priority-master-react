@@ -24,23 +24,24 @@ import { Pages } from '../pages/index';
 import { MessageHandler } from './message.handler';
 import { Strings } from '../modules/strings';
 import { colors, iconNames } from '../styles/common';
+import { Search } from '../modules/search.class';
 
 @inject("formService", "messageHandler", "strings")
 @observer
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
-    {
-        formPath: PropTypes.string.isRequired,
-        parentForm: PropTypes.any,
-        colName: PropTypes.string.isRequired,
-        itemIndex: PropTypes.number.isRequired,
-        itemOptions: PropTypes.object
-    };
+        {
+            formPath: PropTypes.string.isRequired,
+            parentForm: PropTypes.any,
+            colName: PropTypes.string.isRequired,
+            itemIndex: PropTypes.number.isRequired,
+            itemOptions: PropTypes.object
+        };
     static defaultProps =
-    {
-        itemOptions: {}
-    };
+        {
+            itemOptions: {}
+        };
     formService: FormService;
     messageHandler: MessageHandler;
     strings: Strings;
@@ -177,16 +178,33 @@ export class ItemInput extends Component<any, any>
         }
         else if (this.isSearch())
         {
-            let { navigation } = this.props.itemOptions;
-            if (!navigation)
-                return;
-            navigation.navigate(Pages.Search.name, {
-                formPath: this.form.path,
-                searchVal: this.value,
-                colName: this.colName,
-                onUpdate: this.updateField
-            });
+            this.search();
         }
+    }
+    search()
+    {
+        let { navigation } = this.props.itemOptions;
+        if (!navigation)
+            return;
+        let value = this.value || '';
+        this.formService.openSearchOrChoose(this.form, this.colName, value).then(
+            (res: Search) =>
+            {
+                let searchResults = res.SearchLine || res.ChooseLine;
+                if (searchResults)
+                {
+                    navigation.navigate(Pages.Search.name,
+                        {
+                            title: this.formCol.title,
+                            searchVal: this.value,
+                            searchObj: res,
+                            formPath: this.form.path,
+                            onUpdate: this.updateField
+                        });
+                }
+
+            },
+            reason => { });
     }
     // barcode scanning
     scan()
@@ -316,31 +334,31 @@ const styles = StyleSheet.create({
         marginRight: 15,
         ...Platform.select({
             ios:
-            {
-                marginLeft: 20,
-                marginRight: 20,
-            },
+                {
+                    marginLeft: 20,
+                    marginRight: 20,
+                },
         }),
     },
     labelStyle:
-    {
-        fontWeight: 'normal',
-        marginTop: scale(10),
-        marginLeft: 0,
-        marginRight: 0,
-        ...Platform.select({
-            ios:
-            {
-                marginLeft: 5,
-                marginRight: 5,
-            },
-        }),
-    },
+        {
+            fontWeight: 'normal',
+            marginTop: scale(10),
+            marginLeft: 0,
+            marginRight: 0,
+            ...Platform.select({
+                ios:
+                    {
+                        marginLeft: 5,
+                        marginRight: 5,
+                    },
+            }),
+        },
     asterisk:
-    {
-        marginTop: verticalScale(10),
-        marginHorizontal: 1,
-        color: 'red',
-        fontSize: 17
-    }
+        {
+            marginTop: verticalScale(10),
+            marginHorizontal: 1,
+            color: 'red',
+            fontSize: 17
+        }
 });

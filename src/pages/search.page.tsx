@@ -1,15 +1,12 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
     View,
     Text,
-    TouchableHighlight,
-    TouchableNativeFeedback,
-    Platform,
     FlatList
 } from 'react-native';
-import { container, colors, iconName } from "../styles/common";
+import { container, colors } from "../styles/common";
 import { inject, observer } from 'mobx-react';
 import { FormService } from '../providers/form.service';
 import { SearchResult } from '../modules/searchResult.class';
@@ -34,14 +31,14 @@ export class SearchPage extends Component<any, any>
     strings: Strings;
 
     title: string;
-    colName: string;
     form: Form;
     isSearch: boolean;
     chooseFirstTitle: string;
     chooseSecondTitle: string;
     onUpdate;
-    searchbar;
     isShowLoading: boolean;
+
+    searchlist;
 
     @observable isLoadingMore: boolean;
     canLoadMore: boolean;
@@ -54,20 +51,17 @@ export class SearchPage extends Component<any, any>
         this.formService = this.props.formService;
         this.strings = this.props.strings;
 
-        this.colName = this.props.navigation.state.params.colName;
-        this.form = this.formService.getForm(this.props.navigation.state.params.formPath);
-        this.searchVal = this.props.navigation.state.params.searchVal || '';
-        this.colName = this.props.navigation.state.params.colName;
-        this.title = this.form.columns[this.colName].title;
-        this.onUpdate = this.props.navigation.state.params.onUpdate;
-
         this.isSearch = false;
         this.searchResults = [];
         this.isShowLoading = false;
         this.isLoadingMore = false;
         this.canLoadMore = true;
 
-        this.initSearchResults();
+        this.form = this.formService.getForm(this.props.navigation.state.params.formPath);
+        this.title = this.props.navigation.state.params.title;
+        this.onUpdate = this.props.navigation.state.params.onUpdate;
+        this.searchVal = this.props.navigation.state.params.searchVal || '';
+        this.initSearchResults(this.props.navigation.state.params.searchObj);
     }
 
     setIsLoadingMore(isLoading: boolean)
@@ -101,19 +95,19 @@ export class SearchPage extends Component<any, any>
             return item.string1;
         }
     }
-    // First time
-    initSearchResults()
+    focusSearchBar(searchbar)
     {
-        this.formService.openSearchOrChoose(this.form, this.colName, this.searchVal).then(
-            (res: Search) =>
-            {
-                this.chooseFirstTitle = res.title1;
-                this.chooseSecondTitle = res.title2;
-                this.isSearch = res.SearchLine != null;
-                this.setCanLoadMore(res);
-                this.searchResults = res.SearchLine == null ? res.ChooseLine : res.SearchLine;
-            },
-            reason => { });
+        if (searchbar)
+            searchbar.focus();
+    }
+    // First time
+    initSearchResults(searchObj: Search)
+    {
+        this.chooseFirstTitle = searchObj.title1;
+        this.chooseSecondTitle = searchObj.title2;
+        this.isSearch = searchObj.SearchLine != null;
+        this.setCanLoadMore(searchObj);
+        this.searchResults = searchObj.SearchLine || searchObj.ChooseLine;
     }
     // Get results by value
     getItemsBySearchText(searchVal) 
@@ -126,6 +120,8 @@ export class SearchPage extends Component<any, any>
                 this.setCanLoadMore(res);
                 this.isShowLoading = false;
                 this.searchResults = res.SearchLine;
+                this.searchlist.scrollToIndex({ index: 0 });
+
             }, reason =>
             {
                 this.isShowLoading = false;
@@ -165,17 +161,16 @@ export class SearchPage extends Component<any, any>
             this.goBack();
 
     }
-
     render()
     {
         return (
             <View style={[container, styles.container]}>
                 <HeaderComp title={this.title} goBack={() => this.goBack()} />
                 <View style={[styles.listContainer, { display: this.searchResults ? 'flex' : 'none' }]}>
-                    {this.renderSearchBar()}
-                    {this.renderSearchIndicator()}
-                    {this.renderHeader()}
+                    {this.isSearch && this.renderSearchHeader()}
+                    {!this.isSearch && this.renderChooseHeader()}
                     <FlatList
+                        ref={list => this.searchlist = list}
                         data={this.searchResults}
                         renderItem={({ item }) => this.renderItem(item)}
                         keyExtractor={item => this.getSearchResult(item)}
@@ -213,43 +208,21 @@ export class SearchPage extends Component<any, any>
                 } />
         );
     }
-    renderHeader()
+    renderSearchHeader()
     {
-        if (this.isSearch)
-            return (null);
-        // let valueStyle = this.strings.dirByLang === "rtl" ? { left: 0 } : { right: 0 };
         return (
-            <View style={[styles.headerContainer, { flexDirection: this.strings.flexDir }]}>
-                <Text style={styles.headerText}>
-                    {this.chooseFirstTitle}
-                </Text>
-                <Text style={styles.headerText} >
-                    {this.chooseSecondTitle}
-                </Text>
-            </View>
-        );
-    }
-    renderFooter = () =>
-    {
-        if (!this.isSearch || !this.canLoadMore || !this.isLoadingMore)
-            return (null);
-
-        /* Loading indicator for loading more rows */
-        return (
-            <View style={[styles.rowsIndicator]}>
-                <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
-                <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
+            <View>
+                {this.renderSearchBar()}
+                {this.renderSearchIndicator()}
             </View>
         );
     }
     renderSearchBar()
     {
-        if (!this.isSearch)
-            return (null);
         let inputStyle = { textAlign: this.strings.sideByLang };
         return (
             <SearchBar
-                ref={search => this.searchbar = search}
+                ref={search => this.focusSearchBar(search)}
                 lightTheme
                 clearIcon={{ color: '#86939e', name: "close" }}
                 onChangeText={searchVal => this.getItemsBySearchText(searchVal)}
@@ -269,6 +242,37 @@ export class SearchPage extends Component<any, any>
             </View>
         );
     }
+
+    /**
+     * Indicator for loading more search results.
+     */
+    renderFooter = () =>
+    {
+        if (!this.isSearch || !this.canLoadMore || !this.isLoadingMore)
+            return (null);
+
+        /* Loading indicator for loading more rows */
+        return (
+            <View style={[styles.rowsIndicator]}>
+                <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
+                <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
+            </View>
+        );
+    }
+    renderChooseHeader()
+    {
+        return (
+            <View style={[styles.headerContainer, { flexDirection: this.strings.flexDir }]}>
+                <Text style={styles.headerText}>
+                    {this.chooseFirstTitle}
+                </Text>
+                <Text style={styles.headerText} >
+                    {this.chooseSecondTitle}
+                </Text>
+            </View>
+        );
+    }
+
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
