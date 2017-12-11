@@ -2,12 +2,14 @@ import React, { Component, PropTypes } from 'react';
 import
 {
     StyleSheet,
-    View
+    View,
+    Platform
 } from 'react-native';
 import { header, center } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
+import { scale } from '../utils/scale';
 
 export class HeaderComp extends Component<any, any>
 {
@@ -56,8 +58,7 @@ export class HeaderComp extends Component<any, any>
     }
     renderBackIcon(iconName: string)
     {
-        let padding = this.strings.dirByLang === 'rtl' ? { paddingLeft: 30 } : { paddingRight: 30 };
-        let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
+        let padding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(20) } : { paddingRight: scale(20) };
         return (<Icon
             type='ionicon'
             name={iconName}
@@ -65,7 +66,7 @@ export class HeaderComp extends Component<any, any>
             color='white'
             underlayColor='transparent'
             size={22}
-            containerStyle={[style, padding]} />
+            containerStyle={[styles.backButton, padding]} />
         );
     }
 }
@@ -76,10 +77,22 @@ const styles = StyleSheet.create({
             alignSelf: 'center',
             color: 'white',
             fontSize: 19,
-            maxWidth:'85%'
+            maxWidth: '85%'
         },
     headerContainer:
         {
             flex: 0.12,
         },
+    backButton:
+        {
+            paddingVertical:scale(30),
+            paddingHorizontal:scale(1),
+            ...Platform.select({
+                ios:
+                    {
+                        marginTop: 5
+                    }
+            })
+
+        }
 });

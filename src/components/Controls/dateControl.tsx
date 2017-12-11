@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Text, StyleSheet, Platform } from 'react-native';
 import DatePicker from './DatePicker/datePicker';
 import moment from 'moment';
-import { scale } from '../../utils/scale';
+import { scale, verticalScale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { Icon } from 'react-native-elements';
 import { Strings } from '../../modules/strings';
@@ -129,7 +129,7 @@ let styles = StyleSheet.create({
             borderBottomWidth: 1,
             borderBottomColor: colors.gray,
             paddingHorizontal: scale(2.5),
-            marginBottom: 10,
+            marginBottom: verticalScale(8),
             paddingTop: 4.5,
             paddingBottom: 3.5,
         },

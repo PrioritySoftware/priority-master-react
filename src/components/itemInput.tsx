@@ -275,6 +275,8 @@ export class ItemInput extends Component<any, any>
                 onUpdate={this.updateField}
                 icon={this.getIconName()}
                 iconClick={() => this.iconClick()}
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
             />
         );
     }
@@ -301,6 +303,8 @@ export class ItemInput extends Component<any, any>
                 code={this.formCol.code}
                 disabled={this.isReadonly()}
                 onUpdate={this.updateField}
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
             />
         );
     }
@@ -322,7 +326,8 @@ export class ItemInput extends Component<any, any>
                 maxLength={this.formCol.maxLength}
                 disabled={this.isReadonly()}
                 onUpdate={this.updateField}
-
+                containerStyle={styles.inputContainer}
+                inputStyle={styles.input}
             />
         );
     }
@@ -357,8 +362,26 @@ const styles = StyleSheet.create({
     asterisk:
         {
             marginTop: verticalScale(10),
+            marginBottom:verticalScale(-5),
             marginHorizontal: 1,
             color: 'red',
             fontSize: 17
-        }
+        },
+        inputContainer:
+        {
+            marginLeft: 0,
+            marginRight: 0,
+            marginBottom:verticalScale(6),
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
+            width: '100%',
+        },
+        input:
+        {
+            fontWeight: 'bold',
+            marginLeft: 0,
+            marginRight: 0,
+            marginBottom:verticalScale(-13),
+            marginTop:verticalScale(-2)
+        },
 });

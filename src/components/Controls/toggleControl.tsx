@@ -100,9 +100,9 @@ const styles = StyleSheet.create({
     {
         borderBottomWidth: 1,
         borderBottomColor: colors.gray,
-        paddingBottom: 4,
+        paddingBottom: verticalScale(4),
         marginTop: verticalScale(0),
-        marginBottom: verticalScale(1),
+        marginBottom: verticalScale(8),
 
     },
     switch: {

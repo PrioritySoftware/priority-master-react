@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
+import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
 import { verticalScale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
@@ -19,6 +19,16 @@ export default class DurationControl extends Component<any, any> {
             onUpdate: PropTypes.func.isRequired,
             disabled: PropTypes.bool,
             direction: PropTypes.string,
+            containerStyle:PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+            inputStyle:PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
         };
     static defaultProps =
         {
@@ -89,7 +99,6 @@ export default class DurationControl extends Component<any, any> {
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
-            <View style={{ flexDirection: this.strings.flexDir }}>
                 <FormInput
                     textInputRef={textInput => this.textInput = textInput}
                     editable={!this.props.disabled}
@@ -98,27 +107,14 @@ export default class DurationControl extends Component<any, any> {
                     maxLength={this.props.maxLength}
                     onChangeText={this.handleChange}
                     onBlur={this.handleEndEditing}
-                    underlineColorAndroid={colors.gray}
-                    containerStyle={styles.inputContainer}
-                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
+                    underlineColorAndroid="transparent"
+                    containerStyle={[this.props.containerStyle,{ flexDirection: this.strings.flexDir }]}
+                    inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }]}
                 />
-            </View>
         )
     }
 }
 
 const styles = StyleSheet.create({
-    inputContainer:
-        {
-            marginTop: -10,
-            marginLeft: 0,
-            marginRight: 0,
-        },
-    input:
-        {
-            fontWeight: 'bold',
-            minHeight: verticalScale(5),
-            marginLeft: 0,
-            marginRight: 0
-        }
+ 
 });

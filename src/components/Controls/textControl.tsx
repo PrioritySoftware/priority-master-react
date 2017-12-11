@@ -13,21 +13,31 @@ import { Strings } from '../../modules/strings';
 export default class TextControl extends Component<any, any> {
 
     static propTypes =
-    {
-        value: PropTypes.string.isRequired,
-        maxLength: PropTypes.number,
-        onUpdate: PropTypes.func.isRequired,
-        placeholder: PropTypes.string,
-        disabled: PropTypes.bool,
-        direction: PropTypes.string,
-        icon: PropTypes.string,
-        iconClick: PropTypes.func
-    };
+        {
+            value: PropTypes.string.isRequired,
+            maxLength: PropTypes.number,
+            onUpdate: PropTypes.func.isRequired,
+            placeholder: PropTypes.string,
+            disabled: PropTypes.bool,
+            direction: PropTypes.string,
+            icon: PropTypes.string,
+            iconClick: PropTypes.func,
+            containerStyle: PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+            inputStyle: PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+        };
     static defaultProps =
-    {
-        value: '',
-        icon: ''
-    };
+        {
+            value: '',
+            icon: ''
+        };
 
     strings: Strings;
 
@@ -87,13 +97,14 @@ export default class TextControl extends Component<any, any> {
     render()
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
-        let inputPadding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(25) } : { paddingRight: scale(25) };
+        let inputPadding = {};
+        if (this.props.icon !== '')
+            inputPadding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(25) } : { paddingRight: scale(25) };
         return (
             <View style={{ flexDirection: this.strings.flexDir }}>
                 <FormInput
                     textInputRef={textInput => this.textInput = textInput}
                     editable={!this.props.disabled}
-                    caretHidden={false}
                     placeholder={this.props.placeholder}
                     placeholderTextColor={colors.middleGray}
                     autoCapitalize="none"
@@ -103,8 +114,8 @@ export default class TextControl extends Component<any, any> {
                     onChangeText={this.handleChange}
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
-                    containerStyle={[styles.inputContainer,{flexDirection:this.strings.flexDir}]}
-                    inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }, inputPadding]}
+                    containerStyle={[this.props.containerStyle, { flexDirection: this.strings.flexDir }]}
+                    inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }, inputPadding]}
                 />
                 {this.renderIcon()}
             </View>
@@ -121,7 +132,8 @@ export default class TextControl extends Component<any, any> {
         {
             return (
                 <Icon type='ionicon' name={icon}
-                    size={23} color={iconColor} style={[styles.icon, padding, iconMargin]}
+                    size={23} color={iconColor}
+                    style={[isSmallIcon && styles.icon, !isSmallIcon && styles.largeIcon, padding, iconMargin]}
                     underlayColor='transparent'
                     onPress={() => iconClick()} />
             );
@@ -132,31 +144,12 @@ export default class TextControl extends Component<any, any> {
 }
 
 const styles = StyleSheet.create({
-    inputContainer:
-    {
-         marginTop: verticalScale(-10),
-        marginLeft: 0,
-        marginRight: 0,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.gray,
-        width: '100%',
-    },
-    input:
-    {
-        fontWeight: 'bold',
-        minHeight: verticalScale(5),
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: verticalScale(-8),
-           ...Platform.select({
-            ios:
-            {
-                minHeight: verticalScale(50),
-            },
-        })
-    },
     icon:
-    {
-        marginTop: verticalScale(6)
-    }
+        {
+            marginTop: verticalScale(8)
+        },
+    largeIcon:
+        {
+            marginTop: verticalScale(5)
+        }
 });

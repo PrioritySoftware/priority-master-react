@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Keyboard, StyleSheet, EmitterSubscription, Platform } from 'react-native';
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
-import {  verticalScale } from '../../utils/scale';
+import { verticalScale } from '../../utils/scale';
 import { colors } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { Strings } from '../../modules/strings';
@@ -28,10 +28,20 @@ export default class NumberControl extends Component<any, any> {
         code: PropTypes.string,
         onUpdate: PropTypes.func.isRequired,
         placeholder: PropTypes.string,
-        disabled: PropTypes.bool
+        disabled: PropTypes.bool,
+        containerStyle:PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+        inputStyle:PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
     }
 
-    strings:Strings;
+    strings: Strings;
 
     @observable number;
     @observable inputLength;
@@ -43,7 +53,7 @@ export default class NumberControl extends Component<any, any> {
     {
         super(props);
 
-        this.strings=this.props.strings;
+        this.strings = this.props.strings;
 
         this.number = props.prefix + displayUtils.number(props.value, props.code === 'Real' ? props.decimal : 0);
         this.inputLength = this.calcInputLength(this.number);
@@ -128,7 +138,7 @@ export default class NumberControl extends Component<any, any> {
 
     render()
     {
-         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+        let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
             <FormInput
                 textInputRef={textInput => this.textInput = textInput}
@@ -140,32 +150,13 @@ export default class NumberControl extends Component<any, any> {
                 onChangeText={this.handleChange}
                 onEndEditing={this.handleEndEditing}
                 underlineColorAndroid='transparent'
-                containerStyle={[styles.inputContainer,{flexDirection:this.strings.flexDir}]}
-                inputStyle={[styles.input, { textAlign: this.strings.sideByLang, color: textColor }]}
+                containerStyle={[this.props.containerStyle, { flexDirection: this.strings.flexDir }]}
+                inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }]}
             />
         )
     }
 }
 
 const styles = StyleSheet.create({
-    inputContainer:
-        {
-            marginLeft: 0,
-            marginRight: 0,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray,
-        },
-    input:
-        {
-            fontWeight: 'bold',
-            minHeight: verticalScale(5),
-            marginLeft: 0,
-            marginRight: 0,
-            marginBottom:verticalScale(-4),
-            ...Platform.select({
-            ios:
-            {
-                minHeight: verticalScale(35),
-            },
-        }
+  
 });
