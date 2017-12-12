@@ -234,11 +234,7 @@ export class FormService
             isError = false;
             options.title = this.strings.warningTitle;
         }
-        if (serverMsg.code === ServerResponseCode.Stop)
-        {
-            this.messageHandler.showErrorOrWarning(isError, serverMsg.message)
-            return;
-        }
+        
         this.messageHandler.showErrorOrWarning(isError, serverMsg.message,
             () =>
             {
