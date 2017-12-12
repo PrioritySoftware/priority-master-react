@@ -6,7 +6,7 @@ import
     Text,
     FlatList
 } from 'react-native';
-import { container, colors } from "../styles/common";
+import { container, colors, flexDirection, textAlign } from "../styles/common";
 import { inject, observer } from 'mobx-react';
 import { FormService } from '../providers/form.service';
 import { SearchResult } from '../modules/searchResult.class';
@@ -39,6 +39,7 @@ export class SearchPage extends Component<any, any>
     isShowLoading: boolean;
 
     searchlist;
+    searchbar;
 
     @observable isLoadingMore: boolean;
     canLoadMore: boolean;
@@ -95,10 +96,10 @@ export class SearchPage extends Component<any, any>
             return item.string1;
         }
     }
-    focusSearchBar(searchbar)
+    focusSearchBar()
     {
-        if (searchbar)
-            searchbar.focus();
+        if (this.searchbar)
+            this.searchbar.focus();
     }
     // First time
     initSearchResults(searchObj: Search)
@@ -108,6 +109,7 @@ export class SearchPage extends Component<any, any>
         this.isSearch = searchObj.SearchLine != null;
         this.setCanLoadMore(searchObj);
         this.searchResults = searchObj.SearchLine || searchObj.ChooseLine;
+        setTimeout(() => this.focusSearchBar(), 10);
     }
     // Get results by value
     getItemsBySearchText(searchVal) 
@@ -188,7 +190,7 @@ export class SearchPage extends Component<any, any>
     renderItem(item)
     {
         let retval = this.getSearchResult(item);
-        let valueStyle = { textAlign: this.strings.sideByLang }
+        let valueStyle = textAlign(this.strings.isRTL);
         if (!retval || retval.trim() === '')
             return (null);
 
@@ -197,7 +199,7 @@ export class SearchPage extends Component<any, any>
                 onPress={() => this.selectItem(item)}
                 hideChevron={true}
                 title={
-                    <View style={[styles.itemContainer, { flexDirection: this.strings.flexDir }]}>
+                    <View style={[styles.itemContainer, flexDirection(this.strings.isRTL)]}>
                         <Text style={[styles.text, valueStyle]}>
                             {retval}
                         </Text>
@@ -219,10 +221,10 @@ export class SearchPage extends Component<any, any>
     }
     renderSearchBar()
     {
-        let inputStyle = { textAlign: this.strings.sideByLang };
+        let inputStyle = textAlign(this.strings.isRTL);
         return (
             <SearchBar
-                ref={search => this.focusSearchBar(search)}
+                ref={search => this.searchbar = search}
                 lightTheme
                 clearIcon={{ color: '#86939e', name: "close" }}
                 onChangeText={searchVal => this.getItemsBySearchText(searchVal)}
@@ -262,11 +264,11 @@ export class SearchPage extends Component<any, any>
     renderChooseHeader()
     {
         return (
-            <View style={[styles.headerContainer, { flexDirection: this.strings.flexDir }]}>
-                <Text style={styles.headerText}>
+            <View style={[styles.headerContainer, flexDirection(this.strings.isRTL)]}>
+                <Text style={[styles.headerText, textAlign(this.strings.isRTL)]}>
                     {this.chooseFirstTitle}
                 </Text>
-                <Text style={styles.headerText} >
+                <Text style={[styles.headerText,textAlign(this.strings.isRTL)]} >
                     {this.chooseSecondTitle}
                 </Text>
             </View>
@@ -277,58 +279,58 @@ export class SearchPage extends Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-        {
-            backgroundColor: 'white'
-        },
+    {
+        backgroundColor: 'white'
+    },
     listContainer:
-        {
-            flex: 0.88
-        },
+    {
+        flex: 0.88
+    },
     list:
-        {
-            paddingHorizontal: scale(15),
+    {
+        paddingHorizontal: scale(15),
 
-        },
+    },
     itemContainer:
-        {
-            paddingVertical: scale(5)
-        },
+    {
+        paddingVertical: scale(5)
+    },
     text:
-        {
-            flex: 0.5,
-            color: 'black'
-        },
+    {
+        flex: 0.5,
+        color: 'black'
+    },
     valueText:
-        {
-            maxWidth: '60%'
-        },
+    {
+        maxWidth: '60%'
+    },
     headerContainer:
-        {
-            paddingHorizontal: scale(24),
-            paddingVertical: scale(10),
-            backgroundColor: colors.lightGray
-        },
+    {
+        paddingHorizontal: scale(24),
+        paddingVertical: scale(10),
+        backgroundColor: colors.lightGray
+    },
     headerText:
-        {
-            flex: 0.5,
-            fontSize: scale(12)
-        },
+    {
+        flex: 0.5,
+        fontSize: scale(12)
+    },
     searchInput:
-        {
-            backgroundColor: 'white'
-        },
+    {
+        backgroundColor: 'white'
+    },
     searchIndicator:
-        {
-            height: verticalScale(20),
-            padding: 0,
-            alignItems: 'center'
-        },
+    {
+        height: verticalScale(20),
+        padding: 0,
+        alignItems: 'center'
+    },
     // indicator for loading more results
     rowsIndicator:
-        {
-            flex: 1,
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            paddingTop: scale(10)
-        },
+    {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingTop: scale(10)
+    },
 });

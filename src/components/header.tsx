@@ -5,7 +5,7 @@ import
     View,
     Platform
 } from 'react-native';
-import { header, center } from "../styles/common";
+import { header, center, padding } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
@@ -14,15 +14,15 @@ import { scale } from '../utils/scale';
 export class HeaderComp extends Component<any, any>
 {
     static propTypes =
-        {
-            title: PropTypes.string.isRequired,
-            specialComponent: PropTypes.object,
-            goBack: PropTypes.func.isRequired
-        };
+    {
+        title: PropTypes.string.isRequired,
+        specialComponent: PropTypes.object,
+        goBack: PropTypes.func.isRequired
+    };
     static defaultProps =
-        {
-            specialComponent: {}
-        };
+    {
+        specialComponent: {}
+    };
     strings: Strings;
     constructor(props)
     {
@@ -34,7 +34,7 @@ export class HeaderComp extends Component<any, any>
         let iconName;
         let leftComp = this.props.specialComponent;
         let rightComp = this.props.specialComponent;
-        if (this.strings.dirByLang === 'rtl')
+        if (this.strings.isRTL)
         {
             iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
             rightComp = this.renderBackIcon(iconName);
@@ -58,7 +58,6 @@ export class HeaderComp extends Component<any, any>
     }
     renderBackIcon(iconName: string)
     {
-        let padding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(20) } : { paddingRight: scale(20) };
         return (<Icon
             type='ionicon'
             name={iconName}
@@ -66,33 +65,33 @@ export class HeaderComp extends Component<any, any>
             color='white'
             underlayColor='transparent'
             size={22}
-            containerStyle={[styles.backButton, padding]} />
+            containerStyle={[styles.backButton, padding(!this.strings.isRTL, scale(20))]} />
         );
     }
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
     headerTitleStyle:
-        {
-            alignSelf: 'center',
-            color: 'white',
-            fontSize: 19,
-            maxWidth: '85%'
-        },
+    {
+        alignSelf: 'center',
+        color: 'white',
+        fontSize: 19,
+        maxWidth: '85%'
+    },
     headerContainer:
-        {
-            flex: 0.12,
-        },
+    {
+        flex: 0.12,
+    },
     backButton:
-        {
-            paddingVertical:scale(30),
-            paddingHorizontal:scale(1),
-            ...Platform.select({
-                ios:
-                    {
-                        marginTop: 5
-                    }
-            })
+    {
+        paddingVertical: scale(30),
+        paddingHorizontal: scale(1),
+        ...Platform.select({
+            ios:
+            {
+                marginTop: 5
+            }
+        })
 
-        }
+    }
 });

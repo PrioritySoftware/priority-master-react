@@ -43,7 +43,7 @@ export class QRCodeScanner extends Component<any, any> {
   {
     let icon = null;
     let isIOS = this.strings.platform === 'ios';
-    if (this.strings.dirByLang === 'rtl')
+    if (this.strings.isRTL)
     {
       let iconName = isIOS ? 'ios-arrow-forward' : 'md-arrow-forward';
       icon = <Icon

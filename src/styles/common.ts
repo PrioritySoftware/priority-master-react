@@ -2,6 +2,7 @@ import
 {
     Platform
 } from 'react-native';
+
 export const colors =
     {
         primaryColor: "#1f9bd1",
@@ -58,3 +59,32 @@ export const iconNames =
         search: "ios-arrow-down",
         attach: iconName("attach"),
     };
+
+export const flexDirection = (isRTL: boolean) =>
+{
+    return isRTL ? { flexDirection: "row-reverse" } : { flexDirection: "row" };
+}
+export const textAlign = (isRTL: boolean) =>
+{
+    return isRTL ? { textAlign: "right" } : { textAlign: "left" };
+}
+export const alignItems = (isRTL: boolean) =>
+{
+    return isRTL ? { alignItems: "flex-start" } : { alignItems: "flex-end" };
+}
+export const alignSelf = (isRTL: boolean) =>
+{
+    return isRTL ? { alignSelf: "flex-start" } : { alignSelf: "flex-end" };
+}
+export const padding = (isRTL: boolean, padding: number,) =>
+{
+    return isRTL ? { paddingRight: padding } : { paddingLeft: padding };
+}
+export const margin = (isRTL: boolean, margin: number) =>
+{
+    return isRTL ? { marginRight: margin } : { marginLeft: margin };
+}
+export const position = (isRTL: boolean, position: number) =>
+{
+    return isRTL ? { right: position } : { left: position };
+}

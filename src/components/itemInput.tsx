@@ -23,7 +23,7 @@ import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
 import { MessageHandler } from './message.handler';
 import { Strings } from '../modules/strings';
-import { colors, iconNames } from '../styles/common';
+import { colors, iconNames, flexDirection } from '../styles/common';
 import { Search } from '../modules/search.class';
 
 @inject("formService", "messageHandler", "strings")
@@ -31,17 +31,17 @@ import { Search } from '../modules/search.class';
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
-        {
-            formPath: PropTypes.string.isRequired,
-            parentForm: PropTypes.any,
-            colName: PropTypes.string.isRequired,
-            itemIndex: PropTypes.number.isRequired,
-            itemOptions: PropTypes.object
-        };
+    {
+        formPath: PropTypes.string.isRequired,
+        parentForm: PropTypes.any,
+        colName: PropTypes.string.isRequired,
+        itemIndex: PropTypes.number.isRequired,
+        itemOptions: PropTypes.object
+    };
     static defaultProps =
-        {
-            itemOptions: {}
-        };
+    {
+        itemOptions: {}
+    };
     formService: FormService;
     messageHandler: MessageHandler;
     strings: Strings;
@@ -235,7 +235,7 @@ export class ItemInput extends Component<any, any>
         let containerMargin = isFirst ? { marginTop: verticalScale(10) } : isLast ? { marginBottom: verticalScale(20) } : {};
         return (
             <View style={[styles.container, containerMargin]}>
-                <View style={{ flexDirection: this.strings.flexDir }}>
+                <View style={flexDirection(this.strings.isRTL)}>
                     <FormLabel labelStyle={[styles.labelStyle, { color: labelColor }]}>{this.formCol.title} </FormLabel>
                     <Text style={[styles.asterisk, { display: mandatoryDisplay }]} >
                         *
@@ -339,49 +339,55 @@ const styles = StyleSheet.create({
         marginRight: 15,
         ...Platform.select({
             ios:
-                {
-                    marginLeft: 20,
-                    marginRight: 20,
-                },
+            {
+                marginLeft: 20,
+                marginRight: 20,
+            },
         }),
     },
     labelStyle:
-        {
-            fontWeight: 'normal',
-            marginTop: scale(10),
-            marginLeft: 0,
-            marginRight: 0,
-            ...Platform.select({
-                ios:
-                    {
-                        marginLeft: 5,
-                        marginRight: 5,
-                    },
-            }),
-        },
+    {
+        fontWeight: 'normal',
+        marginTop: scale(10),
+        marginLeft: 0,
+        marginRight: 0,
+        ...Platform.select({
+            ios:
+            {
+                marginLeft: 5,
+                marginRight: 5,
+            },
+        }),
+    },
     asterisk:
-        {
-            marginTop: verticalScale(10),
-            marginBottom:verticalScale(-5),
-            marginHorizontal: 1,
-            color: 'red',
-            fontSize: 17
-        },
-        inputContainer:
-        {
-            marginLeft: 0,
-            marginRight: 0,
-            marginBottom:verticalScale(6),
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray,
-            width: '100%',
-        },
-        input:
-        {
-            fontWeight: 'bold',
-            marginLeft: 0,
-            marginRight: 0,
-            marginBottom:verticalScale(-13),
-            marginTop:verticalScale(-2)
-        },
+    {
+        marginTop: verticalScale(10),
+        marginBottom: verticalScale(-5),
+        marginHorizontal: 1,
+        color: 'red',
+        fontSize: 17
+    },
+    inputContainer:
+    {
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: verticalScale(6),
+        borderBottomWidth: 1,
+        borderBottomColor: colors.gray,
+        width: '100%',
+    },
+    input:
+    {
+        fontWeight: 'bold',
+        marginLeft: 0,
+        marginRight: 0,
+        marginBottom: verticalScale(-13),
+        marginTop: verticalScale(-2),
+        ...Platform.select({
+            ios:
+            {
+                marginBottom: verticalScale(-2.5)
+            }
+        })
+    },
 });

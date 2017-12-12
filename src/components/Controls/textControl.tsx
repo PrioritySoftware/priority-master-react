@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
+import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
-import { colors, iconNames } from '../../styles/common';
+import { colors, iconNames, padding, flexDirection, textAlign, margin } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
 import { observable } from 'mobx';
 import { Strings } from '../../modules/strings';
@@ -13,31 +13,31 @@ import { Strings } from '../../modules/strings';
 export default class TextControl extends Component<any, any> {
 
     static propTypes =
-        {
-            value: PropTypes.string.isRequired,
-            maxLength: PropTypes.number,
-            onUpdate: PropTypes.func.isRequired,
-            placeholder: PropTypes.string,
-            disabled: PropTypes.bool,
-            direction: PropTypes.string,
-            icon: PropTypes.string,
-            iconClick: PropTypes.func,
-            containerStyle: PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.number,
-                PropTypes.shape({}),
-            ]),
-            inputStyle: PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.number,
-                PropTypes.shape({}),
-            ]),
-        };
+    {
+        value: PropTypes.string.isRequired,
+        maxLength: PropTypes.number,
+        onUpdate: PropTypes.func.isRequired,
+        placeholder: PropTypes.string,
+        disabled: PropTypes.bool,
+        direction: PropTypes.string,
+        icon: PropTypes.string,
+        iconClick: PropTypes.func,
+        containerStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+        inputStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+    };
     static defaultProps =
-        {
-            value: '',
-            icon: ''
-        };
+    {
+        value: '',
+        icon: ''
+    };
 
     strings: Strings;
 
@@ -97,11 +97,11 @@ export default class TextControl extends Component<any, any> {
     render()
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
-        let inputPadding = {};
+        let inputWidth = '100%';
         if (this.props.icon !== '')
-            inputPadding = this.strings.dirByLang === 'rtl' ? { paddingLeft: scale(25) } : { paddingRight: scale(25) };
+            inputWidth = '95%';
         return (
-            <View style={{ flexDirection: this.strings.flexDir }}>
+            <View style={flexDirection(this.strings.isRTL)}>
                 <FormInput
                     textInputRef={textInput => this.textInput = textInput}
                     editable={!this.props.disabled}
@@ -114,8 +114,8 @@ export default class TextControl extends Component<any, any> {
                     onChangeText={this.handleChange}
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
-                    containerStyle={[this.props.containerStyle, { flexDirection: this.strings.flexDir }]}
-                    inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }, inputPadding]}
+                    containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
+                    inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: textColor, width: inputWidth }]}
                 />
                 {this.renderIcon()}
             </View>
@@ -124,16 +124,17 @@ export default class TextControl extends Component<any, any> {
     renderIcon()
     {
         let iconColor = this.props.disabled ? colors.gray : colors.darkGray;
-        let padding = this.strings.sideByLang === 'right' ? { paddingRight: scale(20) } : { paddingLeft: scale(20) };
         let { icon, iconClick } = this.props;
         let isSmallIcon = icon === iconNames.search || icon === iconNames.attach;
         let iconMargin = isSmallIcon ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
+        if (isSmallIcon && icon === iconNames.attach && this.strings.platform === 'ios')
+            iconMargin = { marginHorizontal: scale(-35) };
         if (icon !== '')
         {
             return (
                 <Icon type='ionicon' name={icon}
                     size={23} color={iconColor}
-                    style={[isSmallIcon && styles.icon, !isSmallIcon && styles.largeIcon, padding, iconMargin]}
+                    style={[isSmallIcon && styles.icon, !isSmallIcon && styles.largeIcon, padding(this.strings.isRTL, scale(20)), iconMargin]}
                     underlayColor='transparent'
                     onPress={() => iconClick()} />
             );
@@ -145,11 +146,11 @@ export default class TextControl extends Component<any, any> {
 
 const styles = StyleSheet.create({
     icon:
-        {
-            marginTop: verticalScale(8)
-        },
+    {
+        marginTop: verticalScale(8)
+    },
     largeIcon:
-        {
-            marginTop: verticalScale(5)
-        }
+    {
+        marginTop: verticalScale(5)
+    }
 });

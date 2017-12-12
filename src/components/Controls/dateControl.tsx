@@ -6,7 +6,7 @@ import { Text, StyleSheet, Platform } from 'react-native';
 import DatePicker from './DatePicker/datePicker';
 import moment from 'moment';
 import { scale, verticalScale } from '../../utils/scale';
-import { colors } from '../../styles/common';
+import { colors, textAlign, flexDirection } from '../../styles/common';
 import { Icon } from 'react-native-elements';
 import { Strings } from '../../modules/strings';
 
@@ -23,10 +23,10 @@ export default class DateControl extends Component<any, any>
         mode: PropTypes.string
     };
     static defaultProps =
-        {
-            mode: 'date',
-            value: ''
-        };
+    {
+        mode: 'date',
+        value: ''
+    };
 
     strings: Strings;
 
@@ -103,19 +103,13 @@ export default class DateControl extends Component<any, any>
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
             <DatePicker
-                containerStyle={[styles.container, { flexDirection: this.strings.flexDir }]}
+                containerStyle={[styles.container, flexDirection(this.strings.isRTL)]}
                 initialDate={this.selectedDate}
                 mode={this.props.mode}
                 onDone={this.handleChange}
                 disabled={this.props.disabled}
             >
-                <Text
-                    style={[
-                        styles.text,
-                        {
-                            textAlign: this.strings.sideByLang,
-                            color: textColor
-                        }]}>
+                <Text style={[styles.text, textAlign(this.strings.isRTL), { color: textColor }]}>
                     {this.formatedDate}
                 </Text>
                 <Icon type='ionicon' name={iconName} size={23} color={iconColor} />
@@ -125,26 +119,26 @@ export default class DateControl extends Component<any, any>
 }
 let styles = StyleSheet.create({
     container:
-        {
-            borderBottomWidth: 1,
-            borderBottomColor: colors.gray,
-            paddingHorizontal: scale(2.5),
-            marginBottom: verticalScale(8),
-            paddingTop: 4.5,
-            paddingBottom: 3.5,
-        },
+    {
+        borderBottomWidth: 1,
+        borderBottomColor: colors.gray,
+        paddingHorizontal: scale(2.5),
+        marginBottom: verticalScale(8),
+        paddingTop: 4.5,
+        paddingBottom: 3.5,
+    },
     iconStyle:
-        {
-            width: scale(16),
-            height: scale(24),
-            resizeMode: 'contain',
-        },
+    {
+        width: scale(16),
+        height: scale(24),
+        resizeMode: 'contain',
+    },
 
     text:
-        {
-            flex: 1,
-            fontWeight: 'bold',
-            marginTop:scale(5),
-            fontSize:scale(14)
-        }
+    {
+        flex: 1,
+        fontWeight: 'bold',
+        marginTop: scale(5),
+        fontSize: scale(14)
+    }
 });

@@ -6,7 +6,7 @@ import { Keyboard, StyleSheet, EmitterSubscription, Platform } from 'react-nativ
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
 import { verticalScale } from '../../utils/scale';
-import { colors } from '../../styles/common';
+import { colors, flexDirection, textAlign } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { Strings } from '../../modules/strings';
 
@@ -29,12 +29,12 @@ export default class NumberControl extends Component<any, any> {
         onUpdate: PropTypes.func.isRequired,
         placeholder: PropTypes.string,
         disabled: PropTypes.bool,
-        containerStyle:PropTypes.oneOfType([
+        containerStyle: PropTypes.oneOfType([
             PropTypes.array,
             PropTypes.number,
             PropTypes.shape({}),
         ]),
-        inputStyle:PropTypes.oneOfType([
+        inputStyle: PropTypes.oneOfType([
             PropTypes.array,
             PropTypes.number,
             PropTypes.shape({}),
@@ -150,13 +150,13 @@ export default class NumberControl extends Component<any, any> {
                 onChangeText={this.handleChange}
                 onEndEditing={this.handleEndEditing}
                 underlineColorAndroid='transparent'
-                containerStyle={[this.props.containerStyle, { flexDirection: this.strings.flexDir }]}
-                inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }]}
+                containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
+                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: textColor }]}
             />
         )
     }
 }
 
 const styles = StyleSheet.create({
-  
+
 });

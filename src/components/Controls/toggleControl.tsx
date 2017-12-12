@@ -3,7 +3,7 @@ import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Switch } from 'react-native';
-import { colors } from '../../styles/common';
+import { colors, alignItems } from '../../styles/common';
 import { scale, verticalScale } from '../../utils/scale';
 import { Strings } from '../../modules/strings';
 
@@ -77,9 +77,8 @@ export default class ToggleControl extends Component<any, any>
             if (this.strings.platform === 'ios')
                 thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(226, 226, 226, 0.6)';
         }
-        let alignItems = this.strings.sideByLang === 'right' ? 'flex-start' : 'flex-end';
         return (
-            <View style={[styles.switchContainer, { alignItems: alignItems }]}>
+            <View style={[styles.switchContainer, alignItems(this.strings.isRTL)]}>
                 <Switch
                     value={this.isSelected}
                     onValueChange={newVal => { this.handleToggle(newVal) }}

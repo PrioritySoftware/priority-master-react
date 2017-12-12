@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
-import { verticalScale } from '../../utils/scale';
-import { colors } from '../../styles/common';
+import { Keyboard,, EmitterSubscription, } from 'react-native';
+import { colors, flexDirection, textAlign } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { observable } from 'mobx';
 import { Strings } from '../../modules/strings';
@@ -13,27 +12,27 @@ import { Strings } from '../../modules/strings';
 export default class DurationControl extends Component<any, any> {
 
     static propTypes =
-        {
-            value: PropTypes.string.isRequired,
-            maxLength: PropTypes.number,
-            onUpdate: PropTypes.func.isRequired,
-            disabled: PropTypes.bool,
-            direction: PropTypes.string,
-            containerStyle:PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.number,
-                PropTypes.shape({}),
-            ]),
-            inputStyle:PropTypes.oneOfType([
-                PropTypes.array,
-                PropTypes.number,
-                PropTypes.shape({}),
-            ]),
-        };
+    {
+        value: PropTypes.string.isRequired,
+        maxLength: PropTypes.number,
+        onUpdate: PropTypes.func.isRequired,
+        disabled: PropTypes.bool,
+        direction: PropTypes.string,
+        containerStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+        inputStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
+    };
     static defaultProps =
-        {
-            value: '',
-        };
+    {
+        value: '',
+    };
 
     strings: Strings;
 
@@ -99,22 +98,19 @@ export default class DurationControl extends Component<any, any> {
     {
         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
-                <FormInput
-                    textInputRef={textInput => this.textInput = textInput}
-                    editable={!this.props.disabled}
-                    keyboardType='numeric'
-                    value={this.text}
-                    maxLength={this.props.maxLength}
-                    onChangeText={this.handleChange}
-                    onBlur={this.handleEndEditing}
-                    underlineColorAndroid="transparent"
-                    containerStyle={[this.props.containerStyle,{ flexDirection: this.strings.flexDir }]}
-                    inputStyle={[this.props.inputStyle, { textAlign: this.strings.sideByLang, color: textColor }]}
-                />
+            <FormInput
+                textInputRef={textInput => this.textInput = textInput}
+                editable={!this.props.disabled}
+                keyboardType='numeric'
+                value={this.text}
+                maxLength={this.props.maxLength}
+                onChangeText={this.handleChange}
+                onBlur={this.handleEndEditing}
+                underlineColorAndroid="transparent"
+                containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
+                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: textColor }]}
+            />
         )
     }
 }
 
-const styles = StyleSheet.create({
- 
-});

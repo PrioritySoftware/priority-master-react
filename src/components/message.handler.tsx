@@ -1,4 +1,4 @@
-import { Alert, ActivityIndicator } from 'react-native';
+import { Alert } from 'react-native';
 import { Strings } from '../modules';
 import { MessageOptions } from '../modules/messageOptions.class';
 import Toast from 'react-native-simple-toast';
@@ -224,7 +224,6 @@ export class MessageHandler
         //message = message.replace(/(\r\n|\n|\r)/gm, "<br>");
         let options: MessageOptions =
             {
-                cssClass: this.strings.dirByLang,
                 duration: null,
                 isShowBackDrop: true,
                 spinner: "crescent",

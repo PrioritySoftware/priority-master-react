@@ -10,7 +10,7 @@ import
 } from 'react-native';
 import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { colors, container } from '../styles/common';
+import { colors, container, alignSelf } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { scale, verticalScale } from '../utils/scale';
@@ -171,15 +171,15 @@ export class ListPage extends React.Component<any, any>
     renderActivityIndicator(text: string)
     {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',width:'100%' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                 <Text>{text}</Text>
-                <ActivityIndicator style={{ marginTop: 10 }} ></ActivityIndicator>
+                <ActivityIndicator style={{ marginTop: 10 }} color="black" ></ActivityIndicator>
             </View>
         );
     }
     renderList()
     {
-        let isRTL = this.strings.dirByLang === "rtl";
+        let isRTL = this.strings.isRTL;
 
         // in case there are no rows
         if (this.rows.size === 0)
@@ -207,7 +207,7 @@ export class ListPage extends React.Component<any, any>
             </View>
         );
     }
-    renderFooter =()=> 
+    renderFooter = () => 
     {
         {/* Loading indicator for loading more rows */ }
         return (
@@ -219,14 +219,13 @@ export class ListPage extends React.Component<any, any>
     }
     renderEmptyState()
     {
-        let scaleX = this.strings.dirByLang === "rtl" ? -1 : 1;
-        let flex = this.strings.dirByLang === "rtl" ? 'flex-start' : 'flex-end';
+        let scaleX = this.strings.isRTL ? -1 : 1;
         return (
             <View style={styles.emptyState}>
                 <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
                 <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>
                 <Image source={require('../../assets/img/EmptyStateArrow.png')}
-                    style={[styles.emptyStateArrow, { alignSelf: flex, transform: [{ scaleX: scaleX }] }]} />
+                    style={[styles.emptyStateArrow, alignSelf(this.strings.isRTL), { transform: [{ scaleX: scaleX }] }]} />
                 {this.renderAddBtn()}
             </View>
         );
@@ -257,7 +256,7 @@ export class ListPage extends React.Component<any, any>
     renderHiddenRow = (row, secId, rowId, rowsMap) =>
     {
         rowId++;
-        let isRTL = this.strings.dirByLang === "rtl";
+        let isRTL = this.strings.isRTL;
         return (
             <View style={[styles.rowBack, isRTL ? styles.rtlFlex : styles.ltrFlex]} >
 
@@ -289,10 +288,10 @@ export class ListPage extends React.Component<any, any>
         let offsetY = 30;
         if (this.strings.platform === 'android')
         {
-            offsetX = this.strings.dirByLang === "rtl" ? -25 : 20;
+            offsetX = this.strings.isRTL ? -25 : 20;
             offsetY = 20;
         }
-        let position = this.strings.dirByLang === "rtl" ? 'left' : 'right';
+        let position = this.strings.isRTL ? 'left' : 'right';
         return (
 
             <ActionButton
@@ -312,53 +311,53 @@ export class ListPage extends React.Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-        {
-            backgroundColor: colors.lightGray
-        },
+    {
+        backgroundColor: colors.lightGray
+    },
     listContainer:
-        {
-            flex: 0.88
-        },
+    {
+        flex: 0.88
+    },
     // hidden buttons
     rowBack:
-        {
-            flex: 2,
-            flexDirection: 'column',
-            top: verticalScale(12),
-            paddingBottom: verticalScale(13.4)
-        },
+    {
+        flex: 2,
+        flexDirection: 'column',
+        top: verticalScale(12),
+        paddingBottom: verticalScale(13.4)
+    },
     rtlFlex:
-        {
-            alignItems: 'flex-start'
-        },
+    {
+        alignItems: 'flex-start'
+    },
     ltrFlex:
-        {
-            alignItems: 'flex-end'
-        },
+    {
+        alignItems: 'flex-end'
+    },
     hiddenBtnContainer:
-        {
-            flex: 2,
+    {
+        flex: 2,
 
-        },
+    },
     hiddenBtn:
-        {
-            flexDirection: 'column',
-            flex: 2,
-            paddingHorizontal: 15,
-            minWidth: scale(80)
-        },
+    {
+        flexDirection: 'column',
+        flex: 2,
+        paddingHorizontal: 15,
+        minWidth: scale(80)
+    },
     hiddenIcon:
-        {
-            marginRight: 0
-        },
+    {
+        marginRight: 0
+    },
     // indicator for loading more rows
     rowsIndicator:
-        {
-            flex: 1,
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            paddingTop: scale(10)
-        },
+    {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingTop: scale(10)
+    },
     // empty state
     emptyState: {
         flex: 1,

@@ -44,7 +44,7 @@ export class App extends React.Component<any, any>
         this.navigator = StackNavigator(Pages,
             {
                 initialRouteName: root,
-                transitionConfig: navigationTransition(providers.strings.dirByLang === 'rtl')
+                transitionConfig: navigationTransition(providers.strings.isRTL)
             });
         this.setState({ isFinishedloading: true });
 

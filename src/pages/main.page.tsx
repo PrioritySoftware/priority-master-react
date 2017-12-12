@@ -5,7 +5,7 @@ import
     View,
     ScrollView,
 } from 'react-native';
-import {  Strings, Entity } from '../modules';
+import { Strings, Entity } from '../modules';
 import { ConfigService } from '../providers/config.service';
 import { Header } from 'react-native-elements'
 import { SVG } from '../components/svg';
@@ -57,7 +57,7 @@ export class MainPage extends React.Component<any, any>
             if (ent.fatname !== ent.name && ent.fatname !== undefined)
                 continue;
             let marginTopStyle = cards.length ? {} : { marginTop: 9 };
-            let borderStye = this.strings.dirByLang === "rtl" ? styles.borderRight : styles.borderLeft;
+            let borderStye = this.strings.isRTL ? styles.borderRight : styles.borderLeft;
             let newCard =
                 <Card key={ent.name}
                     title={ent.title}
@@ -102,10 +102,10 @@ export class MainPage extends React.Component<any, any>
         }
         else if (ent.type === 'F')
         {
-            this.props.navigation.navigate(Pages.List.name, 
-                { 
-                    formName:ent.name,
-                    formTitle:ent.title
+            this.props.navigation.navigate(Pages.List.name,
+                {
+                    formName: ent.name,
+                    formTitle: ent.title
                 });
         }
     }
@@ -115,36 +115,36 @@ export class MainPage extends React.Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-        {
-            backgroundColor: colors.lightGray
-        },
+    {
+        backgroundColor: colors.lightGray
+    },
     headerContainer:
-        {
-            flex: 0.14,
-        },
+    {
+        flex: 0.14,
+    },
     cardContainer:
-        {
-            marginTop: 0,
-            marginBottom: 9,
-            borderRadius: 2,
-            borderWidth: 1,
-            backgroundColor: 'white',
-            borderColor: colors.gray
+    {
+        marginTop: 0,
+        marginBottom: 9,
+        borderRadius: 2,
+        borderWidth: 1,
+        backgroundColor: 'white',
+        borderColor: colors.gray
 
-        },
+    },
     cardText:
-        {
-            color: 'black',
-            fontFamily: 'Arial'
-        },
+    {
+        color: 'black',
+        fontFamily: 'Arial'
+    },
     borderRight:
-        {
-            borderRightWidth: 4,
-            borderColor: colors.darkBlue
-        },
+    {
+        borderRightWidth: 4,
+        borderColor: colors.darkBlue
+    },
     borderLeft:
-        {
-            borderLeftWidth: 4,
-            borderColor: colors.darkBlue
-        }
+    {
+        borderLeftWidth: 4,
+        borderColor: colors.darkBlue
+    }
 });

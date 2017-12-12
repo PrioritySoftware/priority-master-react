@@ -8,7 +8,7 @@ import { Form } from "../modules/form.class";
 import { inject, observer } from "mobx-react";
 import * as moment from 'moment';
 import { Card } from './card';
-import { colors } from '../styles/common';
+import { colors, position } from '../styles/common';
 import * as React from 'react';
 
 @inject("formService", "strings")
@@ -37,8 +37,8 @@ export class Row extends React.Component<any, any>
                 // Date values are displayed according to the column's 'format' property.
                 if (column.type === 'date')
                     colValue = moment.utc(colValue).format(column.format);
-                let titleStyle = this.props.strings.dirByLang === "rtl" ? { right: 0 } : { left: 0 };
-                let valueStyle = this.props.strings.dirByLang === "rtl" ? { left: 0 } : { right: 0 };
+                let titleStyle = position(this.props.strings.isRTL, 0);
+                let valueStyle = position(!this.props.strings.isRTL, 0);
                 let columnComp;
                 if (columns.length !== 0)
                 {
@@ -76,31 +76,31 @@ export class Row extends React.Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     cardContainer:
-        {
-            marginTop: 10,
-            borderRadius: 2,
-            borderWidth: 1,
-            backgroundColor: 'white',
-            borderColor: colors.gray,
-            padding: 15,
-            marginHorizontal: 10
+    {
+        marginTop: 10,
+        borderRadius: 2,
+        borderWidth: 1,
+        backgroundColor: 'white',
+        borderColor: colors.gray,
+        padding: 15,
+        marginHorizontal: 10
 
-        },
+    },
     text:
-        {
-            position: 'absolute',
-        },
+    {
+        position: 'absolute',
+    },
     valueText:
-        {
-            maxWidth: '60%'
-        },
+    {
+        maxWidth: '60%'
+    },
     textContainer:
-        {
-            paddingVertical: 15,
-        },
+    {
+        paddingVertical: 15,
+    },
     bold:
-        {
-            fontWeight: 'bold'
-        },
-   
+    {
+        fontWeight: 'bold'
+    },
+
 });

@@ -10,7 +10,7 @@ import { SVG } from '../components/svg';
 import { Header, Text, Button } from 'react-native-elements';
 import { AppService } from '../providers/app.service';
 import TextField from 'react-native-md-textinput';
-import { colors, center, header } from '../styles/common';
+import { colors, center, header, textAlign } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
@@ -87,9 +87,7 @@ export class LoginPage extends React.Component<any, any>
     }
     render() 
     {
-        let isRTL;
-        isRTL = this.strings.dirByLang === 'rtl';
-        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
+        let labelStyle = this.strings.isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         if (this.state.isPasswordExpired)
             return this.renderForgotpassword(labelStyle);
         return this.renderLogin(labelStyle);
@@ -112,7 +110,7 @@ export class LoginPage extends React.Component<any, any>
                         onChangeText={(text) => this.username = text}
                         highlightColor={'#1f9bd1'}
                         labelStyle={labelStyle}
-                        inputStyle={{ textAlign: this.strings.sideByLang }}
+                        inputStyle={textAlign(this.strings.isRTL)}
                         height={38}
                     />
                     <TextField
@@ -121,7 +119,7 @@ export class LoginPage extends React.Component<any, any>
                         onEndEditing={() => this.login()}
                         highlightColor={'#1f9bd1'}
                         labelStyle={labelStyle}
-                        inputStyle={{ textAlign: this.strings.sideByLang }}
+                        inputStyle={textAlign(this.strings.isRTL)}
                         secureTextEntry={true}
                         height={38}
                     />
@@ -157,7 +155,7 @@ export class LoginPage extends React.Component<any, any>
                             onChangeText={(text) => this.oldPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />
@@ -166,7 +164,7 @@ export class LoginPage extends React.Component<any, any>
                             onChangeText={(text) => this.newPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />
@@ -175,7 +173,7 @@ export class LoginPage extends React.Component<any, any>
                             onChangeText={(text) => this.confirmNewPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />
@@ -200,46 +198,46 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     appname:
-        {
-            marginTop: 40,
+    {
+        marginTop: 40,
 
-        },
+    },
     headerContainer:
-        {
-            flex: 0.4,
-        },
+    {
+        flex: 0.4,
+    },
     inputContainer:
-        {
-            paddingHorizontal: 45
+    {
+        paddingHorizontal: 45
 
-        },
+    },
     login:
-        {
-            paddingTop: 15,
-            paddingRight: 40,
-            paddingLeft: 40,
-            borderColor: colors.primaryColor,
-            borderWidth: 1,
-            borderRadius: 2,
-            marginTop: 45,
-        },
+    {
+        paddingTop: 15,
+        paddingRight: 40,
+        paddingLeft: 40,
+        borderColor: colors.primaryColor,
+        borderWidth: 1,
+        borderRadius: 2,
+        marginTop: 45,
+    },
     forgotPassword:
-        {
-            marginTop: 15,
-            marginBottom: 20,
-            textDecorationLine: 'underline',
-            color: colors.primaryColor
-        },
+    {
+        marginTop: 15,
+        marginBottom: 20,
+        textDecorationLine: 'underline',
+        color: colors.primaryColor
+    },
     changePassTitle:
-        {
-            fontSize: 20
-        },
+    {
+        fontSize: 20
+    },
     changePassFirstTitle:
-        {
-            marginTop: 30,
-        },
+    {
+        marginTop: 30,
+    },
     changePass:
-        {
-            marginTop: 35
-        }
+    {
+        marginTop: 35
+    }
 });
