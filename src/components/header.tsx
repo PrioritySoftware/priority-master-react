@@ -5,7 +5,7 @@ import
     View,
     Platform
 } from 'react-native';
-import { header, center, padding } from "../styles/common";
+import { header, center, margin } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
@@ -65,7 +65,7 @@ export class HeaderComp extends Component<any, any>
             color='white'
             underlayColor='transparent'
             size={22}
-            containerStyle={[styles.backButton, padding(!this.strings.isRTL, scale(20))]} />
+            containerStyle={[styles.backButton, margin(this.strings.isRTL, scale(-20))]} />
         );
     }
 }
@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
     backButton:
     {
         paddingVertical: scale(30),
-        paddingHorizontal: scale(1),
+        paddingHorizontal: scale(20),
         ...Platform.select({
             ios:
             {
-                marginTop: 5
+                paddingTop: scale(35)
             }
         })
 

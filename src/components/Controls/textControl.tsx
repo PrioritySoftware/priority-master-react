@@ -13,31 +13,31 @@ import { Strings } from '../../modules/strings';
 export default class TextControl extends Component<any, any> {
 
     static propTypes =
-    {
-        value: PropTypes.string.isRequired,
-        maxLength: PropTypes.number,
-        onUpdate: PropTypes.func.isRequired,
-        placeholder: PropTypes.string,
-        disabled: PropTypes.bool,
-        direction: PropTypes.string,
-        icon: PropTypes.string,
-        iconClick: PropTypes.func,
-        containerStyle: PropTypes.oneOfType([
-            PropTypes.array,
-            PropTypes.number,
-            PropTypes.shape({}),
-        ]),
-        inputStyle: PropTypes.oneOfType([
-            PropTypes.array,
-            PropTypes.number,
-            PropTypes.shape({}),
-        ]),
-    };
+        {
+            value: PropTypes.string.isRequired,
+            maxLength: PropTypes.number,
+            onUpdate: PropTypes.func.isRequired,
+            placeholder: PropTypes.string,
+            disabled: PropTypes.bool,
+            direction: PropTypes.string,
+            icon: PropTypes.string,
+            iconClick: PropTypes.func,
+            containerStyle: PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+            inputStyle: PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+        };
     static defaultProps =
-    {
-        value: '',
-        icon: ''
-    };
+        {
+            value: '',
+            icon: ''
+        };
 
     strings: Strings;
 
@@ -127,7 +127,7 @@ export default class TextControl extends Component<any, any> {
         let { icon, iconClick } = this.props;
         let isSmallIcon = icon === iconNames.search || icon === iconNames.attach;
         let iconMargin = isSmallIcon ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
-        if (isSmallIcon && icon === iconNames.attach && this.strings.platform === 'ios')
+        if (isSmallIcon && icon === iconNames.attach)
             iconMargin = { marginHorizontal: scale(-35) };
         if (icon !== '')
         {
@@ -146,11 +146,13 @@ export default class TextControl extends Component<any, any> {
 
 const styles = StyleSheet.create({
     icon:
-    {
-        marginTop: verticalScale(8)
-    },
+        {
+            alignSelf: 'flex-end',
+            marginBottom: verticalScale(8),
+        },
     largeIcon:
-    {
-        marginTop: verticalScale(5)
-    }
+        {
+            alignSelf: 'flex-end',
+            marginBottom: verticalScale(12),
+        }
 });

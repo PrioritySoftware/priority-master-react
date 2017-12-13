@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginLeft: 0,
         marginRight: 0,
-        marginBottom: verticalScale(-13),
+        marginBottom: verticalScale(-12),
         marginTop: verticalScale(-2),
         ...Platform.select({
             ios:
