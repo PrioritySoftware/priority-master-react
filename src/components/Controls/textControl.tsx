@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View } from 'react-native';
+import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
 import { colors, iconNames, padding, flexDirection, textAlign, margin } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
@@ -148,11 +148,20 @@ const styles = StyleSheet.create({
     icon:
         {
             alignSelf: 'flex-end',
-            marginBottom: verticalScale(8),
+            paddingVertical: verticalScale(8),
+            marginTop: verticalScale(-8),
         },
     largeIcon:
         {
             alignSelf: 'flex-end',
-            marginBottom: verticalScale(12),
+            paddingVertical: verticalScale(12),
+            marginTop: verticalScale(-12),
+            ...Platform.select({
+                ios:
+                {
+                    paddingVertical: verticalScale(10),
+                    marginTop: verticalScale(-10),
+                }
+            })
         }
 });
