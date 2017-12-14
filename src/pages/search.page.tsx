@@ -72,10 +72,9 @@ export class SearchPage extends Component<any, any>
     setCanLoadMore(search: Search)
     {
         if (search.next <= 0)
-        {
             this.canLoadMore = false;
-        }
-
+        else
+            this.canLoadMore = true;
     }
     goBack()
     {
@@ -181,7 +180,7 @@ export class SearchPage extends Component<any, any>
                         renderScrollComponent={props => <InfiniteScrollView {...props} />}
                         canLoadMore={this.canLoadMore}
                         onLoadMoreAsync={this.doInfinite}
-                        distanceToLoadMore={300}
+                        distanceToLoadMore={500}
                     />
                 </View>
             </View >
@@ -268,7 +267,7 @@ export class SearchPage extends Component<any, any>
                 <Text style={[styles.headerText, textAlign(this.strings.isRTL)]}>
                     {this.chooseFirstTitle}
                 </Text>
-                <Text style={[styles.headerText,textAlign(this.strings.isRTL)]} >
+                <Text style={[styles.headerText, textAlign(this.strings.isRTL)]} >
                     {this.chooseSecondTitle}
                 </Text>
             </View>
@@ -279,58 +278,58 @@ export class SearchPage extends Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-    {
-        backgroundColor: 'white'
-    },
+        {
+            backgroundColor: 'white'
+        },
     listContainer:
-    {
-        flex: 0.88
-    },
+        {
+            flex: 0.88
+        },
     list:
-    {
-        paddingHorizontal: scale(15),
+        {
+            paddingHorizontal: scale(15),
 
-    },
+        },
     itemContainer:
-    {
-        paddingVertical: scale(5)
-    },
+        {
+            paddingVertical: scale(5)
+        },
     text:
-    {
-        flex: 0.5,
-        color: 'black'
-    },
+        {
+            flex: 0.5,
+            color: 'black'
+        },
     valueText:
-    {
-        maxWidth: '60%'
-    },
+        {
+            maxWidth: '60%'
+        },
     headerContainer:
-    {
-        paddingHorizontal: scale(24),
-        paddingVertical: scale(10),
-        backgroundColor: colors.lightGray
-    },
+        {
+            paddingHorizontal: scale(24),
+            paddingVertical: scale(10),
+            backgroundColor: colors.lightGray
+        },
     headerText:
-    {
-        flex: 0.5,
-        fontSize: scale(12)
-    },
+        {
+            flex: 0.5,
+            fontSize: scale(12)
+        },
     searchInput:
-    {
-        backgroundColor: 'white'
-    },
+        {
+            backgroundColor: 'white'
+        },
     searchIndicator:
-    {
-        height: verticalScale(20),
-        padding: 0,
-        alignItems: 'center'
-    },
+        {
+            height: verticalScale(20),
+            padding: 0,
+            alignItems: 'center'
+        },
     // indicator for loading more results
     rowsIndicator:
-    {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        paddingTop: scale(10)
-    },
+        {
+            flex: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            paddingTop: scale(10)
+        },
 });
