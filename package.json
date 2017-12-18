@@ -10,12 +10,14 @@
     "build": "npm run clean && npm run tsc --"
   },
   "dependencies": {
+    "mobx-react": "4.3.4",
     "moment": "2.19.2",
     "priority-web-sdk": "1.8.6",
     "react": "16.0.0-alpha.12",
     "react-native": "0.48.4",
     "react-native-action-button": "2.8.1",
     "react-native-camera": "0.10.0",
+    "react-native-communications": "^2.2.1",
     "react-native-elements": "^0.16.0",
     "react-native-infinite-scroll-view": "^0.4.3",
     "react-native-keyboard-aware-scroll-view": "^0.4.1",

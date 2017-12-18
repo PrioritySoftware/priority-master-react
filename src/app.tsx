@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
-import { StartPage, LoginPage, MainPage, ListPage } from './pages';
 import { StackNavigator } from 'react-navigation';
-import { PageProps, LocalStorageUserData } from './modules/index';
-import { QRCodeScanner } from './components/qrscanner';
+import { LocalStorageUserData } from './modules/index';
 import providers from './providers';
+import { Pages } from './pages';
 import SplashScreen from "rn-splash-screen";
+import { Provider } from "mobx-react";
+import { navigationTransition } from "./utils/navigation";
 
-// https://stackoverflow.com/questions/45670065/mobx-react-native-way-to-inject-stores
-export class App extends React.Component<PageProps, any>
+export class App extends React.Component<any, any>
 {
     navigator;
     constructor(props)
@@ -25,7 +25,9 @@ export class App extends React.Component<PageProps, any>
         if (this.state.isFinishedloading)
         {
             return (
-                <this.navigator screenProps={{ ...providers }} />
+                <Provider { ...providers }>
+                    <this.navigator />
+                </Provider>
             );
         }
         return (
@@ -39,16 +41,10 @@ export class App extends React.Component<PageProps, any>
     }
     setNavigationStack(root: string)
     {
-        this.navigator = StackNavigator(
+        this.navigator = StackNavigator(Pages,
             {
-                Start: { screen: StartPage },
-                QRCodeScanner: { screen: QRCodeScanner },
-                Login: { screen: LoginPage },
-                Main: { screen: MainPage },
-                List: { screen: ListPage }
-            },
-            {
-                initialRouteName: root
+                initialRouteName: root,
+                transitionConfig: navigationTransition(providers.strings.isRTL)
             });
         this.setState({ isFinishedloading: true });
 

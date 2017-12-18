@@ -4,28 +4,26 @@ import
   StyleSheet,
   Text,
   View,
-  Image,
-  Dimensions
+  Image
 } from 'react-native';
-import { PageProps, ServerResponse, Strings } from '../modules';
+import {  ServerResponse, Strings } from '../modules';
 import { MessageHandler } from '../components/message.handler';
-
+import {Pages} from '.';
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
 import { colors } from '../styles/common';
 import { ConfigService } from '../providers/config.service';
-import { AppService } from '../providers/app.service';
+import { inject } from 'mobx-react';
 const Permissions = require('react-native-permissions');
 
-export class StartPage extends React.Component<PageProps, any>
+@inject( "configService", "messageHandler", "strings")
+export class StartPage extends React.Component<any, any>
 {
   static navigationOptions = { header: null };
 
   messageHandler: MessageHandler;
   configService: ConfigService;
-  appService: AppService;
   strings: Strings;
-
 
   constructor(props)
   {
@@ -33,9 +31,9 @@ export class StartPage extends React.Component<PageProps, any>
     this.state = {
       isShowSpinner: false
     };
-    this.configService = this.props.screenProps.configService;
-    this.messageHandler = this.props.screenProps.messageHandler;
-    this.strings = this.props.screenProps.strings;
+    this.configService = this.props.configService;
+    this.messageHandler = this.props.messageHandler;
+    this.strings = this.props.strings;
   }
   render() 
   {
@@ -88,7 +86,7 @@ export class StartPage extends React.Component<PageProps, any>
         .then(result =>
         {
           if (result === "authorized" || result==="undetermined")
-            this.props.navigation.navigate('QRCodeScanner', { onRead: this.scanFinished });
+            this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
           else
             this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
         })
@@ -96,7 +94,7 @@ export class StartPage extends React.Component<PageProps, any>
     }
     else
     {
-      this.props.navigation.navigate('QRCodeScanner', { onRead: this.scanFinished });
+      this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
     }
 
   }

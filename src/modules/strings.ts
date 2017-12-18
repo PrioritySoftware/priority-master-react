@@ -7,10 +7,11 @@ class String
 }
 export class Strings
 {
+    isChangesSaved = 'isChangesSaved';
+    isNewRow = 'isNewRow';
+
     /** Style  */
-    dirByLang: string;
-    sideByLang: string;
-    dirOpposite: string;
+    isRTL: boolean;
 
     /** Device */
     platform: string;
@@ -447,13 +448,13 @@ export class Strings
         this._scanInstructions.value = "סרוק את הקוד QR כדי להתחיל";
         this._scanButton.value = "סרוק";
         this._scanError.value = "היתה בעיה עם סריקת הברקוד, נסו שוב";
-        this._scanPermissionError.value="אין הרשאה להשתמש במצלמה. אנא בדוק את ההגדרות.";
+        this._scanPermissionError.value = "אין הרשאה להשתמש במצלמה. אנא בדוק את ההגדרות.";
         this._preparingApp.value = "מכין עבורך את האפליקציה, אנא המתן";
         this._failedToReadJsonError.value = "קובץ קונפיגורציה לא תקין.";
         this._failedToLoadJsonError.value = "נכשל בטעינת קובץ קונפיגורציה. אנא בדוק את החיבור ל WIFI.";
         this._certificateProblem.value = "נכשל בטעינת קובץ קונפיגורציה. אנא בדוק את תקינות תעודת האבטחה (Certificate).";
         this._scanNewConfigurationFile.value = " \nפנה למנהל המערכת או סרוק קוד QR חדש";
-        this.dirByLang = "rtl";
+        this.isRTL = true;
         this._newApp.value = "הוסף יישומון";
         this._defaultMsgTitle.value = "הודעה";
         this._isDelete.value = "מחיקה?";
@@ -496,8 +497,8 @@ export class Strings
         this._maxLengthForField.value = 'מספר התוים המקסימלי עבור השדה הוא: ';
         this._search.value = "חפש";
         this._scrollLoadingText.value = "טוען רשומות...";
-        this._noRecords.value="אף רשומה לא עמדה בתנאי השליפה.";
-        this._clickAddButton.value="לחץ על ה + להוספת רשומה חדשה";
+        this._noRecords.value = "אף רשומה לא עמדה בתנאי השליפה.";
+        this._clickAddButton.value = "לחץ על ה + להוספת רשומה חדשה";
         this._cameraError.value = "פתיחת מצלמה נכשלה";
         this._showAllItems.value = "הצג את כל הרשומות";
         this._directActivationsTitle.value = "הפעלות ישירות";
@@ -532,9 +533,7 @@ export class Strings
         this._textPlaceholder.value = "הכנס טקסט";
         this._approveReadOnly.value = "קריאה בלבד";
         this._approveEditText.value = "עריכה";
-        this.dirByLang = "rtl";
-        this.dirOpposite = "ltr";
-        this.sideByLang = "right";
+        this.isRTL = true;
 
         this._decimalValidErr.value = "דיוק עשרוני שגוי";
         this._numberValidErr.value = "הכנס ספרות בלבד";
@@ -546,13 +545,14 @@ export class Strings
         this._scanInstructions.value = "Scan your QR code to get started";
         this._scanButton.value = "Scan";
         this._scanError.value = "QR code scan failed. Try again";
-        this._scanPermissionError.value="Permission has not been given to use the camera. Please enable it in the settings.";
+        this._scanPermissionError.value = "Permission has not been given to use the camera. Please enable it in the settings.";
         this._preparingApp.value = "Preparing your app. Please wait";
         this._failedToReadJsonError.value = "Invalid configuration file";
         this._failedToLoadJsonError.value = "There was a problem loading the configuration file.\nCheck your Wi-Fi connection.";
+        this._certificateProblem.value = "Please verify your certificate validity.";
         this._scanNewConfigurationFile.value = " \nContact your system administrator or scan a new QR code";
 
-        this.dirByLang = "ltr";
+        this.isRTL = false;
         this._defaultMsgTitle.value = "Message";
         this._ok.value = "OK";
         this._cancel.value = "Cancel";
@@ -596,8 +596,8 @@ export class Strings
         this._search.value = " Search";
         this._searchError.value = "No search fields defined"
         this._scrollLoadingText.value = "Loading records...";
-        this._noRecords.value="You don't have any records.";
-        this._clickAddButton.value="tap the + button to add one";
+        this._noRecords.value = "You don't have any records.";
+        this._clickAddButton.value = "tap the + button to add one";
         this._cameraError.value = "Failed to open camera";
         this._showAllItems.value = "Show all items";
         this._directActivationsTitle.value = "Direct Activations";
@@ -630,9 +630,7 @@ export class Strings
         this._textPlaceholder.value = "Enter text";
         this._approveReadOnly.value = "Read only";
         this._approveEditText.value = "Edit";
-        this.dirByLang = "ltr";
-        this.dirOpposite = "rtl";
-        this.sideByLang = "left";
+        this.isRTL = false;
 
         this._decimalValidErr.value = "Wrong decimal precision";
         this._numberValidErr.value = "Digits only";

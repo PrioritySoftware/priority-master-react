@@ -8,22 +8,27 @@ import
     Text,
     Image
 } from 'react-native';
-import { PageProps, Strings, Form } from '../modules';
+import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { center, header, colors } from '../styles/common';
+import { colors, container, alignSelf } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { Card } from '../components/card';
 import { scale, verticalScale } from '../utils/scale';
-import { Header, Button } from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
 import { MessageHandler } from '../components/message.handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 const SpinnerIndicator = require('react-native-spinkit');
 import ActionButton from 'react-native-action-button';
-import * as moment from 'moment';
+import { HeaderComp } from '../components/header';
+import { Pages } from './index';
+import { observer, inject } from 'mobx-react';
+import { ObservableMap, observable } from 'mobx';
+import { Row } from '../components/Row';
 
-export class ListPage extends React.Component<PageProps, any>
+@inject("formService", "configService", "messageHandler", "strings")
+@observer
+export class ListPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null };
 
@@ -31,60 +36,106 @@ export class ListPage extends React.Component<PageProps, any>
     configService: ConfigService;
     formService: FormService;
     strings: Strings;
+
     form: Form;
+    formName: string;
+    formTitle: string;
+    parentPath: string;
+
     ds;
+    @observable rows: ObservableMap<any>;
 
     constructor(props)
     {
         super(props);
-        this.configService = this.props.screenProps.configService;
-        this.formService = this.props.screenProps.formService;
-        this.strings = this.props.screenProps.strings;
-        this.messageHandler = this.props.screenProps.messageHandler;
+        this.configService = this.props.configService;
+        this.formService = this.props.formService;
+        this.strings = this.props.strings;
+        this.messageHandler = this.props.messageHandler;
 
-        this.form = this.props.navigation.state.params.form;
+        // props
+        this.formName = this.props.navigation.state.params.formName;
+        this.formTitle = this.props.navigation.state.params.formTitle;
+        this.parentPath = this.props.navigation.state.params.parentPath;
+
+        // state
         this.state =
             {
-                rows: null,
                 canLoadMoreContent: true,
                 isLoading: false,
                 isDeletingRow: false
             };
 
-        this.formService.startFormAndGetRows(this.form.name, this.configService.config.profileConfig).then(
+        // get form rows
+        this.startForm();
+        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    }
+    componentWillUnmount()
+    {
+        if (this.form && this.form.endCurrentForm)
+        {
+            this.formService.deleLocalForm(this.form.path);
+            this.formService.endForm(this.form);
+        }
+    }
+    startForm()
+    {
+        if (this.parentPath)
+            this.startSubForm();
+        else
+            this.startParentForm();
+    }
+    startParentForm()
+    {
+        this.formService.startFormAndGetRows(this.formName, this.configService.config.profileConfig, 1).then(
             form =>
             {
                 this.form = form;
-                this.setState({ rows: form.rows });
-
+                this.rows = this.form.rows;
             },
             reason => { });
-        this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    }
+    startSubForm()
+    {
+
     }
     loadMoreData = () =>
     {
+        if (this.state.isLoading)
+            return;
         this.setState({ isLoading: true });
-        let recordsCount = Object.keys(this.state.rows).length;
+        let recordsCount = this.rows.size;
         this.formService.getRows(this.form, recordsCount + 1, true)
             .then(rows =>
             {
-                // enables infinite scroll when there are no more rows
+                let canLoadMoreContent = this.state.canLoadMoreContent;
+
+                // disables infinite scroll when there are no more rows
                 if (Object.keys(rows).length < 100)
-                {
-                    this.state.canLoadMoreContent = false;
-                }
-                this.setState({ rows: this.formService.getLocalRows(this.form), isLoading: false });
+                    canLoadMoreContent = false;
+
+                this.setState({ isLoading: false, canLoadMoreContent: canLoadMoreContent });
             })
             .catch(() => { });
     }
     goBack()
     {
-        this.props.navigation.goBack()
-        this.formService.endForm(this.form);
+        this.props.navigation.goBack();
     }
-    editRow(row)
+    editRow = (rowTitle: string, rowIndex: number) =>
     {
+        this.formService.setActiveRow(this.form, rowIndex).catch(() => { });
 
+        let parentName = this.parentPath;
+        let parentFormName = parentName ? this.formService.getForm(parentName).name : '';
+
+        this.props.navigation.navigate(Pages.Details.name,
+            {
+                title: rowTitle,
+                itemIndex: rowIndex,
+                formPath: this.form.path,
+                parentName: parentFormName
+            });
     }
     deleteRow(rowInd)
     {
@@ -94,64 +145,21 @@ export class ListPage extends React.Component<PageProps, any>
             this.formService.deleteListRow(this.form, rowInd)
                 .then(() => 
                 {
-                    // updating state with new rows after delete.
-                    this.setState({
-                        rows: this.formService.getLocalRows(this.form),
-                        isDeletingRow: false
-                    });
+                    this.setState({ isDeletingRow: false });
                 })
                 .catch(() => this.setState({ isDeletingRow: false }));
-        }
+        };
         this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
     }
     /********* rendering functions *********/
     render()
     {
         return (
-            <View style={{ flex: 1 }}>
-                {this.rennderHeader()}
-                {this.state.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
+            <View style={container}>
+                <HeaderComp title={this.formTitle} goBack={() => this.goBack()} />
+                {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
         );
-    }
-    rennderHeader()
-    {
-        let iconName;
-        let leftComp = {};
-        let rightComp = {};
-        if (this.strings.dirByLang === 'rtl')
-        {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
-            rightComp = this.renderBackIcon(iconName);
-        }
-        else
-        {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'md-arrow-back';
-            leftComp = this.renderBackIcon(iconName);
-        }
-        return (
-            <View style={styles.headerContainer}>
-                <Header
-                    centerComponent={{ text: this.form.title, style: styles.headerTitleStyle }}
-                    rightComponent={rightComp}
-                    leftComponent={leftComp}
-                    outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
-                    innerContainerStyles={[center, this.strings.platform === 'ios' ? { marginTop: 10 } : {}]}
-                />
-            </View>
-        );
-    }
-    renderBackIcon(iconName: string)
-    {
-        let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
-        return ({
-            type: 'ionicon',
-            icon: iconName,
-            onPress: () => { this.goBack() },
-            color: 'white',
-            underlayColor: 'transparent',
-            style: style
-        });
     }
 
     /**
@@ -163,58 +171,61 @@ export class ListPage extends React.Component<PageProps, any>
     renderActivityIndicator(text: string)
     {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                 <Text>{text}</Text>
-                <ActivityIndicator style={{ marginTop: 10 }} ></ActivityIndicator>
+                <ActivityIndicator style={{ marginTop: 10 }} color="black" ></ActivityIndicator>
             </View>
         );
     }
     renderList()
     {
-        let isRTL = this.strings.dirByLang === "rtl";
-        let padding = this.state.isLoading ? 70 : 10;
+        let isRTL = this.strings.isRTL;
 
         // in case there are no rows
-        if (Object.keys(this.state.rows).length === 0)
+        if (this.rows.size === 0)
             return this.renderEmptyState();
-
         return (
             <View style={styles.listContainer}>
                 <SwipeListView
-                    contentContainerStyle={{ paddingBottom: padding }}
-                    renderScrollComponent={props => <InfiniteScrollView {...props} />}
-                    canLoadMore={this.state.canLoadMoreContent}
-                    onLoadMoreAsync={this.loadMoreData}
-                    dataSource={this.ds.cloneWithRows(this.state.rows)}
+                    contentContainerStyle={{ paddingBottom: scale(10) }}
+                    dataSource={this.ds.cloneWithRows(this.rows.values())}
                     renderRow={this.renderRow}
                     renderHiddenRow={this.renderHiddenRow}
-                    distanceToLoadMore={20}
                     leftOpenValue={scale(85)}
                     rightOpenValue={scale(-85)}
                     disableRightSwipe={!isRTL}
                     disableLeftSwipe={isRTL}
+                    renderScrollComponent={props => <InfiniteScrollView {...props} />}
+                    canLoadMore={this.state.canLoadMoreContent}
+                    onLoadMoreAsync={this.loadMoreData}
+                    distanceToLoadMore={500}
+                    renderFooter={this.renderFooter}
                 />
                 {this.renderAddBtn()}
-                {/* Loading indicator for loading more rows */}
-                <View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]}>
-                    <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
-                    <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
-                </View>
                 {/* Loading indicator for row deletion  */}
                 {<Spinner visible={this.state.isDeletingRow} color={colors.primaryColor} overlayColor={colors.overlay} size="small"></Spinner>}
             </View>
         );
     }
+    renderFooter = () => 
+    {
+        {/* Loading indicator for loading more rows */ }
+        return (
+            < View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]} >
+                <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
+                <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
+            </View >
+        );
+    }
     renderEmptyState()
     {
-        let scaleX = this.strings.dirByLang === "rtl" ? -1 : 1;
-        let flex = this.strings.dirByLang === "rtl" ? 'flex-start' : 'flex-end';
+        let scaleX = this.strings.isRTL ? -1 : 1;
         return (
             <View style={styles.emptyState}>
                 <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
                 <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>
                 <Image source={require('../../assets/img/EmptyStateArrow.png')}
-                    style={[styles.emptyStateArrow, { alignSelf: flex, transform: [{ scaleX: scaleX }] }]} />
+                    style={[styles.emptyStateArrow, alignSelf(this.strings.isRTL), { transform: [{ scaleX: scaleX }] }]} />
                 {this.renderAddBtn()}
             </View>
         );
@@ -222,74 +233,36 @@ export class ListPage extends React.Component<PageProps, any>
 
     renderRow = (row, secId, rowId, rowsMap) =>
     {
-        let form: Form = this.formService.getForm(this.form.name);
-        let formName = form.name;
-        let formColumns = this.formService.formsConfig[formName].listColumnsOptions;
-
-        let columns = [];
-        for (let colName in formColumns)
-        {
-            if (formColumns.hasOwnProperty(colName) && row[colName] !== undefined && row[colName] !== '')
-            {
-                let column = form.columns[colName];
-                let colTitle = column.title;
-                let colValue = row[colName];
-                // Date values are displayed according to the column's 'format' property.
-                if (column.type === 'date')
-                    colValue = moment.utc(colValue).format(column.format);
-                let titleStyle = this.strings.dirByLang === "rtl" ? { right: 0 } : { left: 0 };
-                let valueStyle = this.strings.dirByLang === "rtl" ? { left: 0 } : { right: 0 };
-                let columnComp;
-                if (columns.length !== 0)
-                {
-                    columnComp =
-                        <View style={styles.textContainer}>
-                            <Text style={[styles.text, titleStyle]}>
-                                {colTitle + ":"}
-                            </Text>
-                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
-                                {colValue}
-                            </Text>
-                        </View>;
-                }
-                else 
-                {
-                    // The first column is shown without title.
-                    columnComp =
-                        <View style={styles.textContainer}>
-                            <Text style={[styles.text, titleStyle, styles.bold]}>{row[colName]}</Text>
-                        </View>;
-                }
-                columns.push(columnComp);
-            }
-        }
+        rowId++;
         return (
-            <Card content={columns}
-                onPress={() => { this.editRow(row) }}
-                cardContainerStyle={[styles.cardContainer]}>
-            </Card>
+            <Row
+                formPath={this.form.path}
+                rowId={rowId}
+                editRow={this.editRow}
+            />
         );
     }
 
     /**
      * Hidden buttons. Shown when the user swipes a row.
-     * 
-     * @param {any} row 
-     * @param {any} secId 
-     * @param {any} rowId 
-     * @param {any} rowsMap 
-     * @returns 
+     *
+     * @param {any} row
+     * @param {any} secId
+     * @param {any} rowId
+     * @param {any} rowsMap
+     * @returns
      * @memberof ListPage
      */
     renderHiddenRow = (row, secId, rowId, rowsMap) =>
     {
-        let isRTL = this.strings.dirByLang === "rtl";
+        rowId++;
+        let isRTL = this.strings.isRTL;
         return (
             <View style={[styles.rowBack, isRTL ? styles.rtlFlex : styles.ltrFlex]} >
 
                 <Button
                     title={this.strings.editBtnText}
-                    onPress={() => { this.editRow(row) }}
+                    onPress={() => { this.editRow(row.title, rowId) }}
                     containerViewStyle={[styles.hiddenBtnContainer]}
                     buttonStyle={styles.hiddenBtn}
                     backgroundColor={colors.darkBlue}
@@ -315,10 +288,10 @@ export class ListPage extends React.Component<PageProps, any>
         let offsetY = 30;
         if (this.strings.platform === 'android')
         {
-            offsetX = this.strings.dirByLang === "rtl" ? -25 : 20;
+            offsetX = this.strings.isRTL ? -25 : 20;
             offsetY = 20;
         }
-        let position = this.strings.dirByLang === "rtl" ? 'left' : 'right';
+        let position = this.strings.isRTL ? 'left' : 'right';
         return (
 
             <ActionButton
@@ -341,46 +314,9 @@ const styles = StyleSheet.create({
     {
         backgroundColor: colors.lightGray
     },
-    headerTitleStyle:
-    {
-        alignSelf: 'center',
-        color: 'white',
-        fontSize: 19
-    },
-    headerContainer:
-    {
-        flex: 0.12,
-    },
     listContainer:
     {
         flex: 0.88
-    },
-    cardContainer:
-    {
-        marginTop: 10,
-        borderRadius: 2,
-        borderWidth: 1,
-        backgroundColor: 'white',
-        borderColor: colors.gray,
-        padding: 15,
-        marginHorizontal: 10
-
-    },
-    text:
-    {
-        position: 'absolute',
-    },
-    valueText:
-    {
-        maxWidth: '60%'
-    },
-    textContainer:
-    {
-        paddingVertical: 15,
-    },
-    bold:
-    {
-        fontWeight: 'bold'
     },
     // hidden buttons
     rowBack:
@@ -419,7 +355,8 @@ const styles = StyleSheet.create({
     {
         flex: 1,
         justifyContent: 'flex-end',
-        alignItems: 'center'
+        alignItems: 'center',
+        paddingTop: scale(10)
     },
     // empty state
     emptyState: {

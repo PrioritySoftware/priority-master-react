@@ -2,22 +2,24 @@ import React from 'react';
 import
 {
     StyleSheet,
-    ScrollView,
     View,
     Linking
 } from 'react-native';
-import { PageProps, Strings } from '../modules';
+import { Strings } from '../modules';
 import { SVG } from '../components/svg';
 import { Header, Text, Button } from 'react-native-elements';
 import { AppService } from '../providers/app.service';
 import TextField from 'react-native-md-textinput';
-import { colors, center, header } from '../styles/common';
+import { colors, center, header, textAlign } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
 import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Pages } from '.';
+import { inject } from 'mobx-react';
 
-export class LoginPage extends React.Component<PageProps, any>
+@inject("appService", "configService", "messageHandler", "strings")
+export class LoginPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
 
@@ -38,10 +40,10 @@ export class LoginPage extends React.Component<PageProps, any>
     constructor(props)
     {
         super(props);
-        this.appService = this.props.screenProps.appService;
-        this.configService = this.props.screenProps.configService;
-        this.strings = this.props.screenProps.strings;
-        this.messageHandler = this.props.screenProps.messageHandler;
+        this.appService = this.props.appService;
+        this.configService = this.props.configService;
+        this.strings = this.props.strings;
+        this.messageHandler = this.props.messageHandler;
         this.state = { isPasswordExpired: false };
     }
     login()
@@ -74,7 +76,7 @@ export class LoginPage extends React.Component<PageProps, any>
         let resetAction = NavigationActions.reset({
             index: 0,
             actions: [
-                NavigationActions.navigate({ routeName: 'Main' })
+                NavigationActions.navigate({ routeName: Pages.Main.name })
             ]
         });
         this.props.navigation.dispatch(resetAction);
@@ -85,9 +87,7 @@ export class LoginPage extends React.Component<PageProps, any>
     }
     render() 
     {
-        let isRTL;
-        isRTL = this.strings.dirByLang === 'rtl';
-        let labelStyle = isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
+        let labelStyle = this.strings.isRTL ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' };
         if (this.state.isPasswordExpired)
             return this.renderForgotpassword(labelStyle);
         return this.renderLogin(labelStyle);
@@ -110,15 +110,16 @@ export class LoginPage extends React.Component<PageProps, any>
                         onChangeText={(text) => this.username = text}
                         highlightColor={'#1f9bd1'}
                         labelStyle={labelStyle}
-                        inputStyle={{ textAlign: this.strings.sideByLang }}
+                        inputStyle={textAlign(this.strings.isRTL)}
                         height={38}
                     />
                     <TextField
                         label={this.strings.pswTitle}
                         onChangeText={(text) => this.password = text}
+                        onEndEditing={() => this.login()}
                         highlightColor={'#1f9bd1'}
                         labelStyle={labelStyle}
-                        inputStyle={{ textAlign: this.strings.sideByLang }}
+                        inputStyle={textAlign(this.strings.isRTL)}
                         secureTextEntry={true}
                         height={38}
                     />
@@ -154,7 +155,7 @@ export class LoginPage extends React.Component<PageProps, any>
                             onChangeText={(text) => this.oldPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />
@@ -163,7 +164,7 @@ export class LoginPage extends React.Component<PageProps, any>
                             onChangeText={(text) => this.newPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />
@@ -172,7 +173,7 @@ export class LoginPage extends React.Component<PageProps, any>
                             onChangeText={(text) => this.confirmNewPassword = text}
                             highlightColor={'#1f9bd1'}
                             labelStyle={labelStyle}
-                            inputStyle={{ textAlign: this.strings.sideByLang }}
+                            inputStyle={textAlign(this.strings.isRTL)}
                             secureTextEntry={true}
                             height={38}
                         />

@@ -5,7 +5,7 @@ import
     View,
     ScrollView,
 } from 'react-native';
-import { PageProps, Strings, Entity } from '../modules';
+import { Strings, Entity } from '../modules';
 import { ConfigService } from '../providers/config.service';
 import { Header } from 'react-native-elements'
 import { SVG } from '../components/svg';
@@ -14,8 +14,11 @@ import { Card } from '../components/card';
 import { MessageHandler } from '../components/message.handler';
 import { FormService } from '../providers/form.service';
 import { NavigationActions } from 'react-navigation';
+import { Pages } from '.';
+import { inject } from "mobx-react";
 
-export class MainPage extends React.Component<PageProps, any>
+@inject("formService", "configService", "messageHandler", "strings")
+export class MainPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
 
@@ -27,10 +30,10 @@ export class MainPage extends React.Component<PageProps, any>
     constructor(props)
     {
         super(props);
-        this.configService = this.props.screenProps.configService;
-        this.formService = this.props.screenProps.formService;
-        this.messageHandler = this.props.screenProps.messageHandler;
-        this.strings = this.props.screenProps.strings;
+        this.configService = this.props.configService;
+        this.formService = this.props.formService;
+        this.messageHandler = this.props.messageHandler;
+        this.strings = this.props.strings;
 
         this.formService.initFormsConfig(this.configService.entitiesData);
         // When a fatal error occurs, navigate to main page. 
@@ -39,7 +42,7 @@ export class MainPage extends React.Component<PageProps, any>
             let resetAction = NavigationActions.reset({
                 index: 0,
                 actions: [
-                    NavigationActions.navigate({ routeName: 'Main' })
+                    NavigationActions.navigate({ routeName: Pages.Main.name })
                 ]
             });
             this.props.navigation.dispatch(resetAction);
@@ -54,9 +57,10 @@ export class MainPage extends React.Component<PageProps, any>
             if (ent.fatname !== ent.name && ent.fatname !== undefined)
                 continue;
             let marginTopStyle = cards.length ? {} : { marginTop: 9 };
-            let borderStye = this.strings.dirByLang === "rtl" ? styles.borderRight : styles.borderLeft;
+            let borderStye = this.strings.isRTL ? styles.borderRight : styles.borderLeft;
             let newCard =
-                <Card title={ent.title}
+                <Card key={ent.name}
+                    title={ent.title}
                     cardContainerStyle={[styles.cardContainer, marginTopStyle]}
                     cardStyle={borderStye}
                     cardTextStyle={styles.cardText}
@@ -98,7 +102,11 @@ export class MainPage extends React.Component<PageProps, any>
         }
         else if (ent.type === 'F')
         {
-            this.props.navigation.navigate('List', { form: ent }); 
+            this.props.navigation.navigate(Pages.List.name,
+                {
+                    formName: ent.name,
+                    formTitle: ent.title
+                });
         }
     }
 
