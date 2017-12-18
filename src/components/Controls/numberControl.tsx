@@ -138,7 +138,7 @@ export default class NumberControl extends Component<any, any> {
 
     render()
     {
-        let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
         return (
             <FormInput
                 textInputRef={textInput => this.textInput = textInput}
@@ -156,7 +156,3 @@ export default class NumberControl extends Component<any, any> {
         )
     }
 }
-
-const styles = StyleSheet.create({
-
-});

@@ -26,7 +26,7 @@ export default class ToggleControl extends Component<any, any>
     };
 
     strings: Strings;
-
+    
     @observable selected: string;
 
     constructor(props)

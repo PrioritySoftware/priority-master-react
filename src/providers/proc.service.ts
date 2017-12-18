@@ -1,18 +1,23 @@
 
+import
+{
+    Linking,
+
+} from 'react-native';
+import { Strings } from '../modules';
 import { Proc } from "../modules/proc.class";
 import { ProcStepType } from "../modules/procStepType.class";
 import { ServerResponseType } from "../modules/srvResponseType.class";
 import { ProfileConfig } from "../modules/profileConfig.class";
 import { MessageHandler } from '../components/message.handler';
-import { Strings } from '../modules';
 // import { ProgressBarHandler } from "../popups/ProgressBar/progress-bar.handler";
 
 export class ProcService
 {
-    constructor(private messageHandler: MessageHandler, private progressBarHandler/*: ProgressBarHandler*/, private priorityService,private strings: Strings)
+    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings)
     {
     }
-    /**
+    /*
     * Starts a procedure with the given name.
     * @param {string} name 
     * @param {string} type 
@@ -24,12 +29,12 @@ export class ProcService
     {
         return new Promise((resolve, reject) =>
         {
-            this.priorityService.priority.procStart(name, type, this.procProgress, profileConfig)
+            this.priorityService.procStart(name, type, this.procProgress, profileConfig)
                 .then(data =>
                 {
                     return this.procSuccess(data);
                 })
-                .then(() =>
+                .then((data) =>
                 {
                     resolve();
                 })
@@ -62,22 +67,22 @@ export class ProcService
      */
     procProgress = (proc: Proc, progress: number) =>
     {
-        this.messageHandler.hideLoading(() =>
-        {
-            if (this.progressBarHandler.isPresented())
-                this.progressBarHandler.updateProgVal(progress);
-            else
-                this.progressBarHandler.present({
-                    cancel: () =>
-                    {
-                        proc.cancel().then(() =>
-                        {
-                            this.progressBarHandler.dismiss();
-                        });
-                    },
-                    progressText: this.strings.wait
-                });
-        });
+        // this.messageHandler.hideLoading(() =>
+        // {
+        //     if (this.progressBarHandler.isPresented())
+        //         this.progressBarHandler.updateProgVal(progress);
+        //     else
+        //         this.progressBarHandler.present({
+        //             cancel: () =>
+        //             {
+        //                 proc.cancel().then(() =>
+        //                 {
+        //                     this.progressBarHandler.dismiss();
+        //                 });
+        //             },
+        //             progressText: this.strings.wait
+        //         });
+        // });
     }
     /**
      * Called wen the procedure returns from the server after it succeeded.
@@ -88,8 +93,8 @@ export class ProcService
     {
         return new Promise((resolve, reject) =>
         {
-            if (this.progressBarHandler.isPresented())
-                this.progressBarHandler.dismiss();
+            // if (this.progressBarHandler.isPresented())
+            //     this.progressBarHandler.dismiss();
             switch (data.type)
             {
                 case ProcStepType.InputFields:
@@ -216,8 +221,7 @@ export class ProcService
         {
             for (let urlObj of data.Urls)
             {
-                // We used '_system' because '_blank' doesn't work on IOS.
-                window.open(encodeURI(urlObj.url), '_system');
+                Linking.openURL(encodeURI(urlObj.url));
             }
             data.proc.continueProc()
                 .then(result => this.procSuccess(result))

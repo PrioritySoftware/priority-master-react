@@ -20,7 +20,9 @@ export class Row extends React.Component<any, any>
         let { formPath, rowId, editRow } = this.props;
         let form: Form = this.props.formService.getForm(formPath);
         let formName = form.name;
-        let formColumns = this.props.formService.formsConfig[formName].listColumnsOptions;
+        let parentName=form.parentName;
+        let formsConfigID = parentName? formName+ parentName: formName;
+        let formColumns = this.props.formService.formsConfig[formsConfigID].listColumnsOptions;
 
         let columns = [];
         let row = this.props.formService.getFormRow(form, rowId);

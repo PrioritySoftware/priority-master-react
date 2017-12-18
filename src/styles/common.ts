@@ -58,6 +58,9 @@ export const iconNames =
         email: iconName("mail"),
         search: "ios-arrow-down",
         attach: iconName("attach"),
+        menu:iconName("more"),
+        arrowForward:iconName("arrow-forward"),
+        arrowBack:iconName("arrow-back"),
     };
 
 export const flexDirection = (isRTL: boolean) =>

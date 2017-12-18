@@ -33,7 +33,6 @@ export class ItemInput extends Component<any, any>
     static propTypes =
     {
         formPath: PropTypes.string.isRequired,
-        parentForm: PropTypes.any,
         colName: PropTypes.string.isRequired,
         itemIndex: PropTypes.number.isRequired,
         itemOptions: PropTypes.object
@@ -64,7 +63,7 @@ export class ItemInput extends Component<any, any>
         this.strings = this.props.strings;
 
         this.form = this.formService.getForm(this.props.formPath);
-        this.parentForm = { name: this.props.parentName };
+        this.parentForm = { name: this.form.parentName };
         this.colName = this.props.colName;
         this.itemIndex = this.props.itemIndex;
         this.item = this.formService.getFormRow(this.form, this.itemIndex);

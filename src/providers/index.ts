@@ -14,7 +14,7 @@ class Providers
     storageService: StorageService = new StorageService();
     appService: AppService = new AppService(this.storageService);
     configService: ConfigService = new ConfigService(this.appService, this.storageService, this.priorityService, this.strings)
-    procService: ProcService = new ProcService(this.messageHandler, null, this.priorityService, this.strings);
-    formService: FormService = new FormService(this.messageHandler, this.priorityService, this.strings);
+    procService: ProcService = new ProcService(this.messageHandler, this.priorityService, this.strings);
+    formService: FormService = new FormService(this.messageHandler, this.priorityService, this.strings,this.procService);
 }
 export default new Providers();

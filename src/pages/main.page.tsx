@@ -16,8 +16,9 @@ import { FormService } from '../providers/form.service';
 import { NavigationActions } from 'react-navigation';
 import { Pages } from '.';
 import { inject } from "mobx-react";
+import { ProcService } from '../providers/proc.service';
 
-@inject("formService", "configService", "messageHandler", "strings")
+@inject("formService", "procService", "configService", "messageHandler", "strings")
 export class MainPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
@@ -26,14 +27,17 @@ export class MainPage extends React.Component<any, any>
     formService: FormService;
     strings: Strings;
     messageHandler: MessageHandler;
+    procService: ProcService;
 
     constructor(props)
     {
         super(props);
+
         this.configService = this.props.configService;
         this.formService = this.props.formService;
         this.messageHandler = this.props.messageHandler;
         this.strings = this.props.strings;
+        this.procService = this.props.procService;
 
         this.formService.initFormsConfig(this.configService.entitiesData);
         // When a fatal error occurs, navigate to main page. 
@@ -88,16 +92,16 @@ export class MainPage extends React.Component<any, any>
     {
         if (ent.type === 'P' || ent.type === 'R')
         {
-            // // this.messageHandler.showTransLoading();
-            // this.procService.startProcedure(ent.name, ent.type, this.configService.configuration.profileConfig)
-            //     .then(() =>
-            //     {
-            //         this.messageHandler.hideLoading();
-            //     })
-            //     .catch(() =>
-            //     {
-            //         this.messageHandler.hideLoading();
-            //     });
+            // this.messageHandler.showTransLoading();
+            this.procService.startProcedure(ent.name, ent.type, this.configService.config.profileConfig)
+                .then(() =>
+                {
+                    this.messageHandler.hideLoading();
+                })
+                .catch(() =>
+                {
+                    this.messageHandler.hideLoading();
+                });
 
         }
         else if (ent.type === 'F')
@@ -115,36 +119,36 @@ export class MainPage extends React.Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     container:
-    {
-        backgroundColor: colors.lightGray
-    },
+        {
+            backgroundColor: colors.lightGray
+        },
     headerContainer:
-    {
-        flex: 0.14,
-    },
+        {
+            flex: 0.14,
+        },
     cardContainer:
-    {
-        marginTop: 0,
-        marginBottom: 9,
-        borderRadius: 2,
-        borderWidth: 1,
-        backgroundColor: 'white',
-        borderColor: colors.gray
+        {
+            marginTop: 0,
+            marginBottom: 9,
+            borderRadius: 2,
+            borderWidth: 1,
+            backgroundColor: 'white',
+            borderColor: colors.gray
 
-    },
+        },
     cardText:
-    {
-        color: 'black',
-        fontFamily: 'Arial'
-    },
+        {
+            color: 'black',
+            fontFamily: 'Arial'
+        },
     borderRight:
-    {
-        borderRightWidth: 4,
-        borderColor: colors.darkBlue
-    },
+        {
+            borderRightWidth: 4,
+            borderColor: colors.darkBlue
+        },
     borderLeft:
-    {
-        borderLeftWidth: 4,
-        borderColor: colors.darkBlue
-    }
+        {
+            borderLeftWidth: 4,
+            borderColor: colors.darkBlue
+        }
 });

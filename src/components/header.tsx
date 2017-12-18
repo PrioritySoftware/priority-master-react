@@ -5,7 +5,7 @@ import
     View,
     Platform
 } from 'react-native';
-import { header, center, margin } from "../styles/common";
+import { header, center, margin ,iconNames} from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
@@ -17,7 +17,7 @@ export class HeaderComp extends Component<any, any>
     {
         title: PropTypes.string.isRequired,
         specialComponent: PropTypes.object,
-        goBack: PropTypes.func.isRequired
+        goBack: PropTypes.func.isRequired,
     };
     static defaultProps =
     {
@@ -31,18 +31,18 @@ export class HeaderComp extends Component<any, any>
     }
     render()
     {
-        let iconName;
+        let backIconName;
         let leftComp = this.props.specialComponent;
         let rightComp = this.props.specialComponent;
         if (this.strings.isRTL)
         {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-forward' : 'md-arrow-forward';
-            rightComp = this.renderBackIcon(iconName);
+            backIconName = iconNames.arrowForward;
+            rightComp = this.renderBackIcon(backIconName);
         }
         else
         {
-            iconName = this.strings.platform === 'ios' ? 'ios-arrow-back' : 'md-arrow-back';
-            leftComp = this.renderBackIcon(iconName);
+            backIconName = iconNames.arrowBack;
+            leftComp = this.renderBackIcon(backIconName);
         }
         return (
             <View style={styles.headerContainer}>

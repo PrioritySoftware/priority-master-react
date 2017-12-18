@@ -52,10 +52,6 @@ export class AppService
         this.storage.storeUserData();
     }
 
-   
-
-
-
     // // /** Clear the values of username and password saved in local storage */
     // clearLogin()
     // {

@@ -4,7 +4,8 @@ import { DirectActivation } from "./directActivation.class";
 export declare class FormConfig
 {
 	name: string;
-	subforms: Array<string>
+	title:string;
+	subforms: Array<{ name: string, title: string }>
 	parentForm: string;
 	searchColumns: Array<string>;
 	detailsColumnsOptions: ColumnsOptions;

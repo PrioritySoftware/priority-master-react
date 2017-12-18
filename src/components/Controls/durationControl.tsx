@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard,, EmitterSubscription, } from 'react-native';
+import { Keyboard, EmitterSubscription, } from 'react-native';
 import { colors, flexDirection, textAlign } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { observable } from 'mobx';
@@ -113,4 +113,3 @@ export default class DurationControl extends Component<any, any> {
         )
     }
 }
-

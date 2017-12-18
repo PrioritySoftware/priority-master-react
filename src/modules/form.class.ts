@@ -19,6 +19,8 @@ export declare class Form
 	rows: ObservableMap<ObservableMap<any>>;
 
 	path: string;
+	
+	parentName:string;
 
 	activations: { [key: string]: DirectActivation };
 

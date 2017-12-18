@@ -9,6 +9,7 @@ export class Strings
 {
     isChangesSaved = 'isChangesSaved';
     isNewRow = 'isNewRow';
+    removeBtnType='Remove';
 
     /** Style  */
     isRTL: boolean;

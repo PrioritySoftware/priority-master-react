@@ -14,14 +14,16 @@ import { ObservableMap } from "mobx/lib/types/observablemap";
 import { SearchAction } from "../modules/searchAction.class";
 import { Search } from "../modules/search.class";
 
+import { ProcService } from '../providers/Proc.service'
+
 export class FormService
 {
     formsConfig: { [key: string]: FormConfig } = {};
     onFatalError;
-    private forms: { [key: string]: Form };
+    forms: { [key: string]: Form };
     RowsBatchSize: number = 115;
 
-    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings)
+    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings, private procService: ProcService)
     {
         this.forms = {};
     }
@@ -33,6 +35,7 @@ export class FormService
     {
         let formConfig: FormConfig = {
             name: form.name,
+            title: form.title,
             searchColumns: [],
             subforms: [],
             listColumnsOptions: {},
@@ -144,7 +147,7 @@ export class FormService
                         let parentForm = this.formsConfig[parentName];
                         if (parentForm !== undefined)
                         {
-                            parentForm.subforms.push(formConfig.name);
+                            parentForm.subforms.push({ name: formConfig.name, title: formConfig.title });
                         }
                     }
                 }
@@ -234,7 +237,7 @@ export class FormService
             isError = false;
             options.title = this.strings.warningTitle;
         }
-        
+
         this.messageHandler.showErrorOrWarning(isError, serverMsg.message,
             () =>
             {
@@ -296,13 +299,15 @@ export class FormService
     {
         let localform;
         let parentPath = parentForm ? parentForm.path : '';
+        let parentName = parentForm ? parentForm.name : ''; 
         let formName = form.name + parentPath;
 
         localform = this.forms[formName];
         // set form in forms - first time no need to merge
-        if (localform === undefined)
+        if (localform === undefined)    
         {
             form.path = formName;
+            form.parentName = parentName;
             form.rows = observable.map();
             this.forms[formName] = form;
         }
@@ -738,7 +743,6 @@ export class FormService
                     this.rejectionHandler(reason, reject);
                 });
         });
-
     }
     /* Returns search result for the given value. Default action is SearchAction.TextChange = 4.*/
     search(form: Form, val, action: number = SearchAction.TextChange): Promise<Search>
@@ -756,4 +760,189 @@ export class FormService
                 });
         });
     }
+    // ************ SubForms *************
+
+    /* Starts 'subformName' subForm. */
+    startSubform(parentForm: Form, subformName: string, errorAndWarningHandler = null, updateFormsDataHandler = null): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            let updateFormsData = (result) => { this.updateFormsData(result, parentForm) };
+            errorAndWarningHandler = errorAndWarningHandler ? errorAndWarningHandler : this.errorAndWarningMsgHandler;
+            updateFormsDataHandler = updateFormsDataHandler ? updateFormsDataHandler : updateFormsData;
+            parentForm.startSubForm(subformName,
+                errorAndWarningHandler,
+                updateFormsDataHandler,
+                (subform: Form) =>
+                {
+                    this.mergeForm(subform, parentForm);
+                    resolve(this.getForm(subform.path));
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+    }
+
+    /** Starts 'subformName' subForm and retrieves its rows. */
+    startSubFormAndGetRows(parentForm: Form, subformName, onWarnings = null): Promise<Form>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (parentForm == undefined || subformName == undefined)
+            {
+                reject("undefined parameters")
+            }
+            this.startSubform(parentForm, subformName, onWarnings).then(
+                (subform: Form) =>
+                {
+                    this.getRows(subform, 1, false).then(
+                        rows =>
+                        {
+                            resolve(subform);
+                        },
+                        (reason: ServerResponse) => 
+                        {
+                            this.endForm(subform).then(
+                                () =>
+                                {
+                                    this.rejectionHandler(reason, reject);
+                                },
+                                endreason =>
+                                {
+                                    this.rejectionHandler(endreason, reject);
+                                });
+                        });
+                },
+                (reason: ServerResponse) => 
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        })
+    }
+    /** Starts the wanted subform and sets the activeRow to the given index. */
+    setActiveSubformRow(parentForm: Form, formName, rowInd): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.startSubform(parentForm, formName).then(
+                subform =>
+                {
+                    if (rowInd != null)
+                    {
+                        this.setActiveRow(subform, rowInd).then(
+                            result =>
+                            {
+                                resolve(subform);
+                            },
+                            (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+                    }
+                    else
+                    {
+                        resolve();
+                    }
+                },
+                (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+        });
+    }
+    /** Starts the wanted subform and creates a new row. */
+    addSubformRow(parentForm: Form, subformName): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.startSubform(parentForm, subformName).then(
+                (subform: Form) =>
+                {
+                    this.newRow(subform).then(
+                        newRowInd =>
+                        {
+                            resolve(newRowInd);
+                        },
+                        (reason: ServerResponse) =>
+                        {
+                            this.undoRow(subform).then(() => this.endForm(subform)).catch(() => { });
+                            this.rejectionHandler(reason, reject);
+                        });
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
+                });
+        });
+
+    }
+
+    /*
+      * Deletes a subForm item according to the rowInd.
+     1. Starts sub form
+     2. Set item to be active
+     3. Deletes item
+     4. Ends sub form.
+     */
+    deleteSubformListRow(parentForm: Form, subformName, rowInd): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+
+            this.startSubform(parentForm, subformName).then(
+                subform =>
+                {
+                    this.deleteListRow(subform, rowInd).then(
+                        res =>
+                        {
+                            this.endForm(subform).then(
+                                () =>
+                                {
+                                    resolve();
+                                }, reason => { reject(reason); })
+                        },
+                        reason =>
+                        {
+                            this.endForm(subform);
+                            reject(reason);
+                        });
+                }, reason => { reject(reason); });
+        });
+    }
+    // ************** Direct Activations *********************
+
+    /**
+     * Executes a direct activation 'activationName'.
+     * @param {Form} form 
+     * @param {string} activationName 
+     * @param {string} type 
+     * 
+     * @memberOf FormService
+     */
+    executeDirectActivation(form: Form, activationName: string, type: string): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.activateStart(activationName, type, this.procService.procProgress)
+                .then(data => 
+                {
+                    return this.procService.procSuccess(data)  /** Perform a bypass so that the user can't enter information!!!!!  */
+                    // TO DO : add anew funcion in procService thet run in recursion and approve all the default inpout and detects success/failure
+                })
+                .then(() => 
+                {
+                    return form.activateEnd();
+                })
+                .then(() =>
+                {
+                    return resolve();
+                })
+                .catch(reason =>
+                {
+                    if (reason)
+                        form.activateEnd().then(() => this.rejectionHandler(reason, reject));
+                    else
+                        this.messageHandler.showErrorOrWarning(true, this.strings.procedureNotSupported);
+                });
+        });
+    }
+
+
+
 }
