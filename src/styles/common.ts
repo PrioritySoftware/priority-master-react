@@ -14,6 +14,7 @@ export const colors =
         darkGray: "#525252",
         overlay: "#dedede4a",
         disabledGray: "#b5b5b5",
+        background: "#e8e8e8",
 
         // blue
         darkBlue: "#175676",
@@ -58,9 +59,9 @@ export const iconNames =
         email: iconName("mail"),
         search: "ios-arrow-down",
         attach: iconName("attach"),
-        menu:iconName("more"),
-        arrowForward:iconName("arrow-forward"),
-        arrowBack:iconName("arrow-back"),
+        menu: iconName("more"),
+        arrowForward: iconName("arrow-forward"),
+        arrowBack: iconName("arrow-back"),
     };
 
 export const flexDirection = (isRTL: boolean) =>
@@ -79,7 +80,7 @@ export const alignSelf = (isRTL: boolean) =>
 {
     return isRTL ? { alignSelf: "flex-start" } : { alignSelf: "flex-end" };
 }
-export const padding = (isRTL: boolean, padding: number,) =>
+export const padding = (isRTL: boolean, padding: number, ) =>
 {
     return isRTL ? { paddingRight: padding } : { paddingLeft: padding };
 }

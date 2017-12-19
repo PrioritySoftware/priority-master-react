@@ -252,6 +252,7 @@ export class DetailsPage extends React.Component<any, any>
             ref={el => this.dropdown = el}
             dropdownStyle={styles.dropdownStyle}
             style={styles.dropdown}
+            renderSeparator={()=>{}}
             options={this.getActivationsList()}
             renderRow={this.renderActivationRow}
             onSelect={(idx, value) => this.activationSelected(idx, value)}
@@ -274,12 +275,12 @@ const styles = StyleSheet.create({
         },
     dropdown: {
         margin: 0,
-        borderColor: 'lightgray',
         height: 0,
         width: 100,
     },
     dropdownStyle: {
         width: "100%",
+        backgroundColor: 'transparent',
     },
     activationText: {
         paddingHorizontal: 6,

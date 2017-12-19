@@ -41,7 +41,7 @@ export class Card extends Component<any, any>
         let onPress = this.props.onPress || (() => { });
         let content = <Text style={[styles.cardText, this.props.cardTextStyle]}>{title}</Text>;
         return (
-            <TouchableHighlight onPress={onPress} delayPressIn={90} underlayColor={colors.lightGray} style={[styles.cardContainer, this.props.cardContainerStyle]}>
+            <TouchableHighlight onPress={onPress} delayPressIn={90} underlayColor={colors.background} style={[styles.cardContainer, this.props.cardContainerStyle]}>
                 <View style={[styles.card, this.props.cardStyle]}>
                     {this.props.content ? this.props.content : content}
                 </View>
