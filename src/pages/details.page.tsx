@@ -5,10 +5,11 @@ import
     StyleSheet,
     View,
     Text,
+    Platform,
 
 } from 'react-native';
 import { ConfigService } from '../providers/config.service';
-import { container, colors, iconNames } from '../styles/common';
+import { container, colors, iconNames, textAlign, margin } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { ProcService } from '../providers/Proc.service'
 import { HeaderComp } from '../components/header';
@@ -27,6 +28,7 @@ import { FormConfig } from '../modules/formConfig.class';
 import { DirectActivation } from '../modules/directActivation.class';
 import { observable } from 'mobx';
 import { FormList } from '../components/formList.comp';
+import { scale } from '../utils/scale';
 
 @inject("formService", "strings", "configService", "procService", "messageHandler")
 @observer
@@ -147,15 +149,20 @@ export class DetailsPage extends React.Component<any, any>
         let delFunc = () =>
         {
             this.formService.deleteRow(this.form)
-                .then(() => 
+                .then(() =>
                 {
                     this.messageHandler.hideLoading();
                 })
                 .catch(() => this.messageHandler.hideLoading());
         };
-        this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
+        // IOS: Rendering an Alert while closing a Modal was freezing the application. The timeout is a workaround.
+        setTimeout(() =>
+        {
+            this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
+        }, 5);
+
     }
-    render() 
+    render()
     {
         let specialComponent = this.currentSubForm ? {} : this.renderSideMenuIcon();
         return (
@@ -232,17 +239,16 @@ export class DetailsPage extends React.Component<any, any>
         )
     }
     /* Direct Activations */
-    
+
     renderSideMenuIcon()
     {
-        let style = this.strings.platform === 'ios' ? { paddingTop: 5 } : {};
         return ({
             type: 'ionicon',
             icon: iconNames.menu,
             onPress: this.openActivationsList,
             color: 'white',
             underlayColor: 'transparent',
-            style: style
+            style: [styles.activationsIconStyle, margin(!this.strings.isRTL, scale(-10))]
         });
 
     }
@@ -250,9 +256,10 @@ export class DetailsPage extends React.Component<any, any>
     rendertActivations = () => (
         <ModalDropdown
             ref={el => this.dropdown = el}
+            textStyle={{ height: 0 }}
             dropdownStyle={styles.dropdownStyle}
             style={styles.dropdown}
-            renderSeparator={()=>{}}
+            renderSeparator={() => { }}
             options={this.getActivationsList()}
             renderRow={this.renderActivationRow}
             onSelect={(idx, value) => this.activationSelected(idx, value)}
@@ -262,7 +269,7 @@ export class DetailsPage extends React.Component<any, any>
     {
         let color = act.type === this.strings.removeBtnType ? 'red' : colors.darkGray;
         return (
-            <Text style={[styles.activationText, { color: color }]}>{act.title}</Text>
+            <Text style={[styles.activationText, { color: color }, textAlign(this.strings.isRTL)]}>{act.title}</Text>
         );
     }
 }
@@ -275,7 +282,6 @@ const styles = StyleSheet.create({
         },
     dropdown: {
         margin: 0,
-        height: 0,
         width: 100,
     },
     dropdownStyle: {
@@ -290,5 +296,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         textAlignVertical: 'center',
     },
-
+    activationsIconStyle:
+        {
+            paddingVertical: scale(30),
+            paddingHorizontal: scale(10),
+            ...Platform.select({
+                ios:
+                    {
+                        paddingTop: scale(35)
+                    }
+            })
+        }
 });

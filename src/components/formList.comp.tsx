@@ -330,7 +330,7 @@ export class FormList extends React.Component<any, any>
 const styles = StyleSheet.create({
     container:
         {
-            backgroundColor: colors.background
+            backgroundColor: colors.lightGray
         },
     listContainer:
         {

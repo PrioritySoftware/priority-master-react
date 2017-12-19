@@ -120,7 +120,7 @@ export class MainPage extends React.Component<any, any>
 const styles = StyleSheet.create({
     container:
         {
-            backgroundColor: colors.background
+            backgroundColor: colors.lightGray
         },
     headerContainer:
         {

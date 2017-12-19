@@ -41,8 +41,7 @@ export class HorizontalList extends Component<any, any>
                     <FlatList contentContainerStyle={[styles.subFormList]}
                         horizontal={true}
                         data={this.props.list}
-                        inverted={this.props.inverted}
-                        scrollEnabled={true}
+                        inverted={this.props.inverted}    
                         renderItem={this.renderSubFormListItem}
                         keyExtractor={item => item.name}
                     />
@@ -55,8 +54,8 @@ export class HorizontalList extends Component<any, any>
         }
     }
     renderSubFormListItem = ({ item }) => (
-        <View >
-            <Text style={[styles.subFormItem, this.getstyle(item)]}
+        <View style={[styles.subFormItem, this.getstyle(item)]}>
+            <Text style={[styles.subFormItemText]}
                 onPress={() => { this.onPress(item) }}>
                 {item.title}
             </Text>
@@ -68,19 +67,20 @@ const styles = StyleSheet.create({
     subFormList: {
         flex: 0,
         flexDirection: 'row',
-        backgroundColor: colors.lightGray,
-
-        // justifyContent:'space-around',
+        backgroundColor: colors.menuBackground,
     },
     subFormItem: {
         padding: 5,
         margin: 10,
         marginTop: 3,
         borderBottomWidth: 0.5,
-        borderBottomColor: colors.lightGray,
-
+        borderBottomColor: 'transparent',
+        backgroundColor:'transparent',
     },
-
+    subFormItemText:
+    {
+        color:colors.darkGray
+    },
     selectItem: {
         borderBottomColor: colors.darkGray,
 

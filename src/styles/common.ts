@@ -14,7 +14,7 @@ export const colors =
         darkGray: "#525252",
         overlay: "#dedede4a",
         disabledGray: "#b5b5b5",
-        background: "#e8e8e8",
+        menuBackground: "#e8e8e8",
 
         // blue
         darkBlue: "#175676",
