@@ -152,6 +152,7 @@ export class DetailsPage extends React.Component<any, any>
                 .then(() =>
                 {
                     this.messageHandler.hideLoading();
+                    this.goBack();
                 })
                 .catch(() => this.messageHandler.hideLoading());
         };

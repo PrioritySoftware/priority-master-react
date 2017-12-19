@@ -7,6 +7,7 @@ import
     FlatList,
 } from 'react-native';
 import { colors } from "../styles/common";
+import { scale } from '../utils/scale';
 
 export class HorizontalList extends Component<any, any>
 {
@@ -18,7 +19,7 @@ export class HorizontalList extends Component<any, any>
         inverted: PropTypes.bool.isRequired,
     };
 
-    onPress=(item)=>
+    onPress = (item) =>
     {
         this.props.onPress(item)
     }
@@ -37,11 +38,11 @@ export class HorizontalList extends Component<any, any>
         if (this.props.list.length >= 1)
         {
             return (
-                <View style={{ flex: 0, backgroundColor: 'rgba(242, 242, 242, 1)' }}>
+                <View style={styles.subFormListContainer}>
                     <FlatList contentContainerStyle={[styles.subFormList]}
                         horizontal={true}
                         data={this.props.list}
-                        inverted={this.props.inverted}    
+                        inverted={this.props.inverted}
                         renderItem={this.renderSubFormListItem}
                         keyExtractor={item => item.name}
                     />
@@ -64,25 +65,32 @@ export class HorizontalList extends Component<any, any>
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
-    subFormList: {
-        flex: 0,
-        flexDirection: 'row',
-        backgroundColor: colors.menuBackground,
-    },
-    subFormItem: {
-        padding: 5,
-        margin: 10,
-        marginTop: 3,
-        borderBottomWidth: 0.5,
-        borderBottomColor: 'transparent',
-        backgroundColor:'transparent',
-    },
+    subFormListContainer:
+        {
+            flex: 0,
+            backgroundColor: colors.menuBackground
+        },
+    subFormList:
+        {
+            flex: 0,
+            flexDirection: 'row',
+        },
+    subFormItem:
+        {
+            padding: scale(5),
+            marginHorizontal: scale(10),
+            marginTop: scale(5),
+            marginBottom: scale(10),
+            borderBottomWidth: 0.5,
+            borderBottomColor: 'transparent',
+        },
     subFormItemText:
-    {
-        color:colors.darkGray
-    },
-    selectItem: {
-        borderBottomColor: colors.darkGray,
+        {
+            color: colors.darkGray
+        },
+    selectItem:
+        {
+            borderBottomColor: colors.darkGray,
 
-    },
+        },
 });

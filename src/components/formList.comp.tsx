@@ -75,11 +75,11 @@ export class FormList extends React.Component<any, any>
     }
     componentWillReceiveProps(newProps)
     {
-        // when props are received for the second time,
+        // When props are received for the second time,
         // which means there is a formList component present,
         // we must end the previous form in order to start a new one.
         // Happens when moving from one subform to another.
-        this.rows=null;
+        this.rows = null;
         this.endForm().then(
             () =>
             {
@@ -90,6 +90,10 @@ export class FormList extends React.Component<any, any>
                 this.startForm();
             })
             .catch(() => { });
+    }
+    isQueryForm()
+    {
+        return this.form && this.form.isquery == 1;
     }
     endForm()
     {
@@ -161,6 +165,12 @@ export class FormList extends React.Component<any, any>
                 .catch(() => this.setState({ isDeletingRow: false }));
         };
         this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
+    }
+    newRow = () =>
+    {
+        this.formService.newRow(this.form)
+            .then(newRowIndex => this.editRow(this.form, this.form.title, newRowIndex))
+            .catch(() => { });
     }
 
     /********* rendering functions *********/
@@ -302,6 +312,9 @@ export class FormList extends React.Component<any, any>
     }
     renderAddBtn()
     {
+        // Don't show the add button for query forms.
+        if (this.isQueryForm())
+            return(null);
         let offsetX = 30;
         let offsetY = 30;
         if (this.strings.platform === 'android')
@@ -319,7 +332,7 @@ export class FormList extends React.Component<any, any>
                 buttonColor={colors.primaryColor}
                 buttonTextStyle={{ fontSize: scale(27) }}
                 fixNativeFeedbackRadius={true}
-                onPress={() => { console.log("hi") }}
+                onPress={this.newRow}
             />
 
         );
