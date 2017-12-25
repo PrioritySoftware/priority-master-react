@@ -1,14 +1,12 @@
 import React from 'react';
 import
 {
-    FlatList,
     StyleSheet,
     View,
     Text,
     Platform,
 
 } from 'react-native';
-import { ConfigService } from '../providers/config.service';
 import { container, colors, iconNames, textAlign, margin } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { ProcService } from '../providers/Proc.service'
@@ -22,22 +20,23 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import { Column } from '../modules/column.class';
 import { Form } from '../modules/form.class';
 import { Strings } from '../modules/strings';
-import { MessageHandler } from '../components/message.handler';
 import { HorizontalList } from '../components/horizontalList'
 import { FormConfig } from '../modules/formConfig.class';
 import { DirectActivation } from '../modules/directActivation.class';
 import { observable } from 'mobx';
 import { FormList } from '../components/formList.comp';
+import { Messages, } from '../handlers/index';
+import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
+import { Icon } from 'react-native-elements';
 
-@inject("formService", "strings", "configService", "procService", "messageHandler")
+@inject("formService", "strings", "procService")
 @observer
 export class DetailsPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
 
     formService: FormService;
-    configService: ConfigService;
     procService: ProcService;
     messageHandler: MessageHandler;
     strings: Strings;
@@ -58,7 +57,6 @@ export class DetailsPage extends React.Component<any, any>
         this.formService = this.props.formService;
         this.strings = this.props.strings;
         this.procService = this.props.procService
-        this.configService = this.props.configService;
         this.messageHandler = this.props.messageHandler;
 
         this.title = this.props.navigation.state.params.title;
@@ -67,6 +65,10 @@ export class DetailsPage extends React.Component<any, any>
         this.formConfig = this.formService.getFormConfig(this.form, parentForm);
         this.columns = this.formConfig.detailsColumnsOptions;
         this.itemIndex = this.props.navigation.state.params.itemIndex;
+    }
+    componentDidMount()
+    {
+        this.messageHandler = Messages;
     }
     goBack()
     {
@@ -163,12 +165,12 @@ export class DetailsPage extends React.Component<any, any>
         }, 5);
 
     }
-    render()
+    render() 
     {
-        let specialComponent = this.currentSubForm ? {} : this.renderSideMenuIcon();
+        let optionsComp = this.currentSubForm ? {} : this.renderSideMenuIcon();
         return (
             < View style={[container, styles.container]} >
-                <HeaderComp title={this.title} goBack={() => this.goBack()} specialComponent={specialComponent} />
+                <HeaderComp title={this.title} goBack={() => this.goBack()} optionsComp={optionsComp} />
                 {this.renderSubFormsMenu()}
                 {this.currentSubForm ? this.renderSubformsList() : this.renderParentDetails()}
             </View >
@@ -251,7 +253,7 @@ export class DetailsPage extends React.Component<any, any>
             underlayColor: 'transparent',
             style: [styles.activationsIconStyle, margin(!this.strings.isRTL, scale(-10))]
         });
-
+        
     }
 
     rendertActivations = () => (

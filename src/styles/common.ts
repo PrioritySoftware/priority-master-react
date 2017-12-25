@@ -16,6 +16,8 @@ export const colors =
         disabledGray: "#b5b5b5",
         menuBackground: "#e8e8e8",
 
+        background: "#e8e8e8",
+        middleDarkGray: "#00000080",
         // blue
         darkBlue: "#175676",
         blue: "#00adee",
@@ -44,6 +46,12 @@ export const header =
     {
         backgroundColor: colors.primaryColor,
         height: '100%'
+    }
+export const modal =
+    {
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 
 export const iconName = (name) =>

@@ -1,6 +1,5 @@
 import { FormConfig } from "../modules/formConfig.class";
 import { Entity } from "../modules/index";
-import { MessageHandler } from "../components/message.handler";
 import { Strings } from "../modules/strings";
 import { ProfileConfig } from "../modules/profileConfig.class";
 import { ServerResponse } from "../modules/srvResponse.class";
@@ -14,17 +13,19 @@ import { observable } from 'mobx';
 import { ObservableMap } from "mobx/lib/types/observablemap";
 import { SearchAction } from "../modules/searchAction.class";
 import { Search } from "../modules/search.class";
+import { Messages as MessageHandler } from "../handlers/index";
 
 import { ProcService } from '../providers/Proc.service'
+import { ErrAndWarnMsgOpts } from "../modules/errAndWarnMsgOpts.class";
 
 export class FormService
 {
     formsConfig: { [key: string]: FormConfig } = {};
     onFatalError;
-    forms: { [key: string]: Form };
+    private forms: { [key: string]: Form };
     RowsBatchSize: number = 115;
 
-    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings, private procService: ProcService)
+    constructor(private priorityService, private strings: Strings, private procService: ProcService)
     {
         this.forms = {};
     }
@@ -204,6 +205,10 @@ export class FormService
     {
         form.warningConfirm(1);
     }
+    infoMsgConfirm = (form: Form) =>
+    {
+        form.infoMsgConfirm();
+    }
     /** Global error and warning handler passed to api with formStart. */
     errorAndWarningMsgHandler = (serverMsg: ServerResponse) =>
     {
@@ -212,37 +217,44 @@ export class FormService
             return;
         }
         let isError;
-        let options: MessageOptions = {};
+        let options: ErrAndWarnMsgOpts = {};
         if (serverMsg.fatal)
         {
             // If the error is a fatal error adds strings.fatalErrorMsg to the message.
-            this.messageHandler.showErrorOrWarning(true, this.strings.fatalErrorMsg + "\n" + serverMsg.message);
+            MessageHandler.showErrorOrWarning(true, this.strings.fatalErrorMsg + "\n" + serverMsg.message);
             return;
         }
         if (serverMsg.code === ServerResponseCode.ReadWrite)
         {
             // Sets buttons text for a text-form message.
-            options.buttonsText = new Array();
-            options.buttonsText.push(this.strings.approveReadOnly);
-            options.buttonsText.push(this.strings.approveEditText);
+            options.approveText = this.strings.approveReadOnly;
+            options.cancelText = this.strings.approveEditText;
         }
 
-        // Sets is'Error' and message title.
+        // Sets 'isError' and message title.
         if (serverMsg.type === ServerResponseType.Error || serverMsg.type === ServerResponseType.APIError || serverMsg.code === ServerResponseCode.Stop)
         {
             isError = true;
-            options.title = serverMsg.code === ServerResponseCode.Information ? this.strings.defaultMsgTitle : this.strings.errorTitle;
+            options.title = this.strings.errorTitle;
         }
-        else
+        else if (serverMsg.type === ServerResponseType.Warning)
         {
             isError = false;
             options.title = this.strings.warningTitle;
         }
+        else
+        {
+            isError = true;
+            options.title = this.strings.defaultMsgTitle;
+        }
 
-        this.messageHandler.showErrorOrWarning(isError, serverMsg.message,
+        MessageHandler.showErrorOrWarning(isError, serverMsg.message,
             () =>
             {
-                this.approveWarn(serverMsg.form);
+                if (serverMsg.type === ServerResponseType.Information)
+                    this.infoMsgConfirm(serverMsg.form);
+                else if (!isError)
+                    this.approveWarn(serverMsg.form);
             },
             () =>
             {

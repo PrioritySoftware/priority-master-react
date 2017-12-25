@@ -16,7 +16,6 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { scale, verticalScale } from '../utils/scale';
 import { Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-import { MessageHandler } from '../components/message.handler';
 import Spinner from 'react-native-loading-spinner-overlay';
 const SpinnerIndicator = require('react-native-spinkit');
 import ActionButton from 'react-native-action-button';
@@ -25,8 +24,10 @@ import { ObservableMap, observable } from 'mobx';
 import { Row } from './Row';
 import { SearchBar } from 'react-native-elements'
 import debounce from 'lodash.debounce'
+import { Messages } from '../handlers/index';
+import { MessageHandler } from '../handlers/message.handler';
 
-@inject("formService", "configService", "messageHandler", "strings")
+@inject("formService", "configService", "strings")
 @observer
 export class FormList extends React.Component<any, any>
 {
@@ -58,7 +59,6 @@ export class FormList extends React.Component<any, any>
         this.configService = this.props.configService;
         this.formService = this.props.formService;
         this.strings = this.props.strings;
-        this.messageHandler = this.props.messageHandler;
 
         // props
         this.formName = this.props.formName;
@@ -71,7 +71,6 @@ export class FormList extends React.Component<any, any>
             {
                 canLoadMoreContent: true,
                 isLoadingMore: false,
-                isDeletingRow: false,
             };
 
         // get form rows
@@ -81,6 +80,10 @@ export class FormList extends React.Component<any, any>
         //search
         this.debounceSearch = debounce(this.search, 1500);
         this.isShowSearchLoading = false;
+    }
+    componentDidMount()
+    {
+        this.messageHandler = Messages;
     }
     componentWillUnmount()
     {
@@ -177,13 +180,13 @@ export class FormList extends React.Component<any, any>
     {
         let delFunc = () =>
         {
-            this.setState({ isDeletingRow: true });
+            this.messageHandler.showLoading();
             this.formService.deleteListRow(this.form, rowInd)
                 .then(() => 
                 {
-                    this.setState({ isDeletingRow: false });
+                    this.messageHandler.hideLoading();
                 })
-                .catch(() => this.setState({ isDeletingRow: false }));
+                .catch(() => this.messageHandler.hideLoading());
         };
         this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
     }
@@ -277,8 +280,6 @@ export class FormList extends React.Component<any, any>
                     renderFooter={this.renderFooter}
                 />
                 {this.renderAddBtn()}
-                {/* Loading indicator for row deletion  */}
-                {<Spinner visible={this.state.isDeletingRow} color={colors.primaryColor} overlayColor={colors.overlay} size="small"></Spinner>}
             </View>
         );
     }
@@ -378,7 +379,7 @@ export class FormList extends React.Component<any, any>
         let offsetY = 30;
         if (this.strings.platform === 'android')
         {
-            offsetX = this.strings.isRTL ? -25 : 20;
+            offsetX = this.strings.isRTL ? -20 : 20;
             offsetY = 20;
         }
         let position = this.strings.isRTL ? 'left' : 'right';

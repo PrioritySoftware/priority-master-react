@@ -12,13 +12,14 @@ import { AppService } from '../providers/app.service';
 import TextField from 'react-native-md-textinput';
 import { colors, center, header, textAlign } from '../styles/common';
 import { NavigationActions } from 'react-navigation';
-import { MessageHandler } from '../components/message.handler';
 import { ConfigService } from '../providers/config.service';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Pages } from '.';
 import { inject } from 'mobx-react';
+import { MessageHandler } from '../handlers/message.handler';
+import { Messages } from '../handlers/index';
 
-@inject("appService", "configService", "messageHandler", "strings")
+@inject("appService", "configService", "strings")
 export class LoginPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
@@ -43,8 +44,11 @@ export class LoginPage extends React.Component<any, any>
         this.appService = this.props.appService;
         this.configService = this.props.configService;
         this.strings = this.props.strings;
-        this.messageHandler = this.props.messageHandler;
         this.state = { isPasswordExpired: false };
+    }
+    componentDidMount()
+    {
+      this.messageHandler = Messages;
     }
     login()
     {

@@ -117,6 +117,8 @@ export declare class Form
 	 */
 	warningConfirm(ok)
 
+	infoMsgConfirm()
+
 	/**
 	 * @callback SaveRowSuccessCallback
 	 * @param {ResultObj} result - result object.

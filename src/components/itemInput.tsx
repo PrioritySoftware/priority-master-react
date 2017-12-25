@@ -22,12 +22,13 @@ import { ColumnType } from '../modules/columnType.class';
 import Communications from 'react-native-communications';
 import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
-import { MessageHandler } from './message.handler';
 import { Strings } from '../modules/strings';
 import { colors, iconNames, flexDirection } from '../styles/common';
+import { MessageHandler } from '../handlers/message.handler';
+import { Messages } from '../handlers';
 import { Search } from '../modules/search.class';
 
-@inject("formService", "messageHandler", "strings")
+@inject("formService", "strings")
 @observer
 export class ItemInput extends Component<any, any>
 {
@@ -60,7 +61,6 @@ export class ItemInput extends Component<any, any>
     {
         super(props);
         this.formService = this.props.formService;
-        this.messageHandler = this.props.messageHandler;
         this.strings = this.props.strings;
 
         this.form = this.formService.getForm(this.props.formPath);
@@ -70,6 +70,10 @@ export class ItemInput extends Component<any, any>
         this.item = this.formService.getFormRow(this.form, this.itemIndex);
         this.formCol = this.form.columns[this.props.colName];
         this.colConfig = this.formService.getFormConfig(this.form, this.parentForm).detailsColumnsOptions[this.colName];
+    }
+    componentDidMount()
+    {
+      this.messageHandler = Messages;
     }
     isReadonly(): boolean
     {

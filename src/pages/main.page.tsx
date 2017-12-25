@@ -11,14 +11,15 @@ import { Header } from 'react-native-elements'
 import { SVG } from '../components/svg';
 import { center, header, container, colors } from '../styles/common';
 import { Card } from '../components/card';
-import { MessageHandler } from '../components/message.handler';
 import { FormService } from '../providers/form.service';
 import { NavigationActions } from 'react-navigation';
 import { Pages } from '.';
 import { inject } from "mobx-react";
 import { ProcService } from '../providers/proc.service';
+import { MessageHandler } from '../handlers/message.handler';
+import { Messages, Progress } from '../handlers/index';
 
-@inject("formService", "procService", "configService", "messageHandler", "strings")
+@inject("formService", "procService", "configService", "strings")
 export class MainPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
@@ -35,7 +36,6 @@ export class MainPage extends React.Component<any, any>
 
         this.configService = this.props.configService;
         this.formService = this.props.formService;
-        this.messageHandler = this.props.messageHandler;
         this.strings = this.props.strings;
         this.procService = this.props.procService;
 
@@ -51,6 +51,10 @@ export class MainPage extends React.Component<any, any>
             });
             this.props.navigation.dispatch(resetAction);
         };
+    }
+    componentDidMount()
+    {
+      this.messageHandler = Messages;
     }
     render() 
     {
@@ -92,7 +96,7 @@ export class MainPage extends React.Component<any, any>
     {
         if (ent.type === 'P' || ent.type === 'R')
         {
-            // this.messageHandler.showTransLoading();
+            this.messageHandler.showLoading();
             this.procService.startProcedure(ent.name, ent.type, this.configService.config.profileConfig)
                 .then(() =>
                 {
@@ -102,7 +106,6 @@ export class MainPage extends React.Component<any, any>
                 {
                     this.messageHandler.hideLoading();
                 });
-
         }
         else if (ent.type === 'F')
         {

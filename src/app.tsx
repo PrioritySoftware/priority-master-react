@@ -7,6 +7,7 @@ import { Pages } from './pages';
 import SplashScreen from "rn-splash-screen";
 import { Provider } from "mobx-react";
 import { navigationTransition } from "./utils/navigation";
+import { Handlers } from './handlers/index';
 
 export class App extends React.Component<any, any>
 {
@@ -26,7 +27,10 @@ export class App extends React.Component<any, any>
         {
             return (
                 <Provider { ...providers }>
-                    <this.navigator />
+                    <View style={{ flex: 1 }}>
+                        <this.navigator />
+                        {...Handlers }
+                    </View>
                 </Provider>
             );
         }
@@ -138,13 +142,13 @@ let ScreenWidth = Dimensions.get("window").width;
 let ScreenHeight = Dimensions.get("window").height;
 const styles = StyleSheet.create({
     image:
-    {
-        height: ScreenHeight,
-        width: ScreenWidth,
-        justifyContent: 'center'
-    },
+        {
+            height: ScreenHeight,
+            width: ScreenWidth,
+            justifyContent: 'center'
+        },
     indicator:
-    {
-        marginTop: 100
-    }
+        {
+            marginTop: 100
+        }
 });

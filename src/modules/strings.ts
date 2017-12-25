@@ -555,7 +555,7 @@ export class Strings
 
         this.isRTL = false;
         this._defaultMsgTitle.value = "Message";
-        this._ok.value = "OK";
+        this._ok.value = "Ok";
         this._cancel.value = "Cancel";
         this._newApp.value = "New app";
         this._isDelete.value = "Delete?";
