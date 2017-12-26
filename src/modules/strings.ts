@@ -611,7 +611,7 @@ export class Strings
         this._loginBtn.value = "Login";
         this._loginHeader.value = "";
         this._changePswBtn.value = "Change"
-        this._ok.value = "OK";
+        this._ok.value = "Ok";
         this._cancel.value = "Cancel";
         this._defaultMsgTitle.value = "Message";
         this._editBtnText.value = "Edit";

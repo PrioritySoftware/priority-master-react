@@ -12,6 +12,7 @@ import { colors, flexDirection, textAlign, modal } from '../styles/common';
 import Modal from 'react-native-modalbox'
 import { ButtonComp } from '../components/button';
 import { ButtonOpts } from '../modules/buttonOptions.class';
+import { Divider } from 'react-native-elements';
 
 @inject("strings")
 @observer
@@ -91,25 +92,35 @@ export class MessageHandler extends Component<any, any>
     }
     renderAlertButtons()
     {
-        let flexDir = null
-        // if (this.strings.platform !== 'ios')
-        flexDir = flexDirection(!this.strings.isRTL);
-
+        let flexDir = flexDirection(!this.strings.isRTL);
         return (
             <View style={[styles.buttonsContainer, flexDir]}>
                 {
                     this.alert.buttons.map(({ text, onPress }, idx) => (
-                        <ButtonComp key={idx}
-                            title={text}
-                            buttonStyle={styles.button}
-                            textStyle={{ textAlign: 'left' }}
-                            backgroundColor='transparent'
-                            color={colors.primaryColor}
-                            onPress={() => onPress()} />
+                        <View style={flexDir} key={idx}>
+                            {idx === 1 && this.renderButtonDivider()}
+                            <ButtonComp
+                                title={text}
+                                buttonStyle={styles.button}
+                                containerViewStyle={styles.btnContainer}
+                                textStyle={styles.btnText}
+                                backgroundColor='transparent'
+                                color={colors.primaryColor}
+                                onPress={() => onPress()} />
+                        </View>
                     ))
                 }
             </View>
         )
+    }
+    renderButtonDivider()
+    {
+        if (this.strings.platform !== 'ios')
+            return (null);
+        let margin = this.strings.isRTL ? { marginRight: -scale(15) } : { marginLeft: -scale(30) };
+        return (
+            <Divider style={[styles.divider, margin]} />
+        );
     }
     renderLoading()
     {
@@ -157,7 +168,7 @@ export class MessageHandler extends Component<any, any>
         let buttonsArr = [];
         let approveText = messageOptions.approveText || this.strings.ok;
         let cancelText = messageOptions.cancelText || this.strings.cancel;
-    
+
 
         let cancelButton =
             {
@@ -325,7 +336,9 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios: {
                     borderRadius: 20,
-                    paddingHorizontal: 0
+                    padding: 0,
+                    paddingTop: scale(21),
+                    width: scale(300),
                 }
             })
         },
@@ -337,10 +350,17 @@ const styles = StyleSheet.create({
         {
             ...Platform.select({
                 ios: {
-                    paddingTop: scale(21),
                     borderTopWidth: 0.5,
                     borderColor: colors.middleGrayLight,
-                    width: '100%'
+                    justifyContent: 'space-around'
+                }
+            })
+        },
+    btnContainer:
+        {
+            ...Platform.select({
+                ios: {
+                    width: scale(150),
                 }
             })
         },
@@ -349,14 +369,32 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         ...Platform.select({
             ios: {
-                width: '100%',
+                paddingVertical: scale(21),
             }
         })
     },
+    btnText:
+        {
+            textAlign: 'left',
+            ...Platform.select({
+                ios: {
+                    textAlign: 'center',
+                    width: '100%',
+                }
+            })
+        },
     message:
         {
             color: colors.middleDarkGray,
-            marginTop: scale(-25)
+            marginTop: scale(-25),
+            ...Platform.select({
+                ios:
+                    {
+                        marginTop: scale(-30),
+                        paddingHorizontal: scale(21),
+                    }
+            })
+
         },
     messageTitle:
         {
@@ -370,6 +408,12 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0
-    }
+    },
+    divider:
+        {
+            backgroundColor: colors.middleGrayLight,
+            height: '100%',
+            width: 0.5,
+        }
 
 })
