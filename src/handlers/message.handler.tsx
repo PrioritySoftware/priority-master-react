@@ -6,7 +6,7 @@ import { ErrAndWarnMsgOpts } from '../modules/errAndWarnMsgOpts.class';
 import Toast from 'react-native-simple-toast';
 import { inject, observer, } from 'mobx-react';
 import { observable } from 'mobx';
-import { View, Text, StyleSheet, Platform, ActivityIndicator, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Platform, ActivityIndicator, BackHandler, ScrollView } from 'react-native';
 import { scale } from '../utils/scale';
 import { colors, flexDirection, textAlign, modal } from '../styles/common';
 import Modal from 'react-native-modalbox'
@@ -85,7 +85,9 @@ export class MessageHandler extends Component<any, any>
         return (
             <View style={styles.alertContainer}>
                 <Text style={[styles.messageTitle, alertTextAlign]}>{this.alert.title}</Text>
-                <Text style={[styles.message, alertTextAlign]} >{this.alert.message}</Text>
+                <ScrollView contentContainerStyle={styles.messageContainer}>
+                    <Text style={[styles.message, alertTextAlign]} >{this.alert.message}</Text>
+                </ScrollView>
                 {this.renderAlertButtons()}
             </View>
         );
@@ -324,7 +326,7 @@ const styles = StyleSheet.create({
     alertContainer:
         {
             width: scale(337),
-            height: scale(190),
+            height: scale(200),
             padding: scale(21),
             elevation: 1,
             justifyContent: 'space-between',
@@ -383,14 +385,17 @@ const styles = StyleSheet.create({
                 }
             })
         },
+    messageContainer:
+        {
+            paddingTop: scale(20),
+            paddingBottom: scale(5),
+        },
     message:
         {
             color: colors.middleDarkGray,
-            marginTop: scale(-25),
             ...Platform.select({
                 ios:
                     {
-                        marginTop: scale(-30),
                         paddingHorizontal: scale(21),
                     }
             })
