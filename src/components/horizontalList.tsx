@@ -5,6 +5,7 @@ import
     View,
     Text,
     FlatList,
+    Platform,
 } from 'react-native';
 import { colors } from "../styles/common";
 import { scale } from '../utils/scale';
@@ -55,8 +56,8 @@ export class HorizontalList extends Component<any, any>
         }
     }
     renderSubFormListItem = ({ item }) => (
-        <View style={[styles.subFormItem, this.getstyle(item)]}>
-            <Text style={[styles.subFormItemText]}
+        <View style={styles.subFormItemBox} >
+            <Text style={[styles.subFormItem, this.getstyle(item)]}
                 onPress={() => { this.onPress(item) }}>
                 {item.title}
             </Text>
@@ -75,15 +76,21 @@ const styles = StyleSheet.create({
             flex: 0,
             flexDirection: 'row',
         },
-    subFormItem:
-        {
-            padding: scale(5),
-            marginHorizontal: scale(10),
-            marginTop: scale(5),
-            marginBottom: scale(10),
-            borderBottomWidth: 0.5,
-            borderBottomColor: 'transparent',
-        },
+    subFormItemBox: {
+        flex: 0,
+        lineHeight: 15, //IOS requires entering font size
+        fontSize: 15,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    subFormItem: {
+        padding: 5,
+        margin: 10,
+        marginTop: 3,
+        lineHeight: 15,
+        fontSize: 15,
+        marginBottom: 5,
+    },
     subFormItemText:
         {
             color: colors.darkGray
@@ -91,6 +98,13 @@ const styles = StyleSheet.create({
     selectItem:
         {
             borderBottomColor: colors.darkGray,
-
+            borderBottomWidth:0.5,
+            ...Platform.select({
+                ios:
+                    {
+                        borderBottomWidth:0,
+                        textDecorationLine: 'underline'
+                    }
+            })
         },
 });

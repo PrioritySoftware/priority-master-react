@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
         },
     dropdown: {
         margin: 0,
-        width: 100,
+        width: 0,
     },
     dropdownStyle: {
         width: "100%",
