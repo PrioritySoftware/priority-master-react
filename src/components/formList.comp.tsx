@@ -191,21 +191,17 @@ export class FormList extends React.Component<any, any>
     {
         let formConfig = this.formService.getFormConfig(this.form, this.parentForm);
         this.formService.setFilter(this.form, formConfig.searchColumns, val).then(
-            result =>
-            {
-                this.isShowSearchLoading = false;
-            },
-            reason =>
-            {
-                if (formConfig.searchColumns.length == 0)
-                {
-                    this.messageHandler.showErrorOrWarning(true, this.strings.searchError, () => { }, () => { }, { title: this.strings.errorTitle });
-                }
-                this.isShowSearchLoading = false;
-            });
+            result => this.isShowSearchLoading = false,
+            reason => this.isShowSearchLoading = false);
     }
     startSearch = (searchVal: string) =>
     {
+        let formConfig = this.formService.getFormConfig(this.form, this.parentForm);
+        if (formConfig.searchColumns.length == 0)
+        {
+            this.messageHandler.showErrorOrWarning(true, this.strings.searchError, () => { }, () => { }, { title: this.strings.errorTitle });
+            return;
+        }
         if (this.lastSearch != searchVal && (this.lastSearch !== undefined || searchVal !== ''))
         {
             this.lastSearch = searchVal;
@@ -284,7 +280,7 @@ export class FormList extends React.Component<any, any>
     renderEmptyState()
     {
         let scaleX = this.strings.isRTL ? -1 : 1;
-        let arrowHeight = this.parentForm ? { height: verticalScale(332) } : { height: verticalScale(370) };
+        let arrowHeight = this.parentForm ? { height: verticalScale(275) } : { height: verticalScale(310) };
         return (
             <View style={styles.emptyState}>
                 <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
@@ -475,8 +471,7 @@ const styles = StyleSheet.create({
     emptyStateArrow: {
         resizeMode: 'contain',
         marginTop: verticalScale(22),
-        height: verticalScale(370),
-        width: verticalScale(222),
+        width: verticalScale(192),
         marginHorizontal: scale(20)
     },
 
