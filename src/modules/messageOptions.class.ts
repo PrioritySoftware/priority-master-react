@@ -5,5 +5,6 @@ export interface MessageOptions
     overlay?: boolean;
     title?: string;
     message?:string,
-    buttons?: ButtonOpts[];
+    buttons?: ButtonOpts[],
+    style?:any;
 }

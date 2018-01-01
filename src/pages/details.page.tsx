@@ -5,9 +5,10 @@ import
     View,
     Text,
     Platform,
+    BackHandler,
 
 } from 'react-native';
-import { container, colors, iconNames, textAlign, margin } from '../styles/common';
+import { container, colors, iconNames, textAlign, margin, flexDirection } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { ProcService } from '../providers/Proc.service'
 import { HeaderComp } from '../components/header';
@@ -29,8 +30,9 @@ import { Messages, } from '../handlers/index';
 import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
 import { Icon } from 'react-native-elements';
+import { ConfigService } from '../providers/config.service';
 
-@inject("formService", "strings", "procService")
+@inject("formService", "strings", "procService", "configService")
 @observer
 export class DetailsPage extends React.Component<any, any>
 {
@@ -38,6 +40,7 @@ export class DetailsPage extends React.Component<any, any>
 
     formService: FormService;
     procService: ProcService;
+    configService: ConfigService;
     messageHandler: MessageHandler;
     strings: Strings;
 
@@ -55,8 +58,9 @@ export class DetailsPage extends React.Component<any, any>
     {
         super(props);
         this.formService = this.props.formService;
+        this.procService = this.props.procService;
+        this.configService = this.props.configService;
         this.strings = this.props.strings;
-        this.procService = this.props.procService
         this.messageHandler = this.props.messageHandler;
 
         this.title = this.props.navigation.state.params.title;
@@ -69,14 +73,44 @@ export class DetailsPage extends React.Component<any, any>
     componentDidMount()
     {
         this.messageHandler = Messages;
-    }
-    goBack()
-    {
-        this.props.navigation.goBack();
+        BackHandler.addEventListener('hardwareBackPress', this.goBack);
     }
     isSearch(formCol: Column)
     {
         return formCol.zoom === "Search" || formCol.zoom === "Choose";
+    }
+    setIsChangesSaved(isSaved: boolean)
+    {
+        this.formService.setIsRowChangesSaved(this.form, this.itemIndex, isSaved);
+    }
+    getIsChangesSaved()
+    {
+        return this.formService.getIsRowChangesSaved(this.form, this.itemIndex);
+    }
+    getIsNewRow()
+    {
+        return this.formService.getIsNewRow(this.form, this.itemIndex);
+    }
+    goBack = () =>
+    {
+        // When there are no changes made for a new row, delete the row before navigating back.
+        if (this.getIsChangesSaved() && this.getIsNewRow())
+        {
+            this.deleteNewRow();
+        }
+        else
+        {
+            this.checkForChanges()
+                .then(() => this.navigateBack())
+                .catch(() => { });
+        }
+
+        return true;
+    }
+    navigateBack()
+    {
+        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
+        this.props.navigation.goBack();
     }
     getNavigation(colName: string)
     {
@@ -86,16 +120,74 @@ export class DetailsPage extends React.Component<any, any>
             return this.props.navigation;
         return null;
     }
-
+    checkForChanges(isShowAsk: boolean = false): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (!this.getIsChangesSaved())
+            {
+                if (isShowAsk)
+                    this.showChangesNotSavedAndAsk(resolve, reject);
+                else
+                    this.showChangesNotSaved(resolve, reject);
+            }
+            else
+            {
+                resolve();
+            }
+        });
+    }
+    showChangesNotSaved(resolve, reject)
+    {
+        this.messageHandler.showChangesNotSaved(
+            () => this.saveRow(resolve),
+            () =>
+            {
+                if (this.getIsNewRow())
+                    this.deleteNewRow();
+                else
+                    this.undoRow(resolve);
+            },
+            reject);
+    }
+    showChangesNotSavedAndAsk(resolve, reject)
+    {
+        if (this.configService.getIsHideSaveMessage())
+        {
+            this.saveRow(resolve);
+            return;
+        }
+        this.messageHandler.showChangesNotSavedAndAsk(
+            (isDontAskAgain) =>
+            {
+                this.saveRow(resolve);
+                if (isDontAskAgain)
+                    this.configService.setIsHideSaveMessage(isDontAskAgain);
+            },
+            () =>
+            {
+                if (this.getIsNewRow())
+                    this.deleteNewRow();
+                else
+                    this.undoRow(resolve);
+            },
+            reject);
+    }
     /* Subforms */
 
     subformSelected = (subform) =>
     {
-        // render parent details
-        if (subform.name === this.form.name)
-            this.currentSubForm = null;
-        else
-            this.currentSubForm = subform.name;
+        this.checkForChanges(true)
+            .then(() =>
+            {
+                // render parent details
+                if (subform.name === this.form.name)
+                    this.currentSubForm = null;
+                else
+                    this.currentSubForm = subform.name;
+            })
+            .catch(() => { });
+
     }
 
     editSubFormRow = (form: Form, rowTitle: string, rowIndex: number) =>
@@ -131,15 +223,20 @@ export class DetailsPage extends React.Component<any, any>
     }
     activationSelected(idx, act)
     {
-        this.messageHandler.showLoading(this.strings.loadData);
         if (act.type !== this.strings.removeBtnType)
         {
-            this.formService.executeDirectActivation(this.form, act.name, act.type).then(
-                (data) =>
+            this.checkForChanges()
+                .then(() =>
                 {
-                    this.messageHandler.hideLoading()
-                },
-                (reason) => this.messageHandler.hideLoading())
+                    this.messageHandler.showLoading(this.strings.loadData);
+                    this.formService.executeDirectActivation(this.form, act.name, act.type).then(
+                        (data) =>
+                        {
+                            this.messageHandler.hideLoading()
+                        },
+                        (reason) => this.messageHandler.hideLoading())
+                })
+                .catch(() => { });
         }
         else
         {
@@ -150,6 +247,7 @@ export class DetailsPage extends React.Component<any, any>
     {
         let delFunc = () =>
         {
+            this.messageHandler.showLoading();
             this.formService.deleteRow(this.form)
                 .then(() =>
                 {
@@ -158,12 +256,44 @@ export class DetailsPage extends React.Component<any, any>
                 })
                 .catch(() => this.messageHandler.hideLoading());
         };
-        // IOS: Rendering an Alert while closing a Modal was freezing the application. The timeout is a workaround.
-        setTimeout(() =>
-        {
-            this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
-        }, 5);
-
+        this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
+    }
+    deleteNewRow()
+    {
+        this.messageHandler.showLoading();
+        this.formService.deleteRow(this.form)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                this.navigateBack();
+            })
+            .catch(() => this.messageHandler.hideLoading());
+    }
+    saveRow(afterSaveFunc = null)
+    {
+        this.messageHandler.showLoading();
+        this.formService.saveRow(this.form, this.itemIndex)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                if (afterSaveFunc)
+                    afterSaveFunc();
+                this.messageHandler.showToast(this.strings.changesSavedText);
+            })
+            .catch(() => this.messageHandler.hideLoading());
+    }
+    undoRow = (afterUndoFunc = null) =>
+    {
+        this.messageHandler.showLoading();
+        this.formService.undoRow(this.form)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                this.setIsChangesSaved(true);
+                if (afterUndoFunc)
+                    afterUndoFunc();
+            })
+            .catch(() => this.messageHandler.hideLoading());
     }
     render() 
     {
@@ -238,6 +368,7 @@ export class DetailsPage extends React.Component<any, any>
                 selected={this.currentSubForm || this.form.name}
                 onPress={this.subformSelected}
                 inverted={this.strings.isRTL}
+                showsHorizontalScrollIndicator={this.strings.platform !== 'android'}
             />
         )
     }
@@ -245,15 +376,31 @@ export class DetailsPage extends React.Component<any, any>
 
     renderSideMenuIcon()
     {
-        return ({
-            type: 'ionicon',
-            icon: iconNames.menu,
-            onPress: this.openActivationsList,
-            color: 'white',
-            underlayColor: 'transparent',
-            style: [styles.activationsIconStyle, margin(!this.strings.isRTL, scale(-10))]
-        });
-        
+        return (
+            <View style={flexDirection(this.strings.isRTL)}>
+                <Icon
+                    type='ionicon'
+                    name={iconNames.checkmark}
+                    onPress={() => this.saveRow(this.goBack)}
+                    color='white'
+                    underlayColor='transparent'
+                    size={22}
+                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                />
+                <Icon
+                    type='ionicon'
+                    name={iconNames.menu}
+                    onPress={this.openActivationsList}
+                    color='white'
+                    underlayColor='transparent'
+                    size={22}
+                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                />
+
+
+            </View>
+        );
+
     }
 
     rendertActivations = () => (
@@ -290,6 +437,7 @@ const styles = StyleSheet.create({
     dropdownStyle: {
         width: "100%",
         backgroundColor: 'transparent',
+        borderWidth: 0
     },
     activationText: {
         paddingHorizontal: 6,
@@ -299,10 +447,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         textAlignVertical: 'center',
     },
-    activationsIconStyle:
+    optionsIcon:
         {
             paddingVertical: scale(30),
-            paddingHorizontal: scale(10),
+            paddingHorizontal: scale(20),
             ...Platform.select({
                 ios:
                     {

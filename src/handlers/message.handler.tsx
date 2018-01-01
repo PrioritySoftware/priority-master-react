@@ -18,9 +18,9 @@ import { Divider } from 'react-native-elements';
 @observer
 export class MessageHandler extends Component<any, any>
 {
-    // private dnotAskMeAgain: boolean;
     strings: Strings;
 
+    @observable private dontAskMeAgain: boolean;
     @observable alert: MessageOptions
     @observable loading: MessageOptions;
 
@@ -42,6 +42,11 @@ export class MessageHandler extends Component<any, any>
     androidBackButton = () =>
     {
         return this.alert != null || this.loading != null;
+    }
+
+    getDontAskMeAgain()
+    {
+        return this.dontAskMeAgain;
     }
     render()
     {
@@ -83,9 +88,9 @@ export class MessageHandler extends Component<any, any>
     {
         let alertTextAlign = this.strings.platform === 'ios' ? { textAlign: 'center' } : textAlign(this.strings.isRTL);
         return (
-            <View style={styles.alertContainer}>
+            <View style={this.alert.style}>
                 <Text style={[styles.messageTitle, alertTextAlign]}>{this.alert.title}</Text>
-                <ScrollView contentContainerStyle={styles.messageContainer}>
+                <ScrollView contentContainerStyle={[styles.messageContainer, this.alert.title && { paddingTop: scale(20) }]}>
                     <Text style={[styles.message, alertTextAlign]} >{this.alert.message}</Text>
                 </ScrollView>
                 {this.renderAlertButtons()}
@@ -94,20 +99,28 @@ export class MessageHandler extends Component<any, any>
     }
     renderAlertButtons()
     {
-        let flexDir = flexDirection(!this.strings.isRTL);
+        // three buttons are displayed vertically.
+        let flexDir = null
+        if (this.alert.buttons.length < 3)
+            flexDir = flexDirection(!this.strings.isRTL);
+
         return (
             <View style={[styles.buttonsContainer, flexDir]}>
                 {
-                    this.alert.buttons.map(({ text, onPress }, idx) => (
+                    this.alert.buttons.map(({ text, onPress, style, type, canBeDisabled }, idx) => (
                         <View style={flexDir} key={idx}>
                             {idx === 1 && this.renderButtonDivider()}
                             <ButtonComp
                                 title={text}
-                                buttonStyle={styles.button}
+                                type={type}
+                                disabled={canBeDisabled && this.getDontAskMeAgain()}
+                                checked={this.getDontAskMeAgain()}
+                                buttonStyle={style}
                                 containerViewStyle={styles.btnContainer}
                                 textStyle={styles.btnText}
                                 backgroundColor='transparent'
                                 color={colors.primaryColor}
+                                checkedColor={colors.primaryColor}
                                 onPress={() => onPress()} />
                         </View>
                     ))
@@ -171,10 +184,12 @@ export class MessageHandler extends Component<any, any>
         let approveText = messageOptions.approveText || this.strings.ok;
         let cancelText = messageOptions.cancelText || this.strings.cancel;
 
+        Object.assign(messageOptions, { style: styles.alertContainer })
 
         let cancelButton =
             {
                 text: cancelText,
+                style: styles.horizontalBtn,
                 onPress: () =>
                 {
                     this.hideAlert();
@@ -185,6 +200,7 @@ export class MessageHandler extends Component<any, any>
         let okButton =
             {
                 text: approveText,
+                style: styles.horizontalBtn,
                 onPress: () =>
                 {
                     this.hideAlert();
@@ -202,29 +218,43 @@ export class MessageHandler extends Component<any, any>
      * Calls 'onSaveAndContinue' when 'save-and-continue' is clicked. Calls 'onUndoAndContinue' when 'cancel-and-continue' is clicked.
      * Used in case there are changes that were not saved in the current view and the user wants to navigate to another view.
      */
-    public showChangesNotSaved(onSaveAndContinue, onUndoAndContinue)
+    public showChangesNotSaved(onSaveAndContinue, onUndoAndContinue, onCancel)
     {
+        let btnStyle = this.strings.isRTL ? styles.verticalBtnRTL : styles.verticalBtnLTR;
+        let options =
+            {
+                title: this.strings.warningTitle,
+                style: styles.alertContainerLong
+            };
 
-        // let cancel: ButtonOptions = {
-        //     text: Constants.cancel,
-        //     click: () => { }
-        // };
-        // let saveAndCont: ButtonOptions = {
-        //     text: Constants.saveAndCont,
-        //     click: () =>
-        //     {
-        //         onSaveAndContinue();
-        //     }
-        // };
-        // let undoAndCond: ButtonOptions = {
-        //     text: Constants.cancelAndCont,
-        //     click: () =>
-        //     {
-        //         onUndoAndContinue();
-        //     }
-        // };
-        // this.showMessage(Constants.changesNotSavedText, [saveAndCont, undoAndCond, cancel], { title: Constants.warningTitle, cssClass: Constants.dirByLang });
-
+        let saveAndCont: ButtonOpts = {
+            text: this.strings.saveAndCont,
+            style: btnStyle,
+            onPress: () =>
+            {
+                this.hideAlert();
+                onSaveAndContinue();
+            }
+        };
+        let undoAndCond: ButtonOpts = {
+            text: this.strings.cancelAndCont,
+            style: btnStyle,
+            onPress: () =>
+            {
+                this.hideAlert();
+                onUndoAndContinue();
+            }
+        };
+        let cancel: ButtonOpts = {
+            text: this.strings.cancel,
+            style: btnStyle,
+            onPress: () =>
+            {
+                this.hideAlert();
+                onCancel();
+            }
+        };
+        this.showMessage(this.strings.changesNotSavedText, [saveAndCont, undoAndCond, cancel], options);
     }
 
     /**Presents an alert with three buttons: 'save-and-continue', 'cancel-and-continue', 'cancel', and 'dnot-ask-me-again' checkbox.
@@ -233,63 +263,57 @@ export class MessageHandler extends Component<any, any>
      * User's choice of the 'dont-ask-me-again' checkbox is sent to the 'onSaveAndContinue' func. 
      * Used in case there are changes that were not saved in the current view and the user wants to navigate to another view.
      */
-    public showChangesNotSavedAndAsk(event, onSaveAndContinue, onUndoAndContinue)
+    public showChangesNotSavedAndAsk(onSaveAndContinue, onUndoAndContinue, onCancel)
     {
-        // this.dnotAskMeAgain = false;
-        // let alertPopover;
-        // let dontAskMeBtn: ButtonOptions = {
-        //     text: Constants.neverAskAgain,
-        //     type: 'checkbox',
-        //     click: () =>
-        //     {
-        //         this.dnotAskMeAgain = !this.dnotAskMeAgain;
-        //     }
-        // };
-        // let saveAndCont: ButtonOptions = {
-        //     text: Constants.saveAndCont,
-        //     type: "button",
-        //     click: () =>
-        //     {
-        //         onSaveAndContinue(this.dnotAskMeAgain);
-        //         alertPopover.dismiss()
-        //     }
-        // };
-        // let undoAndCond: ButtonOptions = {
-        //     text: Constants.cancelAndCont,
-        //     type: "button",
-        //     disabled: () =>
-        //     {
-        //         return this.dnotAskMeAgain;
-        //     },
-        //     click: () =>
-        //     {
-        //         onUndoAndContinue();
-        //         alertPopover.dismiss()
-        //     }
-        // };
-        // let cancel: ButtonOptions = {
-        //     text: Constants.cancel,
-        //     type: "button",
-        //     disabled: () =>
-        //     {
-        //         return this.dnotAskMeAgain;
-        //     },
-        //     click: () => 
-        //     {
-        //         alertPopover.dismiss();
-        //     }
-        // };
+        let btnStyle = this.strings.isRTL ? styles.verticalBtnRTL : styles.verticalBtnLTR;
+        this.dontAskMeAgain = false;
+        
+        let options =
+            {
+                title: null,
+                style: styles.alertContainerLong
+            };
 
-        // alertPopover = this.popoverCtrl.create(
-        //     MenuPopup,
-        //     {
-        //         message: Constants.changesNotSavedText,
-        //         items: [dontAskMeBtn, saveAndCont, undoAndCond, cancel],
-        //         nolines: true,
-        //         cssClass: Constants.dirByLang
-        //     });
+        let dontAskMeBtn: ButtonOpts = {
+            text: this.strings.neverAskAgain,
+            style: btnStyle,
+            type: 'checkbox',
+            onPress: () =>
+            {
+                this.dontAskMeAgain = !this.dontAskMeAgain;
+            }
+        };
+        let saveAndCont: ButtonOpts = {
+            text: this.strings.saveAndCont,
+            style: btnStyle,
+            onPress: () =>
+            {
+                this.hideAlert();
+                onSaveAndContinue(this.dontAskMeAgain);
+            }
+        };
+        let undoAndCond: ButtonOpts = {
+            text: this.strings.cancelAndCont,
+            style: btnStyle,
+            canBeDisabled: true,
+            onPress: () =>
+            {
+                this.hideAlert();
+                onUndoAndContinue();
+            }
+        };
+        let cancel: ButtonOpts = {
+            text: this.strings.cancel,
+            style: btnStyle,
+            canBeDisabled: true,
+            onPress: () => 
+            {
+                this.hideAlert();
+                onCancel();
+            }
+        };
 
-        // alertPopover.present();
+        this.showMessage(this.strings.changesNotSavedText, [dontAskMeBtn, saveAndCont, undoAndCond, cancel], options);
     }
     /* Presents an alert with the given buttons. Each button is of 'ButtonOptions' type.*/
     public showMessage(message: string, buttons: ButtonOpts[] = [], messageOptions?)
@@ -312,9 +336,9 @@ export class MessageHandler extends Component<any, any>
             {
                 title: options.title,
                 message: options.message,
-                buttons: options.buttons
+                buttons: options.buttons,
+                style: options.style
             };
-
     }
     hideAlert()
     {
@@ -327,6 +351,27 @@ const styles = StyleSheet.create({
         {
             width: scale(337),
             height: scale(200),
+            padding: scale(21),
+            elevation: 1,
+            justifyContent: 'space-between',
+            shadowColor: colors.gray,
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 2,
+            backgroundColor: 'white',
+            ...Platform.select({
+                ios: {
+                    borderRadius: 20,
+                    padding: 0,
+                    paddingTop: scale(21),
+                    width: scale(300),
+                }
+            })
+        },
+    alertContainerLong:
+        {
+            width: scale(337),
+            height: scale(230),
             padding: scale(21),
             elevation: 1,
             justifyContent: 'space-between',
@@ -366,15 +411,16 @@ const styles = StyleSheet.create({
                 }
             })
         },
-    button: {
-        padding: 0,
-        marginHorizontal: 0,
-        ...Platform.select({
-            ios: {
-                paddingVertical: scale(21),
-            }
-        })
-    },
+    horizontalBtn:
+        {
+            padding: 0,
+            marginHorizontal: 0,
+            ...Platform.select({
+                ios: {
+                    paddingVertical: scale(21),
+                }
+            })
+        },
     btnText:
         {
             textAlign: 'left',
@@ -385,9 +431,32 @@ const styles = StyleSheet.create({
                 }
             })
         },
+    verticalBtnRTL:
+        {
+            padding: 0,
+            paddingVertical: scale(10),
+            justifyContent: 'flex-end',
+            ...Platform.select({
+                ios: {
+                    width: '100%',
+                    justifyContent: 'center'
+                }
+            })
+        },
+    verticalBtnLTR:
+        {
+            padding: 0,
+            paddingVertical: scale(10),
+            justifyContent: 'flex-start',
+            ...Platform.select({
+                ios: {
+                    width: '100%',
+                    justifyContent: 'center'
+                }
+            })
+        },
     messageContainer:
         {
-            paddingTop: scale(20),
             paddingBottom: scale(5),
         },
     message:

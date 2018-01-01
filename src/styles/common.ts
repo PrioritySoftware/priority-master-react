@@ -70,6 +70,7 @@ export const iconNames =
         menu: iconName("more"),
         arrowForward: iconName("arrow-forward"),
         arrowBack: iconName("arrow-back"),
+        checkmark: iconName("checkmark")
     };
 
 export const flexDirection = (isRTL: boolean) =>
@@ -83,6 +84,10 @@ export const textAlign = (isRTL: boolean) =>
 export const alignItems = (isRTL: boolean) =>
 {
     return isRTL ? { alignItems: "flex-start" } : { alignItems: "flex-end" };
+}
+export const justifyContent = (isRTL: boolean) =>
+{
+    return isRTL ? { justifyContent: "flex-start" } : { justifyContent: "flex-end" };
 }
 export const alignSelf = (isRTL: boolean) =>
 {

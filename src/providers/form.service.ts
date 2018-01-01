@@ -438,6 +438,7 @@ export class FormService
         Object.keys(rows).map((rowNum, index, arr) =>
         {
             let row = observable.map(rows[rowNum]);
+            row.set(this.strings.isChangesSaved, true);
             newRows.set(rowNum, row);
         });
         form.rows.merge(newRows);
@@ -678,11 +679,11 @@ export class FormService
     }
     addFormRow(form: Form, newRowInd)
     {
-        form.rows.set(newRowInd, observable.map({ isNewRow: true }));
+        form.rows.set(newRowInd, observable.map({ isNewRow: true, isChangesSaved: true }));
     }
     public getIsNewRow(form: Form, rowInd)
     {
-        return form.rows.get(rowInd)[this.strings.isNewRow];
+        return form.rows.get(rowInd).get(this.strings.isNewRow);
     }
     private setNotNewRow(form: Form, rowInd)
     {
