@@ -9,6 +9,7 @@ import { ServerResponseCode } from "../modules/srvResponseCode.class";
 import { MessageOptions } from "../modules/messageOptions.class";
 import { ServerResponseType } from "../modules/srvResponseType.class";
 import { Filter } from "../modules/filter.class";
+import { QueryValue } from "../modules/queryValue.class";
 import { observable } from 'mobx';
 import { ObservableMap } from "mobx/lib/types/observablemap";
 import { SearchAction } from "../modules/searchAction.class";
@@ -299,7 +300,7 @@ export class FormService
     {
         let localform;
         let parentPath = parentForm ? parentForm.path : '';
-        let parentName = parentForm ? parentForm.name : ''; 
+        let parentName = parentForm ? parentForm.name : '';
         let formName = form.name + parentPath;
 
         localform = this.forms[formName];
@@ -458,8 +459,11 @@ export class FormService
             this.clearRows(form).then(
                 result =>
                 {
-                    this.getRows(form, 1).then(
-                        rows => { resolve(); },
+                    this.getRows(form, 1, false).then(
+                        rows =>
+                        {
+                            resolve();
+                        },
                         (reason: ServerResponse) =>
                         {
                             this.rejectionHandler(reason, reject);
@@ -472,15 +476,15 @@ export class FormService
         });
     }
     /** Clears rows of a given form. */
-    clearRows(form: Form): Promise<any>
+    clearRows(form: Form, isClearLoaclRows = false): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             form.clearRows().then(
                 result =>
                 {
-
-                    this.clearLocalRows(form);
+                    if (isClearLoaclRows)
+                        this.clearLocalRows(form);
                     resolve();
                 },
                 (reason: ServerResponse) =>
@@ -510,6 +514,104 @@ export class FormService
 
     // ***** Filter ******
 
+    buildSearchFilter(columnNames: string[], search: string)
+    {
+        let filter: Filter = {
+            or: 1,
+            ignorecase: 1,
+            QueryValues: []
+        }
+        for (let col in columnNames)
+        {
+            if (columnNames.hasOwnProperty(col))
+            {
+                let queryValue: QueryValue = {
+                    field: columnNames[col],
+                    fromval: search + '*',
+                    toval: '',
+                    op: '=',
+                    sort: 0,
+                    isdesc: 0
+                }
+                filter.QueryValues.push(queryValue);
+            }
+        }
+        if (filter.QueryValues.length == 0)
+        {
+            return null;
+        }
+        return filter;
+    }
+
+    /* Sets a filter on the form for a search string */
+    setFilter(form: Form, columnNames: string[], search: string): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            // replace * or % in the begining of search string so the search won't be too heavy
+            search = search.replace(/^[\*|%]+/, '');
+            if (search == null || search.trim() == '')
+            {
+                this.clearSearchFilter(form).then(() =>
+                {
+                    this.getRowsAndReplace(form).then(
+                        rows =>
+                        {
+                            resolve(rows);
+                        }, (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+                }, (reason: ServerResponse) => { this.rejectionHandler(reason, reject); });
+            }
+            else
+            {
+                if (isNaN(Number(search)))
+                {
+                    let searchColumns = [];
+                    for (let i in columnNames)
+                    {
+                        if (form.columns[columnNames[i]].type !== "number")
+                        {
+                            searchColumns.push(columnNames[i]);
+                        }
+                    }
+                    if (searchColumns.length)
+                    {
+                        columnNames = searchColumns;
+                    }
+                    else
+                    {
+                        reject();
+                    }
+
+                }
+                let filter = this.buildSearchFilter(columnNames, search);
+                if (filter == null)
+                {
+                    reject();
+                }
+                else
+                {
+                    this.setSearchFilter(form, filter).then(
+                        () =>
+                        {
+                            this.getRowsAndReplace(form).then(
+                                rows =>
+                                {
+                                    resolve();
+                                },
+                                (reason: ServerResponse) => 
+                                {
+                                    this.rejectionHandler(reason, reject);
+                                });
+                        },
+                        (reason: ServerResponse) => 
+                        {
+                            this.rejectionHandler(reason, reject);
+                        });
+                }
+            }
+        });
+    }
+
     /** Clears search filter for the current form */
     clearSearchFilter(form: Form): Promise<any>
     {
@@ -518,7 +620,6 @@ export class FormService
             form.clearSearchFilter().then(
                 () =>
                 {
-
                     resolve();
                 },
                 (reason: ServerResponse) =>
@@ -537,13 +638,11 @@ export class FormService
             form.setSearchFilter(filter).then(
                 () =>
                 {
-
                     resolve();
                 },
                 (reason: ServerResponse) =>
                 {
                     this.rejectionHandler(reason, reject);
-
                 });
         });
     }

@@ -10,7 +10,7 @@ import
 } from 'react-native';
 import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { colors, container, alignSelf } from '../styles/common';
+import { colors, container, alignSelf, textAlign } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { scale, verticalScale } from '../utils/scale';
@@ -23,6 +23,8 @@ import ActionButton from 'react-native-action-button';
 import { observer, inject } from 'mobx-react';
 import { ObservableMap, observable } from 'mobx';
 import { Row } from './Row';
+import { SearchBar } from 'react-native-elements'
+import debounce from 'lodash.debounce'
 
 @inject("formService", "configService", "messageHandler", "strings")
 @observer
@@ -41,7 +43,14 @@ export class FormList extends React.Component<any, any>
 
     editRow;
     ds;
+
+    // search
+    searchText: string;
+    lastSearch: string;
+    debounceSearch;
+
     @observable rows: ObservableMap<any>;
+    @observable isShowSearchLoading: boolean;
 
     constructor(props)
     {
@@ -61,13 +70,17 @@ export class FormList extends React.Component<any, any>
         this.state =
             {
                 canLoadMoreContent: true,
-                isLoading: false,
-                isDeletingRow: false
+                isLoadingMore: false,
+                isDeletingRow: false,
             };
 
         // get form rows
         this.startForm();
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+
+        //search
+        this.debounceSearch = debounce(this.search, 1500);
+        this.isShowSearchLoading = false;
     }
     componentWillUnmount()
     {
@@ -135,9 +148,9 @@ export class FormList extends React.Component<any, any>
     }
     loadMoreData = () =>
     {
-        if (this.state.isLoading)
+        if (this.state.isLoadingMore)
             return;
-        this.setState({ isLoading: true });
+        this.setState({ isLoadingMore: true });
         let recordsCount = this.rows.size;
         this.formService.getRows(this.form, recordsCount + 1, true)
             .then(rows =>
@@ -148,7 +161,7 @@ export class FormList extends React.Component<any, any>
                 if (Object.keys(rows).length < 100)
                     canLoadMoreContent = false;
 
-                this.setState({ isLoading: false, canLoadMoreContent: canLoadMoreContent });
+                this.setState({ isLoadingMore: false, canLoadMoreContent: canLoadMoreContent });
             })
             .catch(() => { });
     }
@@ -173,11 +186,40 @@ export class FormList extends React.Component<any, any>
             .catch(() => { });
     }
 
+    // search
+    search(val)
+    {
+        let formConfig = this.formService.getFormConfig(this.form, this.parentForm);
+        this.formService.setFilter(this.form, formConfig.searchColumns, val).then(
+            result =>
+            {
+                this.isShowSearchLoading = false;
+            },
+            reason =>
+            {
+                if (formConfig.searchColumns.length == 0)
+                {
+                    this.messageHandler.showErrorOrWarning(true, this.strings.searchError, () => { }, () => { }, { title: this.strings.errorTitle });
+                }
+                this.isShowSearchLoading = false;
+            });
+    }
+    startSearch = (searchVal: string) =>
+    {
+        if (this.lastSearch != searchVal && (this.lastSearch !== undefined || searchVal !== ''))
+        {
+            this.lastSearch = searchVal;
+            this.isShowSearchLoading = true;
+            this.debounceSearch(searchVal);
+        }
+    }
+
     /********* rendering functions *********/
     render()
     {
         return (
             <View style={[container, styles.container]}>
+                {this.renderSearchHeader()}
                 {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
         );
@@ -203,8 +245,8 @@ export class FormList extends React.Component<any, any>
     {
         let isRTL = this.strings.isRTL;
 
-        // in case there are no rows
-        if (this.rows.size === 0)
+        // render emptyState in case there are no rows and there is no search in action
+        if (this.rows.size === 0 && this.lastSearch === undefined)
             return this.renderEmptyState();
         return (
             <View style={styles.listContainer}>
@@ -233,7 +275,7 @@ export class FormList extends React.Component<any, any>
     {
         {/* Loading indicator for loading more rows */ }
         return (
-            < View style={[styles.rowsIndicator, { display: this.state.isLoading ? 'flex' : 'none' }]} >
+            < View style={[styles.rowsIndicator, { display: this.state.isLoadingMore ? 'flex' : 'none' }]} >
                 <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
                 <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
             </View >
@@ -314,7 +356,7 @@ export class FormList extends React.Component<any, any>
     {
         // Don't show the add button for query forms.
         if (this.isQueryForm())
-            return(null);
+            return (null);
         let offsetX = 30;
         let offsetY = 30;
         if (this.strings.platform === 'android')
@@ -335,6 +377,41 @@ export class FormList extends React.Component<any, any>
                 onPress={this.newRow}
             />
 
+        );
+    }
+
+    // search
+
+    renderSearchHeader()
+    {
+        return (
+            <View>
+                {this.renderSearchBar()}
+                {this.renderSearchIndicator()}
+            </View>
+        );
+    }
+    renderSearchBar()
+    {
+        let inputStyle = textAlign(this.strings.isRTL);
+        return (
+            <SearchBar
+                clearIcon={{ color: '#86939e', name: "close" }}
+                onChangeText={this.startSearch}
+                onClearText={this.startSearch}
+                inputStyle={[styles.searchInput, inputStyle]}
+                containerStyle={styles.searchContainer}
+            />
+        );
+    }
+    renderSearchIndicator()
+    {
+        if (!this.isShowSearchLoading)
+            return (null);
+        return (
+            <View style={[styles.searchIndicator]}>
+                <SpinnerIndicator style={{ marginTop: -5 }} type='ThreeBounce' color={colors.disabledGray}></SpinnerIndicator>
+            </View>
         );
     }
 }
@@ -402,27 +479,35 @@ const styles = StyleSheet.create({
         width: verticalScale(222),
         marginHorizontal: scale(20)
     },
-    SubFormList: {
-        flex: 1,
-        flexDirection: 'row',
-        width: "100%",
-        height: 43,
-        backgroundColor: 'rgba(242, 242, 242, 1)',
 
-
-        // justifyContent:'space-around',
-    },
     subFormItem: {
         padding: 5,
         margin: 10,
         marginTop: 3,
         borderBottomWidth: 0.5,
         borderBottomColor: 'rgba(242, 242, 242, 1)',
-
     },
 
     selectItem: {
         borderBottomColor: 'rgba(0,0, 0, 1)',
-
     },
+
+    // search
+    searchContainer:
+        {
+            backgroundColor: colors.background,
+            borderBottomWidth: 0,
+            borderTopWidth: 0,
+            marginBottom: -2
+        },
+    searchInput:
+        {
+            backgroundColor: 'white'
+        },
+    searchIndicator:
+        {
+            height: verticalScale(25),
+            padding: 0,
+            alignItems: 'center'
+        },
 });
