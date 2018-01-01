@@ -18,6 +18,7 @@ import { scale, verticalScale } from '../utils/scale';
 import NumberControl from './Controls/numberControl';
 import ToggleControl from './Controls/toggleControl';
 import { ColumnOptions } from '../modules/columnOptions.class';
+import { ColumnType } from '../modules/columnType.class';
 import Communications from 'react-native-communications';
 import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
@@ -31,16 +32,16 @@ import { Search } from '../modules/search.class';
 export class ItemInput extends Component<any, any>
 {
     static propTypes =
-    {
-        formPath: PropTypes.string.isRequired,
-        colName: PropTypes.string.isRequired,
-        itemIndex: PropTypes.number.isRequired,
-        itemOptions: PropTypes.object
-    };
+        {
+            formPath: PropTypes.string.isRequired,
+            colName: PropTypes.string.isRequired,
+            itemIndex: PropTypes.number.isRequired,
+            itemOptions: PropTypes.object
+        };
     static defaultProps =
-    {
-        itemOptions: {}
-    };
+        {
+            itemOptions: {}
+        };
     formService: FormService;
     messageHandler: MessageHandler;
     strings: Strings;
@@ -249,16 +250,16 @@ export class ItemInput extends Component<any, any>
     {
         switch (this.formCol.type)
         {
-            case 'time':
-            case 'date':
+            case ColumnType.Time:
+            case ColumnType.Date:
                 {
                     if (this.isDateOrTimeColumn())
                         return this.renderDateControl();
                     return this.renderDurationControl();
                 }
-            case 'number':
+            case ColumnType.Number:
                 return this.renderNumberControl();
-            case 'bool':
+            case ColumnType.Bool:
                 return this.renderToggleControl();
             default:
                 return this.renderTextControl();
@@ -338,55 +339,55 @@ const styles = StyleSheet.create({
         marginRight: 15,
         ...Platform.select({
             ios:
-            {
-                marginLeft: 20,
-                marginRight: 20,
-            },
+                {
+                    marginLeft: 20,
+                    marginRight: 20,
+                },
         }),
     },
     labelStyle:
-    {
-        fontWeight: 'normal',
-        marginTop: scale(10),
-        marginLeft: 0,
-        marginRight: 0,
-        ...Platform.select({
-            ios:
-            {
-                marginLeft: 5,
-                marginRight: 5,
-            },
-        }),
-    },
+        {
+            fontWeight: 'normal',
+            marginTop: scale(10),
+            marginLeft: 0,
+            marginRight: 0,
+            ...Platform.select({
+                ios:
+                    {
+                        marginLeft: 5,
+                        marginRight: 5,
+                    },
+            }),
+        },
     asterisk:
-    {
-        marginTop: verticalScale(10),
-        marginBottom: verticalScale(-5),
-        marginHorizontal: 1,
-        color: 'red',
-        fontSize: 17
-    },
+        {
+            marginTop: verticalScale(10),
+            marginBottom: verticalScale(-5),
+            marginHorizontal: 1,
+            color: 'red',
+            fontSize: 17
+        },
     inputContainer:
-    {
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: verticalScale(6),
-        borderBottomWidth: 1,
-        borderBottomColor: colors.gray,
-        width: '100%',
-    },
+        {
+            marginLeft: 0,
+            marginRight: 0,
+            marginBottom: verticalScale(6),
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
+            width: '100%',
+        },
     input:
-    {
-        fontWeight: 'bold',
-        marginLeft: 0,
-        marginRight: 0,
-        marginBottom: verticalScale(-12),
-        marginTop: verticalScale(-2),
-        ...Platform.select({
-            ios:
-            {
-                marginBottom: verticalScale(-2.5)
-            }
-        })
-    },
+        {
+            fontWeight: 'bold',
+            marginLeft: 0,
+            marginRight: 0,
+            marginBottom: verticalScale(-12),
+            marginTop: verticalScale(-2),
+            ...Platform.select({
+                ios:
+                    {
+                        marginBottom: verticalScale(-2.5)
+                    }
+            })
+        },
 });

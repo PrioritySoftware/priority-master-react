@@ -10,6 +10,9 @@ import * as moment from 'moment';
 import { Card } from './card';
 import { colors, position } from '../styles/common';
 import * as React from 'react';
+import { ColumnType } from '../modules/columnType.class';
+import { Icon } from 'react-native-elements';
+import { scale } from '../utils/scale';
 
 @inject("formService", "strings")
 @observer
@@ -20,8 +23,8 @@ export class Row extends React.Component<any, any>
         let { formPath, rowId, editRow } = this.props;
         let form: Form = this.props.formService.getForm(formPath);
         let formName = form.name;
-        let parentName=form.parentName;
-        let formsConfigID = parentName? formName+ parentName: formName;
+        let parentName = form.parentName;
+        let formsConfigID = parentName ? formName + parentName : formName;
         let formColumns = this.props.formService.formsConfig[formsConfigID].listColumnsOptions;
 
         let columns = [];
@@ -34,25 +37,20 @@ export class Row extends React.Component<any, any>
                 let column = form.columns[colName];
                 let colTitle = column.title;
                 let colValue = row.get(colName);
-                if (colValue === undefined || colValue === '')
+                if (column.type != ColumnType.Bool && (colValue === undefined || colValue === ''))
                     continue;
                 // Date values are displayed according to the column's 'format' property.
-                if (column.type === 'date')
+                if (column.type === ColumnType.Date)
                     colValue = moment.utc(colValue).format(column.format);
                 let titleStyle = position(this.props.strings.isRTL, 0);
                 let valueStyle = position(!this.props.strings.isRTL, 0);
                 let columnComp;
                 if (columns.length !== 0)
                 {
-                    columnComp =
-                        <View style={styles.textContainer} key={rowId + colName}>
-                            <Text style={[styles.text, titleStyle]}>
-                                {colTitle + ":"}
-                            </Text>
-                            <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
-                                {colValue}
-                            </Text>
-                        </View>;
+                    if (column.type !== ColumnType.Bool)
+                        columnComp = this.renderColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle);
+                    else
+                        columnComp = this.renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle);
                 }
                 else 
                 {
@@ -74,35 +72,73 @@ export class Row extends React.Component<any, any>
             </Card>
         );
     }
+    renderColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle)
+    {
+        return (
+            <View style={styles.textContainer} key={rowId + colName}>
+                <Text style={[styles.text, titleStyle]}>
+                    {colTitle + ":"}
+                </Text>
+                <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
+                    {colValue}
+                </Text>
+            </View>
+        );
+    }
+    renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle)
+    {
+        let isFalse = colValue === undefined || colValue === '';
+        return (
+            <View style={styles.textContainer} key={rowId + colName}>
+                <Text style={[styles.text, titleStyle]}>
+                    {colTitle + ":"}
+                </Text>
+                {!isFalse && <Icon type={'ionicon'}
+                    name={'ios-checkmark-circle-outline'}
+                    color={colors.darkGray}
+                    size={scale(19)}
+                    style={[styles.boolIcon, valueStyle]} />}
+                {isFalse && <Icon type={'ionicon'}
+                    name={'ios-remove-circle-outline'}
+                    color={colors.darkGray}
+                    size={scale(19)}
+                    style={[styles.boolIcon, valueStyle]} />}
+            </View>
+        );
+    }
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
     cardContainer:
-    {
-        marginTop: 10,
-        borderRadius: 2,
-        borderWidth: 1,
-        backgroundColor: 'white',
-        borderColor: colors.gray,
-        padding: 15,
-        marginHorizontal: 10
+        {
+            marginTop: 10,
+            borderRadius: 2,
+            borderWidth: 1,
+            backgroundColor: 'white',
+            borderColor: colors.gray,
+            padding: 15,
+            marginHorizontal: 10
 
-    },
+        },
     text:
-    {
-        position: 'absolute',
-    },
+        {
+            position: 'absolute',
+        },
     valueText:
-    {
-        maxWidth: '60%'
-    },
+        {
+            maxWidth: '60%'
+        },
     textContainer:
-    {
-        paddingVertical: 15,
-    },
+        {
+            paddingVertical: 15,
+        },
     bold:
-    {
-        fontWeight: 'bold'
-    },
+        {
+            fontWeight: 'bold'
+        },
+    boolIcon:
+        {
+            marginTop: scale(-18)
+        }
 
 });
