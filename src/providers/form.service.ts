@@ -664,7 +664,7 @@ export class FormService
         }
         return form.rows.get(rowInd).get(this.strings.isChangesSaved);
     }
-    private addFormRow(form: Form, newRowInd)
+    addFormRow(form: Form, newRowInd)
     {
         form.rows.set(newRowInd, observable.map({ isNewRow: true }));
     }

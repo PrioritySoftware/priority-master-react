@@ -108,6 +108,14 @@ export class FormList extends React.Component<any, any>
     {
         return this.form && this.form.isquery == 1;
     }
+    isOneLine()
+    {
+        return this.form && this.form.oneline == 1;
+    }
+    isHideAddBtn()
+    {
+        return this.isQueryForm() || (this.isOneLine() && this.rows && this.rows.size > 0);
+    }
     endForm()
     {
         if (this.form && this.form.endCurrentForm)
@@ -181,6 +189,13 @@ export class FormList extends React.Component<any, any>
     }
     newRow = () =>
     {
+        // When the form is a oneline form, there is no need to call 'newRow'.
+        if (this.isOneLine())
+        {
+            this.formService.addFormRow(this.form, 1);
+            this.editRow(this.form, this.form.title, 1);
+            return;
+        }
         this.formService.newRow(this.form)
             .then(newRowIndex => this.editRow(this.form, this.form.title, newRowIndex))
             .catch(() => { });
@@ -281,17 +296,21 @@ export class FormList extends React.Component<any, any>
     {
         let scaleX = this.strings.isRTL ? -1 : 1;
         let arrowHeight = this.parentForm ? { height: verticalScale(275) } : { height: verticalScale(310) };
+        let isShowAddBtn = !this.isHideAddBtn();
+
         return (
             <View style={styles.emptyState}>
                 <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
-                <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>
-                <Image source={require('../../assets/img/EmptyStateArrow.png')}
-                    style={[
-                        styles.emptyStateArrow,
-                        arrowHeight,
-                        alignSelf(this.strings.isRTL),
-                        { transform: [{ scaleX: scaleX }] }
-                    ]} />
+                {isShowAddBtn && <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>}
+                {isShowAddBtn &&
+                    <Image source={require('../../assets/img/EmptyStateArrow.png')}
+                        style={[
+                            styles.emptyStateArrow,
+                            arrowHeight,
+                            alignSelf(this.strings.isRTL),
+                            { transform: [{ scaleX: scaleX }] }
+                        ]} />
+                }
                 {this.renderAddBtn()}
             </View>
         );
@@ -350,9 +369,11 @@ export class FormList extends React.Component<any, any>
     }
     renderAddBtn()
     {
-        // Don't show the add button for query forms.
-        if (this.isQueryForm())
+        // Don't show the add button for query forms 
+        // or for oneline forms where the one line exists.
+        if (this.isHideAddBtn())
             return (null);
+
         let offsetX = 30;
         let offsetY = 30;
         if (this.strings.platform === 'android')
