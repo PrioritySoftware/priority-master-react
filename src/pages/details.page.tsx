@@ -91,10 +91,14 @@ export class DetailsPage extends React.Component<any, any>
     {
         return this.formService.getIsNewRow(this.form, this.itemIndex);
     }
+    getIsChangesSavedAndNewRow()
+    {
+        return this.getIsChangesSaved() && this.getIsNewRow();
+    }
     goBack = () =>
     {
         // When there are no changes made for a new row, delete the row before navigating back.
-        if (this.getIsChangesSaved() && this.getIsNewRow())
+        if (this.getIsChangesSavedAndNewRow())
         {
             this.deleteNewRow();
         }
@@ -173,10 +177,24 @@ export class DetailsPage extends React.Component<any, any>
             },
             reject);
     }
+    handleEmptyNewRow()
+    {
+        // Navigating to a subform is forbidden when no changes were made to a new row.
+        if (this.getIsChangesSavedAndNewRow())
+        {
+            this.messageHandler.showToast(this.strings.cannotGoToSubForm, true);
+            return true;
+        }
+        return false;
+    }
     /* Subforms */
 
     subformSelected = (subform) =>
     {
+        // Navigating to a subform is forbidden when no changes were made to a new row.
+        if (this.handleEmptyNewRow())
+            return;
+
         this.checkForChanges(true)
             .then(() =>
             {
@@ -223,6 +241,10 @@ export class DetailsPage extends React.Component<any, any>
     }
     activationSelected(idx, act)
     {
+        // Executing a direct activation is forbidden when no changes were made to a new row.
+        if (this.handleEmptyNewRow())
+            return;
+
         if (act.type !== this.strings.removeBtnType)
         {
             this.checkForChanges()
@@ -268,6 +290,12 @@ export class DetailsPage extends React.Component<any, any>
                 this.navigateBack();
             })
             .catch(() => this.messageHandler.hideLoading());
+    }
+    saveRowClicked(afterSaveFunc = null)
+    {
+        if (this.handleEmptyNewRow())
+            return;
+        this.saveRow(afterSaveFunc);
     }
     saveRow(afterSaveFunc = null)
     {
@@ -381,7 +409,7 @@ export class DetailsPage extends React.Component<any, any>
                 <Icon
                     type='ionicon'
                     name={iconNames.checkmark}
-                    onPress={() => this.saveRow(this.goBack)}
+                    onPress={() => this.saveRowClicked(this.goBack)}
                     color='white'
                     underlayColor='transparent'
                     size={22}

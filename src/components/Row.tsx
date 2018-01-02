@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         },
     boolIcon:
         {
-            marginTop: scale(-18)
+            marginTop: scale(-14)
         }
 
 });
