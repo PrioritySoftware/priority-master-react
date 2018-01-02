@@ -93,16 +93,18 @@ export class Row extends React.Component<any, any>
                 <Text style={[styles.text, titleStyle]}>
                     {colTitle + ":"}
                 </Text>
-                {!isFalse && <Icon type={'ionicon'}
-                    name={'ios-checkmark-circle-outline'}
-                    color={colors.darkGray}
-                    size={scale(19)}
-                    style={[styles.boolIcon, valueStyle]} />}
-                {isFalse && <Icon type={'ionicon'}
-                    name={'ios-remove-circle-outline'}
-                    color={colors.darkGray}
-                    size={scale(19)}
-                    style={[styles.boolIcon, valueStyle]} />}
+                {
+                    !isFalse && <Icon type={'ionicon'}
+                        name={'ios-checkmark-circle-outline'}
+                        size={scale(19)}
+                        style={[styles.boolIcon, valueStyle]} />
+                }
+                {
+                    isFalse && <Icon type={'ionicon'}
+                        name={'ios-remove-circle-outline'}
+                        size={scale(19)}
+                        style={[styles.boolIcon, valueStyle]} />
+                }
             </View>
         );
     }

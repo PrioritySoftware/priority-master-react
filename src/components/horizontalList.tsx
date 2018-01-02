@@ -78,15 +78,13 @@ const styles = StyleSheet.create({
         },
     subFormItemBox: {
         flex: 0,
-        lineHeight: 15, //IOS requires entering font size
-        fontSize: 15,
         justifyContent: 'center',
         alignItems: 'center'
     },
     subFormItem: {
         padding: 5,
         margin: 10,
-        marginTop: 3,
+        marginTop: 5,
         lineHeight: 15,
         fontSize: 15,
         marginBottom: 5,
