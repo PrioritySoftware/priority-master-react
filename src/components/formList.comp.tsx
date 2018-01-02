@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     // search
     searchContainer:
         {
-            backgroundColor: colors.background,
+            backgroundColor: colors.lightGray,
             borderBottomWidth: 0,
             borderTopWidth: 0,
             marginBottom: -2

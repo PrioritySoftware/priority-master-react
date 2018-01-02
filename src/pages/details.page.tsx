@@ -177,12 +177,17 @@ export class DetailsPage extends React.Component<any, any>
             },
             reject);
     }
-    handleEmptyNewRow()
+    handleEmptyNewRow(isWait: boolean = false)
     {
-        // Navigating to a subform is forbidden when no changes were made to a new row.
         if (this.getIsChangesSavedAndNewRow())
         {
-            this.messageHandler.showToast(this.strings.cannotGoToSubForm, true);
+            // The timeout is a workaround for ios - toast is not displayed while a modal is closing.
+            let time = this.strings.platform === 'ios' && isWait ? 500 : 0;
+            setTimeout(() =>
+            {
+                this.messageHandler.showToast(this.strings.cannotGoToSubForm);
+            }, time);
+
             return true;
         }
         return false;
@@ -242,7 +247,7 @@ export class DetailsPage extends React.Component<any, any>
     activationSelected(idx, act)
     {
         // Executing a direct activation is forbidden when no changes were made to a new row.
-        if (this.handleEmptyNewRow())
+        if (this.handleEmptyNewRow(true))
             return;
 
         if (act.type !== this.strings.removeBtnType)
