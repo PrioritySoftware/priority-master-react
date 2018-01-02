@@ -230,7 +230,7 @@ export class ConfigService
                         password: null,
                         companyName: null,
                         groupName: null,
-                        notShowSaveMessage: false,
+                        isHideSaveMessage: false,
                         profile: { company: null, group: 0 }
                     }
                     if (__DEV__)
@@ -239,6 +239,22 @@ export class ConfigService
                         reject();
                 });
         });
+    }
+    /**
+     * Saves user's choice for showing 'changes not saved' messages. 
+     * Applies only for when the user navigates to a subform without saving changes in a parent form row.
+     * 
+     * @param {boolean} value 
+     * @memberof ConfigService
+     */
+    setIsHideSaveMessage(value: boolean)
+    {
+        this.storage.userData.isHideSaveMessage = value;
+        this.storage.storeUserData();
+    }
+    getIsHideSaveMessage()
+    {
+        return this.storage.userData.isHideSaveMessage;
     }
     /****** Login *************/
     login(username: string, password: string): Promise<any>
@@ -276,13 +292,6 @@ export class ConfigService
                 });
         });
     }
-    // /* Retrives the json url from local storage */
-
-    // setLocalUserPreferenceShowSaveMessage(value: boolean)
-    // {
-    //     this.userData.notShowSaveMessage = value;
-    //     this.setLocalUserData();
-    // }
 
     /********* Profiles  **********************/
     // setProfileConfig(profile: ProfileConfig, companyName: string, groupName: string)

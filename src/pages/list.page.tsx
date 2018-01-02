@@ -12,7 +12,7 @@ import { Pages } from './index';
 import {  inject } from 'mobx-react';
 import { FormList } from '../components/formList.comp';
 
-@inject("formService", "configService", "messageHandler", "strings")
+@inject("formService", "strings")
 export class ListPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null };
@@ -33,12 +33,12 @@ export class ListPage extends React.Component<any, any>
         this.formName = this.props.navigation.state.params.formName;
         this.formTitle = this.props.navigation.state.params.formTitle;
     }
-    
+
     goBack()
     {
         this.props.navigation.goBack();
     }
-    editRow = (form:Form,rowTitle: string, rowIndex: number) =>
+    editRow = (form: Form, rowTitle: string, rowIndex: number) =>
     {
         this.formService.setActiveRow(form, rowIndex).catch(() => { });
 
@@ -49,7 +49,6 @@ export class ListPage extends React.Component<any, any>
                 formPath: form.path,
             });
     }
-    
     /********* rendering functions *********/
     render()
     {
@@ -57,10 +56,10 @@ export class ListPage extends React.Component<any, any>
             <View style={container}>
                 <HeaderComp title={this.formTitle} goBack={() => this.goBack()} />
                 <FormList
-                formName={this.formName}
-                editRow={this.editRow}
-            />
-            </View>
+                    formName={this.formName}
+                    editRow={this.editRow}
+                />
+            </View >
         );
     }
 }

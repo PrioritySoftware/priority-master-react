@@ -13,12 +13,13 @@ import { scale } from '../utils/scale';
 export class HorizontalList extends Component<any, any>
 {
 
-    static propTypes = {
-        list: PropTypes.array.isRequired,
-        selected: PropTypes.string.isRequired,
-        onPress: PropTypes.func.isRequired,
-        inverted: PropTypes.bool.isRequired,
-    };
+    static propTypes =
+        {
+            list: PropTypes.array.isRequired,
+            selected: PropTypes.string.isRequired,
+            onPress: PropTypes.func.isRequired,
+            inverted: PropTypes.bool.isRequired,
+        };
 
     onPress = (item) =>
     {
@@ -39,13 +40,14 @@ export class HorizontalList extends Component<any, any>
         if (this.props.list.length >= 1)
         {
             return (
-                <View style={styles.subFormListContainer}>
-                    <FlatList contentContainerStyle={[styles.subFormList]}
+                <View style={styles.listContainer}>
+                    <FlatList contentContainerStyle={[styles.list]}
                         horizontal={true}
                         data={this.props.list}
                         inverted={this.props.inverted}
-                        renderItem={this.renderSubFormListItem}
+                        renderItem={this.renderListItem}
                         keyExtractor={item => item.name}
+                        {...this.props}
                     />
                 </View>
             )
@@ -55,9 +57,9 @@ export class HorizontalList extends Component<any, any>
             return (null)
         }
     }
-    renderSubFormListItem = ({ item }) => (
-        <View style={styles.subFormItemBox} >
-            <Text style={[styles.subFormItem, this.getstyle(item)]}
+    renderListItem = ({ item }) => (
+        <View style={styles.itemBox} >
+            <Text style={[styles.item, this.getstyle(item)]}
                 onPress={() => { this.onPress(item) }}>
                 {item.title}
             </Text>
@@ -66,22 +68,22 @@ export class HorizontalList extends Component<any, any>
 }
 /*********** style ************* */
 const styles = StyleSheet.create({
-    subFormListContainer:
+    listContainer:
         {
             flex: 0,
             backgroundColor: colors.menuBackground
         },
-    subFormList:
+    list:
         {
             flex: 0,
             flexDirection: 'row',
         },
-    subFormItemBox: {
+    itemBox: {
         flex: 0,
         justifyContent: 'center',
         alignItems: 'center'
     },
-    subFormItem: {
+    item: {
         padding: 5,
         margin: 10,
         marginTop: 5,
@@ -89,18 +91,14 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginBottom: 5,
     },
-    subFormItemText:
-        {
-            color: colors.darkGray
-        },
     selectItem:
         {
             borderBottomColor: colors.darkGray,
-            borderBottomWidth:0.5,
+            borderBottomWidth: 0.5,
             ...Platform.select({
                 ios:
                     {
-                        borderBottomWidth:0,
+                        borderBottomWidth: 0,
                         textDecorationLine: 'underline'
                     }
             })

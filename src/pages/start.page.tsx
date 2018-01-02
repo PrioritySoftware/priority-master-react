@@ -6,17 +6,18 @@ import
   View,
   Image
 } from 'react-native';
-import {  ServerResponse, Strings } from '../modules';
-import { MessageHandler } from '../components/message.handler';
-import {Pages} from '.';
+import { ServerResponse, Strings } from '../modules';
+import { Pages } from '.';
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
 import { colors } from '../styles/common';
 import { ConfigService } from '../providers/config.service';
 import { inject } from 'mobx-react';
+import { Messages } from '../handlers/index';
+import { MessageHandler } from '../handlers/message.handler';
 const Permissions = require('react-native-permissions');
 
-@inject( "configService", "messageHandler", "strings")
+@inject("configService", "strings")
 export class StartPage extends React.Component<any, any>
 {
   static navigationOptions = { header: null };
@@ -32,8 +33,11 @@ export class StartPage extends React.Component<any, any>
       isShowSpinner: false
     };
     this.configService = this.props.configService;
-    this.messageHandler = this.props.messageHandler;
     this.strings = this.props.strings;
+  }
+  componentDidMount()
+  {
+    this.messageHandler = Messages;
   }
   render() 
   {
@@ -85,7 +89,7 @@ export class StartPage extends React.Component<any, any>
       Permissions.check("camera")
         .then(result =>
         {
-          if (result === "authorized" || result==="undetermined")
+          if (result === "authorized" || result === "undetermined")
             this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
           else
             this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
@@ -153,9 +157,9 @@ const styles = StyleSheet.create({
     fontSize: 20
   },
   center:
-  {
-    alignSelf: 'center',
-  },
+    {
+      alignSelf: 'center',
+    },
   text: {
     color: 'white',
     fontSize: 19,
@@ -172,10 +176,10 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   bottom:
-  {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginBottom: 60,
-    alignItems: 'center'
-  }
+    {
+      flex: 1,
+      justifyContent: 'flex-end',
+      marginBottom: 60,
+      alignItems: 'center'
+    }
 });

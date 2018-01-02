@@ -5,7 +5,7 @@ import
     View,
     Platform
 } from 'react-native';
-import { header, center, margin ,iconNames} from "../styles/common";
+import { header, center, margin, iconNames } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
@@ -14,15 +14,15 @@ import { scale } from '../utils/scale';
 export class HeaderComp extends Component<any, any>
 {
     static propTypes =
-    {
-        title: PropTypes.string.isRequired,
-        specialComponent: PropTypes.object,
-        goBack: PropTypes.func.isRequired,
-    };
+        {
+            title: PropTypes.string.isRequired,
+            optionsComp: PropTypes.object,
+            goBack: PropTypes.func.isRequired
+        };
     static defaultProps =
-    {
-        specialComponent: {}
-    };
+        {
+            optionsComp: {}
+        };
     strings: Strings;
     constructor(props)
     {
@@ -32,8 +32,8 @@ export class HeaderComp extends Component<any, any>
     render()
     {
         let backIconName;
-        let leftComp = this.props.specialComponent;
-        let rightComp = this.props.specialComponent;
+        let leftComp = this.props.optionsComp;
+        let rightComp = this.props.optionsComp;
         if (this.strings.isRTL)
         {
             backIconName = iconNames.arrowForward;
@@ -72,26 +72,26 @@ export class HeaderComp extends Component<any, any>
 /*********** style ************* */
 const styles = StyleSheet.create({
     headerTitleStyle:
-    {
-        alignSelf: 'center',
-        color: 'white',
-        fontSize: 19,
-        maxWidth: '85%'
-    },
+        {
+            alignSelf: 'center',
+            color: 'white',
+            fontSize: 19,
+            maxWidth: '85%'
+        },
     headerContainer:
-    {
-        flex: 0.12,
-    },
+        {
+            flex: 0.12,
+        },
     backButton:
-    {
-        paddingVertical: scale(30),
-        paddingHorizontal: scale(20),
-        ...Platform.select({
-            ios:
-            {
-                paddingTop: scale(35)
-            }
-        })
+        {
+            paddingVertical: scale(30),
+            paddingHorizontal: scale(20),
+            ...Platform.select({
+                ios:
+                    {
+                        paddingTop: scale(35)
+                    }
+            })
 
-    }
+        }
 });

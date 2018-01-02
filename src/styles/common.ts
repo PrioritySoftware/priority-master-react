@@ -16,6 +16,8 @@ export const colors =
         disabledGray: "#b5b5b5",
         menuBackground: "#e8e8e8",
 
+        background: "#e8e8e8",
+        middleDarkGray: "#00000080",
         // blue
         darkBlue: "#175676",
         blue: "#00adee",
@@ -45,6 +47,12 @@ export const header =
         backgroundColor: colors.primaryColor,
         height: '100%'
     }
+export const modal =
+    {
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 
 export const iconName = (name) =>
 {
@@ -62,6 +70,11 @@ export const iconNames =
         menu: iconName("more"),
         arrowForward: iconName("arrow-forward"),
         arrowBack: iconName("arrow-back"),
+        checkmark: "md-checkmark",
+        checkboxIOS: 'check-circle',
+        checkBoxMD: 'checkbox-marked',
+        blankCheckboxIOS: 'checkbox-blank-circle-outline',
+        blankCheckboxMD: 'checkbox-blank-outline'
     };
 
 export const flexDirection = (isRTL: boolean) =>
@@ -75,6 +88,10 @@ export const textAlign = (isRTL: boolean) =>
 export const alignItems = (isRTL: boolean) =>
 {
     return isRTL ? { alignItems: "flex-start" } : { alignItems: "flex-end" };
+}
+export const justifyContent = (isRTL: boolean) =>
+{
+    return isRTL ? { justifyContent: "flex-start" } : { justifyContent: "flex-end" };
 }
 export const alignSelf = (isRTL: boolean) =>
 {

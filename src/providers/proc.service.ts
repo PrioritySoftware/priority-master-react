@@ -9,14 +9,13 @@ import { Proc } from "../modules/proc.class";
 import { ProcStepType } from "../modules/procStepType.class";
 import { ServerResponseType } from "../modules/srvResponseType.class";
 import { ProfileConfig } from "../modules/profileConfig.class";
-import { MessageHandler } from '../components/message.handler';
-// import { ProgressBarHandler } from "../popups/ProgressBar/progress-bar.handler";
+import { Messages as MessageHandler, Progress as ProgressBarHandler } from "../handlers/index";
 
 export class ProcService
 {
-    constructor(private messageHandler: MessageHandler, private priorityService, private strings: Strings)
-    {
-    }
+
+    constructor(private priorityService, private strings: Strings)
+    { }
     /*
     * Starts a procedure with the given name.
     * @param {string} name 
@@ -55,7 +54,7 @@ export class ProcService
      */
     errorHandling(reason: string, reject)
     {
-        this.messageHandler.showErrorOrWarning(true, reason);
+        MessageHandler.showErrorOrWarning(true, reason);
         reject();
     }
 
@@ -67,22 +66,22 @@ export class ProcService
      */
     procProgress = (proc: Proc, progress: number) =>
     {
-        // this.messageHandler.hideLoading(() =>
-        // {
-        //     if (this.progressBarHandler.isPresented())
-        //         this.progressBarHandler.updateProgVal(progress);
-        //     else
-        //         this.progressBarHandler.present({
-        //             cancel: () =>
-        //             {
-        //                 proc.cancel().then(() =>
-        //                 {
-        //                     this.progressBarHandler.dismiss();
-        //                 });
-        //             },
-        //             progressText: this.strings.wait
-        //         });
-        // });
+        MessageHandler.hideLoading();
+
+        if (ProgressBarHandler.isPresented())
+            ProgressBarHandler.updateProgressVal(progress);
+        else
+        {
+            ProgressBarHandler.showProgress(this.strings.wait,
+                () =>
+                {
+                    proc.cancel().then(() =>
+                    {
+                        ProgressBarHandler.hideProgress();
+                    });
+                });
+        }
+
     }
     /**
      * Called wen the procedure returns from the server after it succeeded.
@@ -93,8 +92,8 @@ export class ProcService
     {
         return new Promise((resolve, reject) =>
         {
-            // if (this.progressBarHandler.isPresented())
-            //     this.progressBarHandler.dismiss();
+            if (ProgressBarHandler.isPresented())
+                ProgressBarHandler.hideProgress();
             switch (data.type)
             {
                 case ProcStepType.InputFields:
@@ -205,7 +204,7 @@ export class ProcService
                     .catch(reason => reject(reason));
             };
             let isError = data.messageType !== ServerResponseType.Warning;
-            this.messageHandler.showErrorOrWarning(isError, data.message, onApprove, onCancel);
+            MessageHandler.showErrorOrWarning(isError, data.message, onApprove, onCancel);
         });
     }
     /**

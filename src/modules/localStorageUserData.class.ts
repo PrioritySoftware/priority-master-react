@@ -6,6 +6,6 @@ export interface LocalStorageUserData {
     password: string;
     companyName: string;
     groupName: string;
-    notShowSaveMessage: boolean;
+    isHideSaveMessage: boolean;
     profile: ProfileConfig;
 }

@@ -1,9 +1,10 @@
+import { ButtonOpts } from "./buttonOptions.class";
+
 export interface MessageOptions
 {
-    cssClass?: string;
-    spinner?: string;
-    isShowBackDrop?: boolean;
-    duration?: number;
+    overlay?: boolean;
     title?: string;
-    buttonsText?:string[];
+    message?:string,
+    buttons?: ButtonOpts[],
+    style?:any;
 }

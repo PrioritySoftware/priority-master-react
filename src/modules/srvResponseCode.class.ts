@@ -12,7 +12,7 @@ export class ServerResponseCode
     /** There was an attempt to perform an action in some forms row before saving/discarding changed in the current row. */
     public static MustSaveOrDiscard: string = "mustSaveOrDiscard";
 
-    /** There was an API exceptionץ */
+    /** There was an API exception */
     public static Exception: string = "exception";
 
     /** There was an attempt to call 'clearRows' on a subform. */
@@ -35,21 +35,21 @@ export class ServerResponseCode
 
     /** Login failed. */
     public static LoginFailed: string = "loginFailed";
-    /** The filter for rows retrivial is wrong. */
+    /** The filter for rows retrieval is wrong. */
     public static InvalidFilter: string = "invalidFilter";
 
     /** Text forms - the text is already being edited somewhere else. */
     public static ReadWrite: string = "readWrite";
 
-    /** The current API request was stoped.  */
+    /** The current API request was stopped.  */
     public static Stop: string = "stop";
 
-     /** The error is an information error which means it doesn't stop the ongoing process.  */
+    /** Message code */
     public static Information: string = "information";
 
-    /** The error when calling a function that is not supported in the Priority version  */
-    public static NotSupport : string = "notSupportedInThisPriorityVersion";
+    /** Code for calling a function that is not supported in the Priority version  */
+    public static NotSupport: string = "notSupportedInThisPriorityVersion";
 
-    /**  The error occurs when logging in with an expired password   */
-    public static LoginExpired : string = "loginExpired";
+    /**  Code for logging in with an expired password   */
+    public static LoginExpired: string = "loginExpired";
 }

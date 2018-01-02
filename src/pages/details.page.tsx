@@ -1,15 +1,14 @@
 import React from 'react';
 import
 {
-    FlatList,
     StyleSheet,
     View,
     Text,
     Platform,
+    BackHandler,
 
 } from 'react-native';
-import { ConfigService } from '../providers/config.service';
-import { container, colors, iconNames, textAlign, margin } from '../styles/common';
+import { container, colors, iconNames, textAlign, margin, flexDirection } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { ProcService } from '../providers/Proc.service'
 import { HeaderComp } from '../components/header';
@@ -22,23 +21,26 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import { Column } from '../modules/column.class';
 import { Form } from '../modules/form.class';
 import { Strings } from '../modules/strings';
-import { MessageHandler } from '../components/message.handler';
 import { HorizontalList } from '../components/horizontalList'
 import { FormConfig } from '../modules/formConfig.class';
 import { DirectActivation } from '../modules/directActivation.class';
 import { observable } from 'mobx';
 import { FormList } from '../components/formList.comp';
+import { Messages, } from '../handlers/index';
+import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
+import { Icon } from 'react-native-elements';
+import { ConfigService } from '../providers/config.service';
 
-@inject("formService", "strings", "configService", "procService", "messageHandler")
+@inject("formService", "strings", "procService", "configService")
 @observer
 export class DetailsPage extends React.Component<any, any>
 {
     static navigationOptions = { header: null }
 
     formService: FormService;
-    configService: ConfigService;
     procService: ProcService;
+    configService: ConfigService;
     messageHandler: MessageHandler;
     strings: Strings;
 
@@ -56,9 +58,9 @@ export class DetailsPage extends React.Component<any, any>
     {
         super(props);
         this.formService = this.props.formService;
-        this.strings = this.props.strings;
-        this.procService = this.props.procService
+        this.procService = this.props.procService;
         this.configService = this.props.configService;
+        this.strings = this.props.strings;
         this.messageHandler = this.props.messageHandler;
 
         this.title = this.props.navigation.state.params.title;
@@ -68,13 +70,51 @@ export class DetailsPage extends React.Component<any, any>
         this.columns = this.formConfig.detailsColumnsOptions;
         this.itemIndex = this.props.navigation.state.params.itemIndex;
     }
-    goBack()
+    componentDidMount()
     {
-        this.props.navigation.goBack();
+        this.messageHandler = Messages;
+        BackHandler.addEventListener('hardwareBackPress', this.goBack);
     }
     isSearch(formCol: Column)
     {
         return formCol.zoom === "Search" || formCol.zoom === "Choose";
+    }
+    setIsChangesSaved(isSaved: boolean)
+    {
+        this.formService.setIsRowChangesSaved(this.form, this.itemIndex, isSaved);
+    }
+    getIsChangesSaved()
+    {
+        return this.formService.getIsRowChangesSaved(this.form, this.itemIndex);
+    }
+    getIsNewRow()
+    {
+        return this.formService.getIsNewRow(this.form, this.itemIndex);
+    }
+    getIsChangesSavedAndNewRow()
+    {
+        return this.getIsChangesSaved() && this.getIsNewRow();
+    }
+    goBack = () =>
+    {
+        // When there are no changes made for a new row, delete the row before navigating back.
+        if (this.getIsChangesSavedAndNewRow())
+        {
+            this.deleteNewRow();
+        }
+        else
+        {
+            this.checkForChanges()
+                .then(() => this.navigateBack())
+                .catch(() => { });
+        }
+
+        return true;
+    }
+    navigateBack()
+    {
+        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
+        this.props.navigation.goBack();
     }
     getNavigation(colName: string)
     {
@@ -84,16 +124,93 @@ export class DetailsPage extends React.Component<any, any>
             return this.props.navigation;
         return null;
     }
+    checkForChanges(isShowAsk: boolean = false): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (!this.getIsChangesSaved())
+            {
+                if (isShowAsk)
+                    this.showChangesNotSavedAndAsk(resolve, reject);
+                else
+                    this.showChangesNotSaved(resolve, reject);
+            }
+            else
+            {
+                resolve();
+            }
+        });
+    }
+    showChangesNotSaved(resolve, reject)
+    {
+        this.messageHandler.showChangesNotSaved(
+            () => this.saveRow(resolve),
+            () =>
+            {
+                if (this.getIsNewRow())
+                    this.deleteNewRow();
+                else
+                    this.undoRow(resolve);
+            },
+            reject);
+    }
+    showChangesNotSavedAndAsk(resolve, reject)
+    {
+        if (this.configService.getIsHideSaveMessage())
+        {
+            this.saveRow(resolve);
+            return;
+        }
+        this.messageHandler.showChangesNotSavedAndAsk(
+            (isDontAskAgain) =>
+            {
+                this.saveRow(resolve);
+                if (isDontAskAgain)
+                    this.configService.setIsHideSaveMessage(isDontAskAgain);
+            },
+            () =>
+            {
+                if (this.getIsNewRow())
+                    this.deleteNewRow();
+                else
+                    this.undoRow(resolve);
+            },
+            reject);
+    }
+    handleEmptyNewRow(isWait: boolean = false)
+    {
+        if (this.getIsChangesSavedAndNewRow())
+        {
+            // The timeout is a workaround for ios - toast is not displayed while a modal is closing.
+            let time = this.strings.platform === 'ios' && isWait ? 500 : 0;
+            setTimeout(() =>
+            {
+                this.messageHandler.showToast(this.strings.cannotGoToSubForm);
+            }, time);
 
+            return true;
+        }
+        return false;
+    }
     /* Subforms */
 
     subformSelected = (subform) =>
     {
-        // render parent details
-        if (subform.name === this.form.name)
-            this.currentSubForm = null;
-        else
-            this.currentSubForm = subform.name;
+        // Navigating to a subform is forbidden when no changes were made to a new row.
+        if (this.handleEmptyNewRow())
+            return;
+
+        this.checkForChanges(true)
+            .then(() =>
+            {
+                // render parent details
+                if (subform.name === this.form.name)
+                    this.currentSubForm = null;
+                else
+                    this.currentSubForm = subform.name;
+            })
+            .catch(() => { });
+
     }
 
     editSubFormRow = (form: Form, rowTitle: string, rowIndex: number) =>
@@ -129,15 +246,24 @@ export class DetailsPage extends React.Component<any, any>
     }
     activationSelected(idx, act)
     {
-        this.messageHandler.showLoading(this.strings.loadData);
+        // Executing a direct activation is forbidden when no changes were made to a new row.
+        if (this.handleEmptyNewRow(true))
+            return;
+
         if (act.type !== this.strings.removeBtnType)
         {
-            this.formService.executeDirectActivation(this.form, act.name, act.type).then(
-                (data) =>
+            this.checkForChanges()
+                .then(() =>
                 {
-                    this.messageHandler.hideLoading()
-                },
-                (reason) => this.messageHandler.hideLoading())
+                    this.messageHandler.showLoading(this.strings.loadData);
+                    this.formService.executeDirectActivation(this.form, act.name, act.type).then(
+                        (data) =>
+                        {
+                            this.messageHandler.hideLoading()
+                        },
+                        (reason) => this.messageHandler.hideLoading())
+                })
+                .catch(() => { });
         }
         else
         {
@@ -148,6 +274,7 @@ export class DetailsPage extends React.Component<any, any>
     {
         let delFunc = () =>
         {
+            this.messageHandler.showLoading();
             this.formService.deleteRow(this.form)
                 .then(() =>
                 {
@@ -156,19 +283,57 @@ export class DetailsPage extends React.Component<any, any>
                 })
                 .catch(() => this.messageHandler.hideLoading());
         };
-        // IOS: Rendering an Alert while closing a Modal was freezing the application. The timeout is a workaround.
-        setTimeout(() =>
-        {
-            this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
-        }, 5);
-
+        this.messageHandler.showErrorOrWarning(false, this.strings.isDelete, delFunc);
     }
-    render()
+    deleteNewRow()
     {
-        let specialComponent = this.currentSubForm ? {} : this.renderSideMenuIcon();
+        this.messageHandler.showLoading();
+        this.formService.deleteRow(this.form)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                this.navigateBack();
+            })
+            .catch(() => this.messageHandler.hideLoading());
+    }
+    saveRowClicked(afterSaveFunc = null)
+    {
+        if (this.handleEmptyNewRow())
+            return;
+        this.saveRow(afterSaveFunc);
+    }
+    saveRow(afterSaveFunc = null)
+    {
+        this.messageHandler.showLoading();
+        this.formService.saveRow(this.form, this.itemIndex)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                if (afterSaveFunc)
+                    afterSaveFunc();
+                this.messageHandler.showToast(this.strings.changesSavedText);
+            })
+            .catch(() => this.messageHandler.hideLoading());
+    }
+    undoRow = (afterUndoFunc = null) =>
+    {
+        this.messageHandler.showLoading();
+        this.formService.undoRow(this.form)
+            .then(() =>
+            {
+                this.messageHandler.hideLoading();
+                this.setIsChangesSaved(true);
+                if (afterUndoFunc)
+                    afterUndoFunc();
+            })
+            .catch(() => this.messageHandler.hideLoading());
+    }
+    render() 
+    {
+        let optionsComp = this.currentSubForm ? {} : this.renderSideMenuIcon();
         return (
             < View style={[container, styles.container]} >
-                <HeaderComp title={this.title} goBack={() => this.goBack()} specialComponent={specialComponent} />
+                <HeaderComp title={this.title} goBack={() => this.goBack()} optionsComp={optionsComp} />
                 {this.renderSubFormsMenu()}
                 {this.currentSubForm ? this.renderSubformsList() : this.renderParentDetails()}
             </View >
@@ -236,6 +401,7 @@ export class DetailsPage extends React.Component<any, any>
                 selected={this.currentSubForm || this.form.name}
                 onPress={this.subformSelected}
                 inverted={this.strings.isRTL}
+                showsHorizontalScrollIndicator={this.strings.platform !== 'android'}
             />
         )
     }
@@ -243,14 +409,30 @@ export class DetailsPage extends React.Component<any, any>
 
     renderSideMenuIcon()
     {
-        return ({
-            type: 'ionicon',
-            icon: iconNames.menu,
-            onPress: this.openActivationsList,
-            color: 'white',
-            underlayColor: 'transparent',
-            style: [styles.activationsIconStyle, margin(!this.strings.isRTL, scale(-10))]
-        });
+        return (
+            <View style={flexDirection(this.strings.isRTL)}>
+                <Icon
+                    type='ionicon'
+                    name={iconNames.checkmark}
+                    onPress={() => this.saveRowClicked(this.goBack)}
+                    color='white'
+                    underlayColor='transparent'
+                    size={22}
+                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                />
+                <Icon
+                    type='ionicon'
+                    name={iconNames.menu}
+                    onPress={this.openActivationsList}
+                    color='white'
+                    underlayColor='transparent'
+                    size={22}
+                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                />
+
+
+            </View>
+        );
 
     }
 
@@ -288,6 +470,7 @@ const styles = StyleSheet.create({
     dropdownStyle: {
         width: "100%",
         backgroundColor: 'transparent',
+        borderWidth: 0
     },
     activationText: {
         paddingHorizontal: 6,
@@ -297,10 +480,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         textAlignVertical: 'center',
     },
-    activationsIconStyle:
+    optionsIcon:
         {
             paddingVertical: scale(30),
-            paddingHorizontal: scale(10),
+            paddingHorizontal: scale(20),
             ...Platform.select({
                 ios:
                     {

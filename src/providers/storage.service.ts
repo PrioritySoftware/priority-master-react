@@ -1,5 +1,6 @@
-import { LocalStorageUserData } from '../modules';
+
 import { AsyncStorage } from 'react-native';
+import { LocalStorageUserData } from '../modules/localStorageUserData.class';
 
 const LocalStorageUserData: string = "userdata"
 export class StorageService

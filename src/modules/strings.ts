@@ -9,7 +9,7 @@ export class Strings
 {
     isChangesSaved = 'isChangesSaved';
     isNewRow = 'isNewRow';
-    removeBtnType='Remove';
+    removeBtnType = 'Remove';
 
     /** Style  */
     isRTL: boolean;
@@ -350,6 +350,11 @@ export class Strings
     {
         return this.getString(this._saveAndCont);
     }
+    private _neverAskAgain: String = { value: "", code: 0 };
+    public get neverAskAgain(): string
+    {
+        return this.getString(this._neverAskAgain);
+    }
     private _cancelAndCont: String = { value: "", code: 0 };
     public get cancelAndCont(): string
     {
@@ -521,6 +526,7 @@ export class Strings
         this._addNewBtnText.value = "חדש";
         this._saveBtnText.value = "שמור";
         this._saveAndCont.value = "שמור והמשך";
+        this._neverAskAgain.value = "אל תשאל שוב";
         this._cancelAndCont.value = "המשך ללא שמירה";
         this._addAttach.value = "נספח חדש";
         this._loadingFile.value = "מעלה את הקובץ...";
@@ -555,7 +561,7 @@ export class Strings
 
         this.isRTL = false;
         this._defaultMsgTitle.value = "Message";
-        this._ok.value = "OK";
+        this._ok.value = "Ok";
         this._cancel.value = "Cancel";
         this._newApp.value = "New app";
         this._isDelete.value = "Delete?";
@@ -611,7 +617,7 @@ export class Strings
         this._loginBtn.value = "Login";
         this._loginHeader.value = "";
         this._changePswBtn.value = "Change"
-        this._ok.value = "OK";
+        this._ok.value = "Ok";
         this._cancel.value = "Cancel";
         this._defaultMsgTitle.value = "Message";
         this._editBtnText.value = "Edit";
@@ -620,6 +626,7 @@ export class Strings
         this._addNewBtnText.value = "Add new";
         this._saveBtnText.value = "Save";
         this._saveAndCont.value = "Save and continue";
+        this._neverAskAgain.value = "Never ask again";
         this._cancelAndCont.value = "Continue without saving";
         this._addAttach.value = "Attach file";
         this._openBtnText.value = "Open";
