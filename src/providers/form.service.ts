@@ -683,7 +683,7 @@ export class FormService
     }
     public getIsNewRow(form: Form, rowInd)
     {
-        return form.rows.get(rowInd).get(this.strings.isNewRow);
+        return form.rows.get(rowInd) && form.rows.get(rowInd).get(this.strings.isNewRow);
     }
     private setNotNewRow(form: Form, rowInd)
     {
