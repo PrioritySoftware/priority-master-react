@@ -70,7 +70,11 @@ export const iconNames =
         menu: iconName("more"),
         arrowForward: iconName("arrow-forward"),
         arrowBack: iconName("arrow-back"),
-        checkmark: iconName("checkmark")
+        checkmark: "md-checkmark",
+        checkboxIOS: 'check-circle',
+        checkBoxMD: 'checkbox-marked',
+        blankCheckboxIOS: 'checkbox-blank-circle-outline',
+        blankCheckboxMD: 'checkbox-blank-outline'
     };
 
 export const flexDirection = (isRTL: boolean) =>

@@ -99,25 +99,36 @@ export class MessageHandler extends Component<any, any>
     }
     renderAlertButtons()
     {
-        // three buttons are displayed vertically.
-        let flexDir = null
+        // Three buttons are displayed vertically.
+        let flexDir = null;
+        let containerViewStyle = styles.btnContainerVertical;
+        let topBorder = { borderTopWidth: 0 };
         if (this.alert.buttons.length < 3)
+        {
             flexDir = flexDirection(!this.strings.isRTL);
+            containerViewStyle = styles.btnContainer;
+        }
+        if (this.strings.platform === 'ios' && this.alert.buttons.length > 0)
+        {
+            // No need for top border when the first button is a checkbox.
+            if (this.alert.buttons[0].type !== 'checkbox')
+                topBorder = { borderTopWidth: 0.5 };
+        }
 
         return (
-            <View style={[styles.buttonsContainer, flexDir]}>
+            <View style={[styles.buttonsContainer, flexDir, topBorder]}>
                 {
                     this.alert.buttons.map(({ text, onPress, style, type, canBeDisabled }, idx) => (
                         <View style={flexDir} key={idx}>
-                            {idx === 1 && this.renderButtonDivider()}
+                            {this.renderButtonDivider(idx)}
                             <ButtonComp
                                 title={text}
                                 type={type}
                                 disabled={canBeDisabled && this.getDontAskMeAgain()}
                                 checked={this.getDontAskMeAgain()}
                                 buttonStyle={style}
-                                containerViewStyle={styles.btnContainer}
-                                textStyle={styles.btnText}
+                                containerViewStyle={containerViewStyle}
+                                textStyle={type !== 'checkbox' && styles.btnText}
                                 backgroundColor='transparent'
                                 color={colors.primaryColor}
                                 checkedColor={colors.primaryColor}
@@ -128,10 +139,15 @@ export class MessageHandler extends Component<any, any>
             </View>
         )
     }
-    renderButtonDivider()
+    renderButtonDivider(btnIndex: number)
     {
         if (this.strings.platform !== 'ios')
             return (null);
+
+        // Renders divider only for less than three buttons.
+        if (this.alert.buttons.length > 2 || btnIndex !== 1)
+            return (null);
+
         let margin = this.strings.isRTL ? { marginRight: -scale(15) } : { marginLeft: -scale(30) };
         return (
             <Divider style={[styles.divider, margin]} />
@@ -267,7 +283,7 @@ export class MessageHandler extends Component<any, any>
     {
         let btnStyle = this.strings.isRTL ? styles.verticalBtnRTL : styles.verticalBtnLTR;
         this.dontAskMeAgain = false;
-        
+
         let options =
             {
                 title: null,
@@ -276,7 +292,6 @@ export class MessageHandler extends Component<any, any>
 
         let dontAskMeBtn: ButtonOpts = {
             text: this.strings.neverAskAgain,
-            style: btnStyle,
             type: 'checkbox',
             onPress: () =>
             {
@@ -386,6 +401,7 @@ const styles = StyleSheet.create({
                     padding: 0,
                     paddingTop: scale(21),
                     width: scale(300),
+                    height: scale(220),
                 }
             })
         },
@@ -397,9 +413,8 @@ const styles = StyleSheet.create({
         {
             ...Platform.select({
                 ios: {
-                    borderTopWidth: 0.5,
                     borderColor: colors.middleGrayLight,
-                    justifyContent: 'space-around'
+                    justifyContent: 'space-around',
                 }
             })
         },
@@ -408,6 +423,16 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios: {
                     width: scale(150),
+                }
+            })
+        },
+    btnContainerVertical:
+        {
+            ...Platform.select({
+                ios: {
+                    marginLeft: 0,
+                    marginRight: 0,
+                    width: scale(300)
                 }
             })
         },
@@ -421,16 +446,6 @@ const styles = StyleSheet.create({
                 }
             })
         },
-    btnText:
-        {
-            textAlign: 'left',
-            ...Platform.select({
-                ios: {
-                    textAlign: 'center',
-                    width: '100%',
-                }
-            })
-        },
     verticalBtnRTL:
         {
             padding: 0,
@@ -438,10 +453,11 @@ const styles = StyleSheet.create({
             justifyContent: 'flex-end',
             ...Platform.select({
                 ios: {
-                    width: '100%',
-                    justifyContent: 'center'
+                    borderTopWidth: 0.5,
+                    borderColor: colors.middleGrayLight,
                 }
             })
+
         },
     verticalBtnLTR:
         {
@@ -450,8 +466,18 @@ const styles = StyleSheet.create({
             justifyContent: 'flex-start',
             ...Platform.select({
                 ios: {
+                    borderTopWidth: 0.5,
+                    borderColor: colors.middleGrayLight,
+                }
+            })
+        },
+    btnText:
+        {
+            textAlign: 'left',
+            ...Platform.select({
+                ios: {
+                    textAlign: 'center',
                     width: '100%',
-                    justifyContent: 'center'
                 }
             })
         },

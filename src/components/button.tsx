@@ -6,7 +6,7 @@ import
 import { Button, CheckBox } from 'react-native-elements';
 import { inject, observer } from 'mobx-react';
 import { Strings } from '../modules/strings';
-import { colors } from '../styles/common';
+import { colors, iconNames } from '../styles/common';
 
 @inject("strings")
 @observer
@@ -47,7 +47,18 @@ export class ButtonComp extends Component<any, any>
     renderCheckBox()
     {
         let iconRight = this.strings.isRTL ? true : false;
-        return (<CheckBox {...this.btnProps} right={iconRight} iconRight={iconRight} containerStyle={styles.checkBox} />)
+        let isIOS = this.strings.platform === 'ios';
+        let checkedIconName = isIOS ? iconNames.checkboxIOS : iconNames.checkBoxMD;
+        let uncheckedIconName = isIOS ? iconNames.blankCheckboxIOS : iconNames.blankCheckboxMD;
+        return (<CheckBox
+            {...this.btnProps}
+            iconType='material-community'
+            checkedIcon={checkedIconName}
+            uncheckedIcon={uncheckedIconName}
+            center={isIOS}
+            right={!isIOS && iconRight}
+            iconRight={iconRight}
+            containerStyle={styles.checkBox} />)
     }
 }
 /*********** style ************* */
