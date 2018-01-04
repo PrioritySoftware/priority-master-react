@@ -37,8 +37,12 @@ export class Row extends React.Component<any, any>
                 let column = form.columns[colName];
                 let colTitle = column.title;
                 let colValue = row.get(colName);
-                if (column.type != ColumnType.Bool && (colValue === undefined || colValue === ''))
+                if (column.type !== ColumnType.Bool &&
+                    !this.props.formService.getIsNewRow(form, rowId) &&
+                    (colValue === undefined || colValue === ''))
+                {
                     continue;
+                }
                 // Date values are displayed according to the column's 'format' property.
                 if (column.type === ColumnType.Date)
                     colValue = moment.utc(colValue).format(column.format);
