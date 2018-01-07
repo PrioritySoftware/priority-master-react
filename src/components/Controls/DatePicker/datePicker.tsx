@@ -17,44 +17,46 @@ import
 import { DatePickerAndroid } from './datePickerAndroid';
 import { TimePickerAndroid } from './timePickerAndroid';
 import PropTypes from 'prop-types';
-import { colors } from '../../../styles/common'
+import { colors, flexDirection } from '../../../styles/common'
+import { inject } from 'mobx-react';
+import { Strings } from '../../../modules/strings';
 
 const ANIM_DURATION = 300;
-
+@inject("strings")
 export default class DatePicker extends Component<any, any>
 {
     static propTypes =
-    {
-        onDone: PropTypes.func.isRequired,
-        onCancel: PropTypes.func,
-        initialDate: PropTypes.oneOfType([
-            PropTypes.instanceOf(Date),
-            PropTypes.string
-        ]),
-        minDate: PropTypes.instanceOf(Date),
-        maxDate: PropTypes.instanceOf(Date),
-        cancelText: PropTypes.string,
-        doneText: PropTypes.string,
-        containerStyle: PropTypes.oneOfType([
-            PropTypes.array,
-            PropTypes.number,
-            PropTypes.shape({}),
-        ]),
-        allowFontScaling: PropTypes.bool,
-        disabled: PropTypes.bool,
-        mode: PropTypes.string
-    };
+        {
+            onDone: PropTypes.func.isRequired,
+            onCancel: PropTypes.func,
+            initialDate: PropTypes.oneOfType([
+                PropTypes.instanceOf(Date),
+                PropTypes.string
+            ]),
+            minDate: PropTypes.instanceOf(Date),
+            maxDate: PropTypes.instanceOf(Date),
+            cancelText: PropTypes.string,
+            doneText: PropTypes.string,
+            containerStyle: PropTypes.oneOfType([
+                PropTypes.array,
+                PropTypes.number,
+                PropTypes.shape({}),
+            ]),
+            allowFontScaling: PropTypes.bool,
+            disabled: PropTypes.bool,
+            mode: PropTypes.string
+        };
 
     static defaultProps =
-    {
-        cancelText: 'Cancel',
-        doneText: 'Done',
-        clearText: 'Clear',
-        containerStyle: {},
-        allowFontScaling: true,
-        disabled: true,
-        mode: 'date'
-    };
+        {
+            cancelText: 'Cancel',
+            doneText: 'Done',
+            clearText: 'Clear',
+            containerStyle: {},
+            allowFontScaling: true,
+            disabled: true,
+            mode: 'date'
+        };
 
     isReady: boolean;
 
@@ -101,7 +103,7 @@ export default class DatePicker extends Component<any, any>
 
     initComponent()
     {
-        let initialDate = this.props.mode === 'date' ? new Date() : '';
+        let initialDate = this.props.mode === 'date' || Platform.OS === 'ios' ? new Date() : '';
         const selectedDate = this.props.initialDate ? this.props.initialDate : initialDate;
         const minDate = this.props.minDate ? this.props.minDate : new Date(1900, 1, 1);
         let date = new Date();
@@ -134,6 +136,12 @@ export default class DatePicker extends Component<any, any>
             }
         }
         return { hour: hour, minute: minute };
+    }
+    getTimeString(hour: number, minute: number)
+    {
+        let hourStr = hour < 10 ? ('0' + hour) : hour;
+        let minuteStr = minute < 10 ? ('0' + minute) : minute;
+        return hourStr + ":" + minuteStr;
     }
     setModalVisible(visible)
     {
@@ -218,9 +226,7 @@ export default class DatePicker extends Component<any, any>
                 if (action === TimePickerAndroid.timeSetAction)
                 {
                     let selectedDate, updateDate;
-                    let hourStr = hour < 10 ? '0' + hour : hour;
-                    let minuteStr = hour < 10 ? '0' + minute : minute;
-                    selectedDate = updateDate = hourStr + ":" + minuteStr;
+                    selectedDate = updateDate = this.getTimeString(hour, minute);
                     this.setState({ selectedDate });
                     this.props.onDone(updateDate);
                 } else if (action === TimePickerAndroid.dismissedAction)
@@ -275,6 +281,7 @@ export default class DatePicker extends Component<any, any>
     {
         if (Platform.OS === 'ios')
         {
+            let strings:Strings=this.props.strings;
             let date = this.state.selectedDate || new Date();
             let time = this.getSelectedTime();
             // For time picker - creates a new date and sets its time to be the selected time.
@@ -315,14 +322,14 @@ export default class DatePicker extends Component<any, any>
                                             })
                                         }]}
                                     >
-                                        <View style={styles.btnContainer}>
+                                        <View style={[styles.btnContainer,flexDirection(strings.isRTL)]}>
                                             <TouchableOpacity
                                                 onPress={this.handlePressCancel}
                                                 style={styles.btnText}
                                             >
                                                 <Text style={styles.text} >{this.props.cancelText.toUpperCase()}</Text>
                                             </TouchableOpacity>
-                                            <View style={{ flexDirection: 'row' }}>
+                                            <View style={flexDirection(strings.isRTL)}>
                                                 <TouchableOpacity
                                                     onPress={this.handlePressClear}
                                                 >
@@ -388,7 +395,6 @@ let styles = StyleSheet.create({
         paddingHorizontal: 18,
     },
     btnContainer: {
-        flexDirection: 'row',
         justifyContent: 'space-between',
         height: 45,
         borderColor: colors.middleGrayLight,
@@ -396,7 +402,7 @@ let styles = StyleSheet.create({
         alignItems: 'center'
     },
     text:
-    {
-        color: colors.blue
-    }
+        {
+            color: colors.blue
+        }
 });

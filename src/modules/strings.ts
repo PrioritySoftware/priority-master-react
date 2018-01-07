@@ -315,6 +315,16 @@ export class Strings
     {
         return this.getString(this._cancel);
     }
+    private _clear: String = { value: "", code: 0 };
+    public get clear(): string
+    {
+        return this.getString(this._clear);
+    }
+    private _done: String = { value: "", code: 0 };
+    public get done(): string
+    {
+        return this.getString(this._done);
+    }
     private _defaultMsgTitle: String = { value: "", code: 0 };
     public get defaultMsgTitle(): string
     {
@@ -519,6 +529,8 @@ export class Strings
         this._changePswBtn.value = "החלף";
         this._ok.value = "אישור";
         this._cancel.value = "ביטול";
+        this._clear.value = "נקה";
+        this._done.value = "הגדר";
         this._defaultMsgTitle.value = "הודעה";
         this._editBtnText.value = "ערוך";
         this._deleteBtnText.value = "מחק";
@@ -619,6 +631,8 @@ export class Strings
         this._changePswBtn.value = "Change"
         this._ok.value = "Ok";
         this._cancel.value = "Cancel";
+        this._clear.value = "Clear";
+        this._done.value = "Done";
         this._defaultMsgTitle.value = "Message";
         this._editBtnText.value = "Edit";
         this._deleteBtnText.value = "Delete";

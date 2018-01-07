@@ -23,10 +23,10 @@ export default class DateControl extends Component<any, any>
         mode: PropTypes.string
     };
     static defaultProps =
-    {
-        mode: 'date',
-        value: ''
-    };
+        {
+            mode: 'date',
+            value: ''
+        };
 
     strings: Strings;
 
@@ -71,7 +71,12 @@ export default class DateControl extends Component<any, any>
             }
         }
     }
-
+    getTimeString(hour: number, minute: number)
+    {
+        let hourStr = hour < 10 ? ('0' + hour) : hour;
+        let minuteStr = minute < 10 ? ('0' + minute) : minute;
+        return hourStr + ":" + minuteStr;
+    }
     handleChange(date)
     {
         this.selectedDate = date;
@@ -84,8 +89,12 @@ export default class DateControl extends Component<any, any>
         }
         else
         {
-            this.formatedDate = this.selectedDate || '';
-            newValue = date || '';
+            // IOS - time picker value returns as a date string.
+            let datetime = new Date(date);
+            if (date && !isNaN(datetime.getTime()))
+                date = this.getTimeString(datetime.getHours(), datetime.getMinutes());
+
+            newValue = this.formatedDate = date || '';
         }
         const { onUpdate, value } = this.props;
         if (newValue !== value)
@@ -108,6 +117,10 @@ export default class DateControl extends Component<any, any>
                 mode={this.props.mode}
                 onDone={this.handleChange}
                 disabled={this.props.disabled}
+                cancelText={this.strings.cancel}
+                doneText={this.strings.done}
+                clearText={this.strings.clear}
+
             >
                 <Text style={[styles.text, textAlign(this.strings.isRTL), { color: textColor }]}>
                     {this.formatedDate}
@@ -119,26 +132,26 @@ export default class DateControl extends Component<any, any>
 }
 let styles = StyleSheet.create({
     container:
-    {
-        borderBottomWidth: 1,
-        borderBottomColor: colors.gray,
-        paddingHorizontal: scale(2.5),
-        marginBottom: verticalScale(8),
-        paddingTop: 4.5,
-        paddingBottom: 3.5,
-    },
+        {
+            borderBottomWidth: 1,
+            borderBottomColor: colors.gray,
+            paddingHorizontal: scale(2.5),
+            marginBottom: verticalScale(8),
+            paddingTop: 4.5,
+            paddingBottom: 3.5,
+        },
     iconStyle:
-    {
-        width: scale(16),
-        height: scale(24),
-        resizeMode: 'contain',
-    },
+        {
+            width: scale(16),
+            height: scale(24),
+            resizeMode: 'contain',
+        },
 
     text:
-    {
-        flex: 1,
-        fontWeight: 'bold',
-        marginTop: scale(5),
-        fontSize: scale(14)
-    }
+        {
+            flex: 1,
+            fontWeight: 'bold',
+            marginTop: scale(5),
+            fontSize: scale(14)
+        }
 });
