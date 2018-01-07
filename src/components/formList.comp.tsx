@@ -16,12 +16,12 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { scale, verticalScale } from '../utils/scale';
 import { Button } from 'react-native-elements';
 import InfiniteScrollView from 'react-native-infinite-scroll-view';
-import Spinner from 'react-native-loading-spinner-overlay';
-const SpinnerIndicator = require('react-native-spinkit');
+import Spinner from 'react-native-spinkit';
 import ActionButton from 'react-native-action-button';
 import { observer, inject } from 'mobx-react';
 import { ObservableMap, observable } from 'mobx';
 import { Row } from './Row';
+import { FormText } from './formText.comp';
 import { SearchBar } from 'react-native-elements'
 import debounce from 'lodash.debounce'
 import { Messages } from '../handlers/index';
@@ -43,6 +43,7 @@ export class FormList extends React.Component<any, any>
     parentForm: Form;
 
     editRow;
+    formActions;
     ds;
 
     // search
@@ -64,7 +65,9 @@ export class FormList extends React.Component<any, any>
         this.formName = this.props.formName;
         let parentPath = this.props.parentPath;
         this.parentForm = this.formService.getForm(parentPath);
+
         this.editRow = this.props.editRow;
+        this.formActions = this.props.formActions;
 
         // state
         this.state =
@@ -77,7 +80,7 @@ export class FormList extends React.Component<any, any>
         this.startForm();
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-        //search
+        // search
         this.debounceSearch = debounce(this.search, 1500);
         this.isShowSearchLoading = false;
     }
@@ -109,11 +112,15 @@ export class FormList extends React.Component<any, any>
     }
     isQueryForm()
     {
-        return this.form && this.form.isquery == 1;
+        return this.form && this.form.isquery === 1;
     }
     isOneLine()
     {
-        return this.form && this.form.oneline == 1;
+        return this.form && this.form.oneline === 1;
+    }
+    isTextForm()
+    {
+        return this.formService.isTextForm(this.form);
     }
     isHideAddBtn()
     {
@@ -215,12 +222,12 @@ export class FormList extends React.Component<any, any>
     startSearch = (searchVal: string) =>
     {
         let formConfig = this.formService.getFormConfig(this.form, this.parentForm);
-        if (formConfig.searchColumns.length == 0)
+        if (formConfig.searchColumns.length === 0)
         {
             this.messageHandler.showErrorOrWarning(true, this.strings.searchError, () => { }, () => { }, { title: this.strings.errorTitle });
             return;
         }
-        if (this.lastSearch != searchVal && (this.lastSearch !== undefined || searchVal !== ''))
+        if (this.lastSearch !== searchVal && (this.lastSearch !== undefined || searchVal !== ''))
         {
             this.lastSearch = searchVal;
             this.isShowSearchLoading = true;
@@ -234,7 +241,7 @@ export class FormList extends React.Component<any, any>
         return (
             <View style={[container, styles.container]}>
                 {this.renderSearchHeader()}
-                {this.rows ? this.renderList() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
+                {this.rows ? this.renderData() : this.renderActivityIndicator(this.strings.scrollLoadingText)}
             </View>
         );
     }
@@ -254,6 +261,22 @@ export class FormList extends React.Component<any, any>
             </View>
 
         );
+    }
+
+    renderData()
+    {
+        if (this.isTextForm())
+            return this.renderFreeText();
+        return this.renderList()
+    }
+    renderFreeText()
+    {
+        return (
+            <FormText
+                formPath={this.form.path}
+                formActions={this.formActions}
+            />
+        )
     }
     renderList()
     {
@@ -285,11 +308,13 @@ export class FormList extends React.Component<any, any>
     }
     renderFooter = () => 
     {
-        {/* Loading indicator for loading more rows */ }
+        /* Loading indicator for loading more rows will be shown when more rows are retrieved.
+        The footer will always be shown so that the Add button won't cover content of the last row. */
+        let opacity = this.state.isLoadingMore ? 1 : 0;
         return (
-            < View style={[styles.rowsIndicator, { display: this.state.isLoadingMore ? 'flex' : 'none' }]} >
+            < View style={[styles.rowsIndicator, { opacity: opacity }]} >
                 <Text style={{ color: colors.darkGray }}>{this.strings.loadingSearchResults}</Text>
-                <SpinnerIndicator style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></SpinnerIndicator>
+                <Spinner style={{ marginBottom: 5 }} type='ThreeBounce' color={colors.darkGray}></Spinner>
             </View >
         );
     }
@@ -399,9 +424,10 @@ export class FormList extends React.Component<any, any>
     }
 
     // search
-
     renderSearchHeader()
     {
+        if (!this.rows || this.isTextForm())
+            return (null);
         return (
             <View>
                 {this.renderSearchBar()}
@@ -428,7 +454,7 @@ export class FormList extends React.Component<any, any>
             return (null);
         return (
             <View style={[styles.searchIndicator]}>
-                <SpinnerIndicator style={{ marginTop: -5 }} type='ThreeBounce' color={colors.disabledGray}></SpinnerIndicator>
+                <Spinner style={{ marginTop: -5 }} type='ThreeBounce' color={colors.disabledGray}></Spinner>
             </View>
         );
     }

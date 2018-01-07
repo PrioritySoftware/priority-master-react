@@ -37,7 +37,7 @@ export class HorizontalList extends Component<any, any>
 
     render()
     {
-        if (this.props.list.length >= 1)
+        if (this.props.list.length > 1)
         {
             return (
                 <View style={styles.listContainer}>
@@ -89,7 +89,12 @@ const styles = StyleSheet.create({
         marginTop: 5,
         lineHeight: 15,
         fontSize: 15,
-        marginBottom: 5,
+        ...Platform.select({
+            ios:
+                {
+                    marginTop:10,
+                }
+        })
     },
     selectItem:
         {

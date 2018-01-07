@@ -76,10 +76,10 @@ export class MessageHandler extends Component<any, any>
     renderBackdrop()
     {
         let backdropColor = this.alert ? 'black' : colors.lightGray;
-        let backdropOpacity = 0;
-        // loading can be shown with or without backdrop while alert is always presented with backdrop.
-        if (this.alert || this.loading.overlay)
-            backdropOpacity = 0.22;
+
+         // loading can be shown with or without backdrop while alert is always presented with backdrop.
+        let backdropOpacity = this.alert ? 0.22 : this.loading.overlay ? 0.27 : 0;
+    
         return (
             <View style={[styles.absolute, { backgroundColor: backdropColor, opacity: backdropOpacity }]} />
         );

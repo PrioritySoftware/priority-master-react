@@ -38,6 +38,7 @@ export class FormService
         let formConfig: FormConfig = {
             name: form.name,
             title: form.title,
+            ishtml: false,
             searchColumns: [],
             subforms: [],
             listColumnsOptions: {},
@@ -303,6 +304,10 @@ export class FormService
     {
         return this.forms[formName];
     }
+    public isTextForm(form: Form)
+    {
+        return form && form.ishtml === 1;
+    }
     deleLocalForm(formPath: string)
     {
         delete this.forms[formPath];
@@ -311,10 +316,12 @@ export class FormService
     private mergeForm(form: Form, parentForm: Form = null)
     {
         let localform;
+        let formConfig = this.getFormConfig(form, parentForm);
         let parentPath = parentForm ? parentForm.path : '';
         let parentName = parentForm ? parentForm.name : '';
         let formName = form.name + parentPath;
 
+        formConfig.ishtml = form.ishtml === 1;
         localform = this.forms[formName];
         // set form in forms - first time no need to merge
         if (localform === undefined)    
@@ -549,7 +556,7 @@ export class FormService
                 filter.QueryValues.push(queryValue);
             }
         }
-        if (filter.QueryValues.length == 0)
+        if (filter.QueryValues.length === 0)
         {
             return null;
         }
@@ -563,7 +570,7 @@ export class FormService
         {
             // replace * or % in the begining of search string so the search won't be too heavy
             search = search.replace(/^[\*|%]+/, '');
-            if (search == null || search.trim() == '')
+            if (search == null || search.trim() === '')
             {
                 this.clearSearchFilter(form).then(() =>
                 {
@@ -667,7 +674,9 @@ export class FormService
     }
     public setIsRowChangesSaved(form: Form, rowInd, isSaved: boolean)
     {
-        form.rows.get(rowInd).set(this.strings.isChangesSaved, isSaved);
+        let row = form.rows.get(rowInd);
+        if (row)
+            row.set(this.strings.isChangesSaved, isSaved);
     }
     public getIsRowChangesSaved(form: Form, rowInd)
     {
@@ -1050,11 +1059,30 @@ export class FormService
                     if (reason)
                         form.activateEnd().then(() => this.rejectionHandler(reason, reject));
                     else
-                        this.messageHandler.showErrorOrWarning(true, this.strings.procedureNotSupported);
+                        MessageHandler.showErrorOrWarning(true, this.strings.procedureNotSupported);
                 });
         });
     }
 
+    // ************ Text *********************/
+    /* Saves text to a text form
+      Adds the text to the existing text with the date + signature 
+      */
+    saveText(form: Form, text, addTextFlag = 1, signatureFlag = 1): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            form.saveText(text, addTextFlag, signatureFlag, 0).then(
+                (result) =>
+                {
+                    resolve();
+                },
+                (reason: ServerResponse) =>
+                {
+                    this.rejectionHandler(reason, reject);
 
+                });
+        });
+    }
 
 }

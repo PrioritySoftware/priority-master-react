@@ -51,7 +51,7 @@ export class DetailsPage extends React.Component<any, any>
     itemIndex: number;
     formConfig: FormConfig;
 
-    @observable currentSubForm: string;
+    @observable currentSubFormOpts: { name: string, ishtml?: boolean, actions?: { save?: Function, undo?: Function, checkChanges?: Function } };
     dropdown;
 
     constructor(props)
@@ -69,6 +69,7 @@ export class DetailsPage extends React.Component<any, any>
         this.formConfig = this.formService.getFormConfig(this.form, parentForm);
         this.columns = this.formConfig.detailsColumnsOptions;
         this.itemIndex = this.props.navigation.state.params.itemIndex;
+        this.currentSubFormOpts = { ishtml: false, name: null, actions: {} };
     }
     componentDidMount()
     {
@@ -85,6 +86,9 @@ export class DetailsPage extends React.Component<any, any>
     }
     getIsChangesSaved()
     {
+        let subFormCheckChanges = this.currentSubFormOpts.actions.checkChanges;
+        if (subFormCheckChanges)
+            return subFormCheckChanges();
         return this.formService.getIsRowChangesSaved(this.form, this.itemIndex);
     }
     getIsNewRow()
@@ -144,13 +148,13 @@ export class DetailsPage extends React.Component<any, any>
     showChangesNotSaved(resolve, reject)
     {
         this.messageHandler.showChangesNotSaved(
-            () => this.saveRow(resolve),
+            () => this.save(resolve),
             () =>
             {
                 if (this.getIsNewRow())
                     this.deleteNewRow();
                 else
-                    this.undoRow(resolve);
+                    this.undo(resolve);
             },
             reject);
     }
@@ -158,13 +162,13 @@ export class DetailsPage extends React.Component<any, any>
     {
         if (this.configService.getIsHideSaveMessage())
         {
-            this.saveRow(resolve);
+            this.save(resolve);
             return;
         }
         this.messageHandler.showChangesNotSavedAndAsk(
             (isDontAskAgain) =>
             {
-                this.saveRow(resolve);
+                this.save(resolve);
                 if (isDontAskAgain)
                     this.configService.setIsHideSaveMessage(isDontAskAgain);
             },
@@ -173,7 +177,7 @@ export class DetailsPage extends React.Component<any, any>
                 if (this.getIsNewRow())
                     this.deleteNewRow();
                 else
-                    this.undoRow(resolve);
+                    this.undo(resolve);
             },
             reject);
     }
@@ -193,7 +197,28 @@ export class DetailsPage extends React.Component<any, any>
         return false;
     }
     /* Subforms */
+    setSubformActions = (actions) =>
+    {
+        if (this.currentSubFormOpts.name)
+        {
+            let subform = this.formService.getForm(this.currentSubFormOpts.name + this.form.path);
+            if (this.formService.isTextForm(subform) && !this.currentSubFormOpts.ishtml)
+            {
+                this.currentSubFormOpts =
+                    {
+                        name: this.currentSubFormOpts.name,
+                        ishtml: true,
+                        actions: actions
+                    };
+            }
+            else
+            {
+                this.currentSubFormOpts.actions = actions;
+            }
 
+        }
+
+    }
     subformSelected = (subform) =>
     {
         // Navigating to a subform is forbidden when no changes were made to a new row.
@@ -203,11 +228,17 @@ export class DetailsPage extends React.Component<any, any>
         this.checkForChanges(true)
             .then(() =>
             {
-                // render parent details
                 if (subform.name === this.form.name)
-                    this.currentSubForm = null;
-                else
-                    this.currentSubForm = subform.name;
+                {
+                     // render parent details
+                    this.currentSubFormOpts = { name: null, actions: {} };
+                }
+                else if (subform.name !== this.currentSubFormOpts.name)
+                {
+                     // render subform list
+                    let subformConfig = this.formService.getFormConfig(subform, this.form);
+                    this.currentSubFormOpts = { name: subform.name, ishtml: subformConfig.ishtml, actions: {} };
+                }
             })
             .catch(() => { });
 
@@ -226,7 +257,6 @@ export class DetailsPage extends React.Component<any, any>
     }
 
     /* Direct activations */
-
     getActivationsList()
     {
         let actsArr = this.formConfig.activations;
@@ -296,11 +326,15 @@ export class DetailsPage extends React.Component<any, any>
             })
             .catch(() => this.messageHandler.hideLoading());
     }
-    saveRowClicked(afterSaveFunc = null)
+    save(afterSaveFunc = null)
     {
         if (this.handleEmptyNewRow())
             return;
-        this.saveRow(afterSaveFunc);
+
+        if (this.currentSubFormOpts.actions.save)
+            this.currentSubFormOpts.actions.save(afterSaveFunc);
+        else
+            this.saveRow(afterSaveFunc);
     }
     saveRow(afterSaveFunc = null)
     {
@@ -314,6 +348,13 @@ export class DetailsPage extends React.Component<any, any>
                 this.messageHandler.showToast(this.strings.changesSavedText);
             })
             .catch(() => this.messageHandler.hideLoading());
+    }
+    undo(afterUndoFunc = null)
+    {
+        if (this.currentSubFormOpts.actions.undo)
+            this.currentSubFormOpts.actions.undo(afterUndoFunc);
+        else
+            this.undo(afterUndoFunc);
     }
     undoRow = (afterUndoFunc = null) =>
     {
@@ -330,12 +371,11 @@ export class DetailsPage extends React.Component<any, any>
     }
     render() 
     {
-        let optionsComp = this.currentSubForm ? {} : this.renderSideMenuIcon();
         return (
             < View style={[container, styles.container]} >
-                <HeaderComp title={this.title} goBack={() => this.goBack()} optionsComp={optionsComp} />
+                <HeaderComp title={this.title} goBack={() => this.goBack()} optionsComp={this.renderOperationsIcons()} />
                 {this.renderSubFormsMenu()}
-                {this.currentSubForm ? this.renderSubformsList() : this.renderParentDetails()}
+                {this.currentSubFormOpts.name ? this.renderSubformsList() : this.renderParentDetails()}
             </View >
         );
     }
@@ -375,9 +415,10 @@ export class DetailsPage extends React.Component<any, any>
     {
         return (
             <FormList
-                formName={this.currentSubForm}
+                formName={this.currentSubFormOpts.name}
                 parentPath={this.form.path}
                 editRow={this.editSubFormRow}
+                formActions={this.setSubformActions}
             />
         );
     }
@@ -398,7 +439,7 @@ export class DetailsPage extends React.Component<any, any>
         return (
             <HorizontalList
                 list={subforms}
-                selected={this.currentSubForm || this.form.name}
+                selected={this.currentSubFormOpts.name || this.form.name}
                 onPress={this.subformSelected}
                 inverted={this.strings.isRTL}
                 showsHorizontalScrollIndicator={this.strings.platform !== 'android'}
@@ -406,30 +447,42 @@ export class DetailsPage extends React.Component<any, any>
         )
     }
     /* Direct Activations */
-
-    renderSideMenuIcon()
+    renderOperationsIcons()
     {
+        let isShowSaveOnly = false;
+        let afterSave = this.goBack;
+       
+        if (this.currentSubFormOpts.name)
+        {
+            afterSave = null;
+             // Show save icon only for text subforms.
+            if (this.currentSubFormOpts.ishtml)
+                isShowSaveOnly = true;
+            else
+                return ({});
+        }
         return (
             <View style={flexDirection(this.strings.isRTL)}>
                 <Icon
                     type='ionicon'
                     name={iconNames.checkmark}
-                    onPress={() => this.saveRowClicked(this.goBack)}
+                    onPress={() => this.save(afterSave)}
                     color='white'
                     underlayColor='transparent'
                     size={22}
                     containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
                 />
-                <Icon
-                    type='ionicon'
-                    name={iconNames.menu}
-                    onPress={this.openActivationsList}
-                    color='white'
-                    underlayColor='transparent'
-                    size={22}
-                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
-                />
-
+                {
+                    !isShowSaveOnly && <Icon
+                        type='ionicon'
+                        name={iconNames.menu}
+                        onPress={this.openActivationsList}
+                        color='white'
+                        underlayColor='transparent'
+                        size={22}
+                        containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                    />
+                }
 
             </View>
         );

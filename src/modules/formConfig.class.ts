@@ -5,6 +5,7 @@ export declare class FormConfig
 {
 	name: string;
 	title:string;
+	ishtml:boolean;
 	subforms: Array<{ name: string, title: string }>
 	parentForm: string;
 	searchColumns: Array<string>;
