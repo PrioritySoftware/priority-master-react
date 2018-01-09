@@ -8,7 +8,7 @@ import { Form } from "../modules/form.class";
 import { inject, observer } from "mobx-react";
 import * as moment from 'moment';
 import { Card } from './card';
-import { colors, position } from '../styles/common';
+import { colors, position, flexDirection } from '../styles/common';
 import * as React from 'react';
 import { ColumnType } from '../modules/columnType.class';
 import { Icon } from 'react-native-elements';
@@ -54,7 +54,7 @@ export class Row extends React.Component<any, any>
                     if (column.type !== ColumnType.Bool)
                         columnComp = this.renderColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle);
                     else
-                        columnComp = this.renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle);
+                        columnComp = this.renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle);
                 }
                 else 
                 {
@@ -89,7 +89,7 @@ export class Row extends React.Component<any, any>
             </View>
         );
     }
-    renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle, valueStyle)
+    renderBoolColumn(rowId, colName, colTitle, colValue, titleStyle)
     {
         let isFalse = colValue === undefined || colValue === '';
         return (
@@ -97,18 +97,22 @@ export class Row extends React.Component<any, any>
                 <Text style={[styles.text, titleStyle]}>
                     {colTitle + ":"}
                 </Text>
-                {
-                    !isFalse && <Icon type={'ionicon'}
-                        name={'ios-checkmark-circle-outline'}
-                        size={scale(19)}
-                        style={[styles.boolIcon, valueStyle]} />
-                }
-                {
-                    isFalse && <Icon type={'ionicon'}
-                        name={'ios-remove-circle-outline'}
-                        size={scale(19)}
-                        style={[styles.boolIcon, valueStyle]} />
-                }
+                <View style={flexDirection(!this.props.strings.isRTL)}>
+                    {
+                        !isFalse && <Icon type={'material-community'}
+                            name={'check-circle-outline'}
+                            size={scale(19)}
+                            color={colors.middleDarkGray}
+                            style={[styles.boolIcon]} />
+                    }
+                    {
+                        isFalse && <Icon type={'material-community'}
+                            name={'minus-circle-outline'}
+                            size={scale(19)}
+                            color={colors.middleDarkGray}
+                            style={[styles.boolIcon]} />
+                    }
+                </View>
             </View>
         );
     }
@@ -132,7 +136,8 @@ const styles = StyleSheet.create({
         },
     valueText:
         {
-            maxWidth: '60%'
+            maxWidth: '60%',
+            color:colors.middleDarkGray
         },
     textContainer:
         {
@@ -144,7 +149,7 @@ const styles = StyleSheet.create({
         },
     boolIcon:
         {
-            marginTop: scale(-14)
+            marginTop: scale(-14),
         }
 
 });

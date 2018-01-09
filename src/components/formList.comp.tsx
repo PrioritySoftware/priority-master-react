@@ -51,6 +51,9 @@ export class FormList extends React.Component<any, any>
     lastSearch: string;
     debounceSearch;
 
+    // new button 
+    debounceNewBtn;
+
     @observable rows: ObservableMap<any>;
     @observable isShowSearchLoading: boolean;
 
@@ -76,13 +79,17 @@ export class FormList extends React.Component<any, any>
                 isLoadingMore: false,
             };
 
+        // search
+        this.debounceSearch = debounce(this.search, 1500);
+        this.isShowSearchLoading = false;
+
+        // new button
+        this.debounceNewBtn = debounce(this.newRow, 1000, { leading: true, trailing: false });
+
         // get form rows
         this.startForm();
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
-        // search
-        this.debounceSearch = debounce(this.search, 1500);
-        this.isShowSearchLoading = false;
     }
     componentDidMount()
     {
@@ -417,7 +424,7 @@ export class FormList extends React.Component<any, any>
                 buttonColor={colors.primaryColor}
                 buttonTextStyle={{ fontSize: scale(27) }}
                 fixNativeFeedbackRadius={true}
-                onPress={this.newRow}
+                onPress={this.debounceNewBtn}
             />
 
         );
