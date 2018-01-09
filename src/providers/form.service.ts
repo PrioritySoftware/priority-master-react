@@ -308,6 +308,10 @@ export class FormService
     {
         return form && form.ishtml === 1;
     }
+    isQueryForm(form: Form)
+    {
+        return form && form.isquery === 1;
+    }
     deleLocalForm(formPath: string)
     {
         delete this.forms[formPath];
@@ -439,6 +443,8 @@ export class FormService
     }
     public setLocalRows(form: Form, rows: any, isMerge: boolean)
     {
+        if (!rows)
+            return;
         if (!isMerge)
             form.rows.clear();
         let newRows = observable.map();

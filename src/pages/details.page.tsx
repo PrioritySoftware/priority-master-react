@@ -202,7 +202,11 @@ export class DetailsPage extends React.Component<any, any>
         if (this.currentSubFormOpts.name)
         {
             let subform = this.formService.getForm(this.currentSubFormOpts.name + this.form.path);
-            if (this.formService.isTextForm(subform) && !this.currentSubFormOpts.ishtml)
+            //!! TEXT FORMS ONLY !!
+            // Assigns values to 'currentSubFormOpts' for rerendering. 
+            // If the local 'ishtml' equals to 'subform.ishtml' - there is no need to rerender.
+            // If the subform is a query form - always rerender. 
+            if (this.formService.isTextForm(subform) && (this.formService.isQueryForm(subform) || !this.currentSubFormOpts.ishtml))
             {
                 this.currentSubFormOpts =
                     {
@@ -230,12 +234,12 @@ export class DetailsPage extends React.Component<any, any>
             {
                 if (subform.name === this.form.name)
                 {
-                     // render parent details
+                    // render parent details
                     this.currentSubFormOpts = { name: null, actions: {} };
                 }
                 else if (subform.name !== this.currentSubFormOpts.name)
                 {
-                     // render subform list
+                    // render subform list
                     let subformConfig = this.formService.getFormConfig(subform, this.form);
                     this.currentSubFormOpts = { name: subform.name, ishtml: subformConfig.ishtml, actions: {} };
                 }
@@ -330,6 +334,11 @@ export class DetailsPage extends React.Component<any, any>
     {
         if (this.handleEmptyNewRow())
             return;
+        if (this.getIsChangesSaved())
+        {
+            this.goBack();
+            return;
+        }
 
         if (this.currentSubFormOpts.actions.save)
             this.currentSubFormOpts.actions.save(afterSaveFunc);
@@ -449,31 +458,50 @@ export class DetailsPage extends React.Component<any, any>
     /* Direct Activations */
     renderOperationsIcons()
     {
-        let isShowSaveOnly = false;
+        let isShowSave = true;
+        let isShowActivations = true;
         let afterSave = this.goBack;
-       
+
+        if (this.formService.isQueryForm(this.form))
+        {
+            let numOfActs = Object.keys(this.formConfig.activations).length;
+            isShowSave = false;
+            // Hide activations icon for query forms in case the only activation is a 'Delete' option.
+            isShowActivations = numOfActs > 1 || numOfActs === 1 && this.formConfig.activations[this.strings.removeBtnType] == null;
+        }
+
         if (this.currentSubFormOpts.name)
         {
             afterSave = null;
-             // Show save icon only for text subforms.
+
+            // Show save icon only for text subforms.
             if (this.currentSubFormOpts.ishtml)
-                isShowSaveOnly = true;
+            {
+                let subform = this.formService.getForm(this.currentSubFormOpts.name + this.form.path);
+                isShowSave = !this.formService.isQueryForm(subform);
+                isShowActivations = false;
+            }
             else
+            {
                 return ({});
+            }
         }
+
         return (
             <View style={flexDirection(this.strings.isRTL)}>
-                <Icon
-                    type='ionicon'
-                    name={iconNames.checkmark}
-                    onPress={() => this.save(afterSave)}
-                    color='white'
-                    underlayColor='transparent'
-                    size={22}
-                    containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
-                />
                 {
-                    !isShowSaveOnly && <Icon
+                    isShowSave && <Icon
+                        type='ionicon'
+                        name={iconNames.checkmark}
+                        onPress={() => this.save(afterSave)}
+                        color='white'
+                        underlayColor='transparent'
+                        size={22}
+                        containerStyle={[styles.optionsIcon, margin(!this.strings.isRTL, scale(-20))]}
+                    />
+                }
+                {
+                    isShowActivations && <Icon
                         type='ionicon'
                         name={iconNames.menu}
                         onPress={this.openActivationsList}
