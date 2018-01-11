@@ -92,7 +92,8 @@ const styles = StyleSheet.create({
         ...Platform.select({
             ios:
                 {
-                    marginTop:10,
+                    marginTop: 10,
+                    marginBottom: 7
                 }
         })
     },
