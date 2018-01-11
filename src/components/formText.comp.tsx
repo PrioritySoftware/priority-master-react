@@ -96,7 +96,6 @@ export class FormText extends Component<any, any>
             this.formService.saveText(this.form, this.inputText)
                 .then(() =>
                 {
-                    this.setIsChangesSaved(true);
                     this.messageHandler.hideLoading();
                     this.messageHandler.showToast(this.strings.changesSavedText);
                     if (afterSaveFunc)

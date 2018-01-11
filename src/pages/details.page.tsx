@@ -80,10 +80,6 @@ export class DetailsPage extends React.Component<any, any>
     {
         return formCol.zoom === "Search" || formCol.zoom === "Choose";
     }
-    setIsChangesSaved(isSaved: boolean)
-    {
-        this.formService.setIsRowChangesSaved(this.form, this.itemIndex, isSaved);
-    }
     getIsChangesSaved()
     {
         let subFormCheckChanges = this.currentSubFormOpts.actions.checkChanges;
@@ -202,7 +198,7 @@ export class DetailsPage extends React.Component<any, any>
         if (this.currentSubFormOpts.name)
         {
             let subform = this.formService.getForm(this.currentSubFormOpts.name + this.form.path);
-            //!! TEXT FORMS ONLY !!
+            // !! TEXT FORMS ONLY !!
             // Assigns values to 'currentSubFormOpts' for rerendering. 
             // If the local 'ishtml' equals to 'subform.ishtml' - there is no need to rerender.
             // If the subform is a query form - always rerender. 
@@ -363,16 +359,15 @@ export class DetailsPage extends React.Component<any, any>
         if (this.currentSubFormOpts.actions.undo)
             this.currentSubFormOpts.actions.undo(afterUndoFunc);
         else
-            this.undo(afterUndoFunc);
+            this.undoRow(afterUndoFunc);
     }
     undoRow = (afterUndoFunc = null) =>
     {
         this.messageHandler.showLoading();
-        this.formService.undoRow(this.form)
+        this.formService.undoRow(this.form, this.itemIndex)
             .then(() =>
             {
                 this.messageHandler.hideLoading();
-                this.setIsChangesSaved(true);
                 if (afterUndoFunc)
                     afterUndoFunc();
             })

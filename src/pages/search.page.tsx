@@ -4,7 +4,8 @@ import
     StyleSheet,
     View,
     Text,
-    FlatList
+    FlatList,
+    BackHandler
 } from 'react-native';
 import { container, colors, flexDirection, textAlign } from "../styles/common";
 import { inject, observer } from 'mobx-react';
@@ -64,6 +65,10 @@ export class SearchPage extends Component<any, any>
         this.searchVal = this.props.navigation.state.params.searchVal || '';
         this.initSearchResults(this.props.navigation.state.params.searchObj);
     }
+    componentDidMount()
+    {
+        BackHandler.addEventListener('hardwareBackPress', this.goBack);
+    }
 
     setIsLoadingMore(isLoading: boolean)
     {
@@ -76,9 +81,11 @@ export class SearchPage extends Component<any, any>
         else
             this.canLoadMore = true;
     }
-    goBack()
+    goBack = () =>
     {
+        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
         this.props.navigation.goBack();
+        return true;
     }
     getSearchResult(item: SearchResult)
     {

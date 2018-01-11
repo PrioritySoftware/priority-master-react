@@ -791,13 +791,14 @@ export class FormService
         });
     }
     /** Undoes changes made in the current row */
-    undoRow(form: Form): Promise<any>
+    undoRow(form: Form, rowInd: number = undefined): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
             form.undo().then(
                 result =>
                 {
+                    this.setIsRowChangesSaved(form, rowInd, true);
                     resolve();
                 },
                 (reason: ServerResponse) =>
@@ -1081,6 +1082,7 @@ export class FormService
             form.saveText(text, addTextFlag, signatureFlag, 0).then(
                 (result) =>
                 {
+                    this.setIsRowChangesSaved(form, 1, true);
                     resolve();
                 },
                 (reason: ServerResponse) =>
