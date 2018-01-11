@@ -4,7 +4,8 @@ import
   StyleSheet,
   Dimensions,
   Vibration,
-  View
+  View,
+  BackHandler
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Strings } from '../modules';
@@ -26,20 +27,41 @@ export class QRCodeScanner extends Component<any, any> {
     this.strings = this.props.strings;
     this.params = this.props.navigation.state.params;
   }
-
-  _handleBarCodeRead(result: { data })
+  componentDidMount()
+  {
+    BackHandler.addEventListener('hardwareBackPress', this.scanCanceled);
+  }
+  goBack(result, iscanceled: boolean = false)
+  {
+    BackHandler.removeEventListener('hardwareBackPress', this.scanCanceled);
+    this.props.navigation.goBack();
+    if (this.params && this.params.onRead)
+      this.params.onRead(result, iscanceled);
+  }
+  scanCanceled = () =>
+  {
+    this.goBack('', true);
+    return true;
+  }
+  handleBarCodeRead(result: { data })
   {
     if (!this.isScannedOnce)
     {
       this.isScannedOnce = true;
       Vibration.vibrate([0, 500, 200, 500], false);
-      this.props.navigation.goBack();
-      if (this.params && this.params.onRead)
-        this.params.onRead(result.data);
+      this.goBack(result.data);
     }
   }
 
-  _renderCameraMarker()
+  renderCameraMarker()
+  {
+    return (
+      <View style={styles.rectangleContainer}>
+        <View style={styles.rectangle} />
+      </View>
+    );
+  }
+  renderBackIcon()
   {
     let icon = null;
     let isIOS = this.strings.platform === 'ios';
@@ -50,7 +72,7 @@ export class QRCodeScanner extends Component<any, any> {
         name={iconName}
         type='ionicon'
         color='white'
-        onPress={() => { this.goBack() }}
+        onPress={this.scanCanceled}
         style={[styles.backButtonRight, isIOS ? { marginTop: 20 } : {}]}
         underlayColor="transparent"
       />;
@@ -62,17 +84,12 @@ export class QRCodeScanner extends Component<any, any> {
         name={iconName}
         type='ionicon'
         color='white'
-        onPress={() => { this.goBack() }}
+        onPress={this.scanCanceled}
         style={[styles.backButtonLeft, isIOS ? { marginTop: 20 } : {}]}
         underlayColor="transparent"
       />;
     }
-    return (
-      <View style={styles.rectangleContainer}>
-        {icon}
-        <View style={styles.rectangle} />
-      </View>
-    );
+    return (icon);
   }
 
   render()
@@ -80,29 +97,27 @@ export class QRCodeScanner extends Component<any, any> {
     this.isScannedOnce = false;
     return (
       <View style={styles.mainContainer}>
-        <Camera style={styles.camera} onBarCodeRead={this._handleBarCodeRead.bind(this)}>
-          {this._renderCameraMarker()}
+        {this.renderBackIcon()}
+        <Camera style={styles.camera} onBarCodeRead={this.handleBarCodeRead.bind(this)}>
+          {this.renderCameraMarker()}
         </Camera>
       </View>
     )
   }
-  goBack()
-  {
-    this.props.navigation.goBack();
-  }
+
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1
+    flex: 1,
   },
   camera: {
-    flex: 0,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    height: Dimensions.get('window').height,
-    width: Dimensions.get('window').width,
+    height: '100%',
+    width: '100%',
+    zIndex: 1
   },
 
   rectangleContainer: {
@@ -121,17 +136,19 @@ const styles = StyleSheet.create({
   },
   backButtonLeft:
     {
+      zIndex: 2,
       position: 'absolute',
       top: 12,
-      left: -15,
+      left: 0,
       paddingHorizontal: 20,
       paddingBottom: 30,
     },
   backButtonRight:
     {
+      zIndex: 2,
       position: 'absolute',
       top: 12,
-      right: -15,
+      right: 0,
       paddingHorizontal: 20,
       paddingBottom: 30
     }

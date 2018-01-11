@@ -73,7 +73,7 @@ export class ItemInput extends Component<any, any>
     }
     componentDidMount()
     {
-      this.messageHandler = Messages;
+        this.messageHandler = Messages;
     }
     isReadonly(): boolean
     {
@@ -140,10 +140,13 @@ export class ItemInput extends Component<any, any>
     updateField = (newValue: string) =>
     {
         let oldVal = this.value;
+        let oldChangesState = this.formService.getIsRowChangesSaved(this.form, this.itemIndex);
         this.formService.updateField(this.form, this.itemIndex, this.colName, newValue)
             .catch(error =>
             {
-                this.formService.updateField(this.form, this.itemIndex, this.colName, oldVal).catch(() => { });
+                this.formService.updateField(this.form, this.itemIndex, this.colName, oldVal)
+                    .then(() => this.formService.setIsRowChangesSaved(this.form, this.itemIndex, oldChangesState))
+                    .catch(() => { });
             });
     }
     saveRow()
@@ -218,8 +221,23 @@ export class ItemInput extends Component<any, any>
             return;
         navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
     }
-    scanFinished = (data) =>
+    scanFinished = (data, iscanceled) =>
     {
+        if (iscanceled)
+        {
+            if (this.isSearch())
+            {
+                this.messageHandler.showLoading();
+                setTimeout(() =>
+                {
+                    this.search();
+                    this.messageHandler.hideLoading();
+                }, 0);
+
+            }
+
+            return;
+        }
         if (data == undefined || data === "")
         {
             this.messageHandler.showToast(this.strings.scanError, true);

@@ -108,8 +108,10 @@ export class StartPage extends React.Component<any, any>
    * 
    * @memberof StartPage
    */
-  scanFinished = (data) => 
+  scanFinished = (data, iscanceled) => 
   {
+    if (iscanceled)
+      return;
     if (data == undefined || data === "")
     {
       this.messageHandler.showToast(this.strings.scanError, true);
