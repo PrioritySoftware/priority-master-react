@@ -6,6 +6,7 @@ import
     Text,
     Platform,
     BackHandler,
+    Keyboard,
 
 } from 'react-native';
 import { container, colors, iconNames, textAlign, margin, flexDirection } from '../styles/common';
@@ -54,6 +55,12 @@ export class DetailsPage extends React.Component<any, any>
     @observable currentSubFormOpts: { name: string, ishtml?: boolean, actions?: { save?: Function, undo?: Function, checkChanges?: Function } };
     dropdown;
 
+    // keyboard
+    keyboardShowListener;
+    keyboardHideListener;
+    isKeyboardOpen: boolean;
+    onKeyboardHide;
+
     constructor(props)
     {
         super(props);
@@ -75,6 +82,31 @@ export class DetailsPage extends React.Component<any, any>
     {
         this.messageHandler = Messages;
         BackHandler.addEventListener('hardwareBackPress', this.goBack);
+        this.keyboardShowListener = Keyboard.addListener('keyboardDidShow', () => this.isKeyboardOpen = true);
+        this.keyboardHideListener = Keyboard.addListener('keyboardDidHide', () =>
+        {
+            this.isKeyboardOpen = false;
+            if (this.onKeyboardHide)
+                this.onKeyboardHide();
+            this.onKeyboardHide = null;
+        });
+    }
+    componentWillUnmount()
+    {
+        this.keyboardHideListener.remove();
+        this.keyboardShowListener.remove();
+    }
+    focusAndPressIcon = (afterDismissFunc) =>
+    {
+        if (this.isKeyboardOpen)
+        {
+            this.onKeyboardHide = afterDismissFunc;
+            Keyboard.dismiss();
+        }
+        else
+        {
+            afterDismissFunc();
+        }
     }
     isSearch(formCol: Column)
     {
@@ -377,7 +409,7 @@ export class DetailsPage extends React.Component<any, any>
     {
         return (
             < View style={[container, styles.container]} >
-                <HeaderComp title={this.title} goBack={() => this.goBack()} optionsComp={this.renderOperationsIcons()} />
+                <HeaderComp title={this.title} goBack={() => this.focusAndPressIcon(this.goBack)} optionsComp={this.renderOperationsIcons()} />
                 {this.renderSubFormsMenu()}
                 {this.currentSubFormOpts.name ? this.renderSubformsList() : this.renderParentDetails()}
             </View >
@@ -488,7 +520,7 @@ export class DetailsPage extends React.Component<any, any>
                     isShowSave && <Icon
                         type='ionicon'
                         name={iconNames.checkmark}
-                        onPress={() => this.save(afterSave)}
+                        onPress={() => this.focusAndPressIcon(() => this.save(afterSave))}
                         color='white'
                         underlayColor='transparent'
                         size={22}

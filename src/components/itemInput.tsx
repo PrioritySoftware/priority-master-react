@@ -139,7 +139,7 @@ export class ItemInput extends Component<any, any>
     // field operations
     updateField = (newValue: string) =>
     {
-        let oldVal = this.value;
+        let oldVal = this.value || '';
         let oldChangesState = this.formService.getIsRowChangesSaved(this.form, this.itemIndex);
         this.formService.updateField(this.form, this.itemIndex, this.colName, newValue)
             .catch(error =>
