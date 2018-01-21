@@ -24,10 +24,13 @@ export class MessageHandler extends Component<any, any>
     @observable alert: MessageOptions
     @observable loading: MessageOptions;
 
+    alertList: MessageOptions[];
+
     constructor(props)
     {
         super(props);
         this.strings = this.props.strings;
+        this.alertList = [];
     }
 
     componentWillMount()
@@ -77,9 +80,9 @@ export class MessageHandler extends Component<any, any>
     {
         let backdropColor = this.alert ? 'black' : colors.lightGray;
 
-         // loading can be shown with or without backdrop while alert is always presented with backdrop.
+        // loading can be shown with or without backdrop while alert is always presented with backdrop.
         let backdropOpacity = this.alert ? 0.22 : this.loading.overlay ? 0.27 : 0;
-    
+
         return (
             <View style={[styles.absolute, { backgroundColor: backdropColor, opacity: backdropOpacity }]} />
         );
@@ -346,18 +349,27 @@ export class MessageHandler extends Component<any, any>
             };
         options = Object.assign(options, messageOptions);
 
-        // Creates an alert and presents it.
-        this.alert =
+        let alert =
             {
                 title: options.title,
                 message: options.message,
                 buttons: options.buttons,
                 style: options.style
             };
+
+        // Saves every new alert in an array in order to present them one after the other.
+        this.alertList.push(alert);
+        this.alert = alert;
     }
     hideAlert()
     {
-        this.alert = null;
+        // Pops the last alert from the array ( the alert we are hiding).
+        // And presents the next alert.
+        this.alertList.pop();
+        if (this.alertList.length > 0)
+            this.alert = this.alertList[this.alertList.length - 1];
+        else
+            this.alert = null;
     }
 
 }
