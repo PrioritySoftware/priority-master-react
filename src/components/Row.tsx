@@ -38,7 +38,6 @@ export class Row extends React.Component<any, any>
                 let colTitle = column.title;
                 let colValue = row.get(colName);
                 if (column.type !== ColumnType.Bool &&
-                    !this.props.formService.getIsNewRow(form, rowId) &&
                     (colValue === undefined || colValue === ''))
                 {
                     continue;

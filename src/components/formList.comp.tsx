@@ -190,8 +190,12 @@ export class FormList extends React.Component<any, any>
             })
             .catch(() => { });
     }
-    deleteRow(rowInd)
+    deleteRow(rowInd, secId, rowMap)
     {
+        // Closes the hidden row.
+        let rowRef = rowMap[`${secId}${(rowInd - 1)}`];
+        rowRef.closeRow();
+        
         let delFunc = () =>
         {
             this.messageHandler.showLoading();
@@ -308,6 +312,7 @@ export class FormList extends React.Component<any, any>
                     onLoadMoreAsync={this.loadMoreData}
                     distanceToLoadMore={500}
                     renderFooter={this.renderFooter}
+                    recalculateHiddenLayout
                 />
                 {this.renderAddBtn()}
             </View>
@@ -390,7 +395,7 @@ export class FormList extends React.Component<any, any>
 
                 <Button
                     title={this.strings.deleteBtnText}
-                    onPress={() => { this.deleteRow(rowId) }}
+                    onPress={() => { this.deleteRow(rowId, secId, rowsMap) }}
                     containerViewStyle={[styles.hiddenBtnContainer]}
                     buttonStyle={styles.hiddenBtn}
                     backgroundColor={colors.red}

@@ -552,11 +552,11 @@ export class DetailsPage extends React.Component<any, any>
             ref={el => this.dropdown = el}
             textStyle={{ height: 0 }}
             dropdownStyle={styles.dropdownStyle}
-            style={styles.dropdown}
             renderSeparator={() => { }}
             options={this.getActivationsList()}
             renderRow={this.renderActivationRow}
             onSelect={(idx, value) => this.activationSelected(idx, value)}
+            adjustFrame={(style) => this.getActivationsStyle(style)}
         />
     )
     renderActivationRow = (act, sectionID, rowID, highlightRow) =>
@@ -566,6 +566,16 @@ export class DetailsPage extends React.Component<any, any>
             <Text style={[styles.activationText, { color: color }, textAlign(this.strings.isRTL)]}>{act.title}</Text>
         );
     }
+    getActivationsStyle(style)
+    {
+        return {
+            backgroundColor: 'rgba(0,0,0,0.22)',
+            height: '100%',
+            width: '100%',
+            position: 'absolute',
+            top: style.top
+        }
+    }
 }
 
 /*********** style ************* */
@@ -574,10 +584,6 @@ const styles = StyleSheet.create({
         {
             backgroundColor: 'white',
         },
-    dropdown: {
-        margin: 0,
-        width: 0,
-    },
     dropdownStyle: {
         width: "100%",
         backgroundColor: 'transparent',
