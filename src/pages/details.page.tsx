@@ -82,6 +82,8 @@ export class DetailsPage extends React.Component<any, any>
     {
         this.messageHandler = Messages;
         BackHandler.addEventListener('hardwareBackPress', this.goBack);
+        // Adds keyboard event listeners in order to take care of a case when the user presses one of the header icons (save & back) without closing the keyboard.
+        // When the keyboard is dismissed the 'keyboardDidHide' function of each control (textControl, numberControl...) is called.
         this.keyboardShowListener = Keyboard.addListener('keyboardDidShow', () => this.isKeyboardOpen = true);
         this.keyboardHideListener = Keyboard.addListener('keyboardDidHide', () =>
         {
@@ -101,6 +103,7 @@ export class DetailsPage extends React.Component<any, any>
         if (this.isKeyboardOpen)
         {
             this.onKeyboardHide = afterDismissFunc;
+            // Dismissing the keyboard triggers field updates.
             Keyboard.dismiss();
         }
         else

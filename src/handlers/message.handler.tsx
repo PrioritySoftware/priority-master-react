@@ -243,7 +243,8 @@ export class MessageHandler extends Component<any, any>
         let options =
             {
                 title: this.strings.warningTitle,
-                style: styles.alertContainerLong
+                style: styles.alertContainerLong,
+                type: this.strings.changesAlertType
             };
 
         let saveAndCont: ButtonOpts = {
@@ -290,7 +291,8 @@ export class MessageHandler extends Component<any, any>
         let options =
             {
                 title: null,
-                style: styles.alertContainerLong
+                style: styles.alertContainerLong,
+                type: this.strings.changesAlertType
             };
 
         let dontAskMeBtn: ButtonOpts = {
@@ -354,12 +356,22 @@ export class MessageHandler extends Component<any, any>
                 title: options.title,
                 message: options.message,
                 buttons: options.buttons,
-                style: options.style
+                style: options.style,
+                type: options.type
             };
 
         // Saves every new alert in an array in order to present them one after the other.
-        this.alertList.push(alert);
-        this.alert = alert;
+        // Changes alert is inserted to the beginning of the array so that it will be the last alert to handle.
+        if (alert.type === this.strings.changesAlertType)
+        {
+            this.alert = this.alertList.length === 0 ? alert : this.alert;
+            this.alertList.splice(0, 0, alert);
+        }
+        else
+        {
+            this.alertList.push(alert);
+            this.alert = alert;
+        }
     }
     hideAlert()
     {
