@@ -14,8 +14,9 @@ export const colors =
         darkGray: "#525252",
         overlay: "#dedede4a",
         disabledGray: "#b5b5b5",
+        label:'#a5a5a5',
         menuBackground: "#e8e8e8",
-        toggleOff:'#d0d0d0',
+        toggleOff: '#a0a0a0',
 
         background: "#e8e8e8",
         middleDarkGray: "#00000080",
@@ -25,6 +26,10 @@ export const colors =
         middleBlue: '#96DDF7',
         blueHighlight: '#edf9fe',
         blueDisabled: '#85C4DF',
+        toggleOn: '#51cfff',
+
+        // easy to see black
+        dark: '#222222',
 
         // red
         red: "#D62839",
@@ -78,35 +83,37 @@ export const iconNames =
         blankCheckboxMD: 'checkbox-blank-outline'
     };
 
-export const flexDirection = (isRTL: boolean) =>
+export const flexDirection: any = (isRTL: boolean) =>
 {
     return isRTL ? { flexDirection: "row-reverse" } : { flexDirection: "row" };
 }
-export const textAlign = (isRTL: boolean) =>
+export const textAlign: any = (isRTL: boolean) =>
 {
     return isRTL ? { textAlign: "right" } : { textAlign: "left" };
 }
-export const alignItems = (isRTL: boolean) =>
+export const alignItems: any = (isRTL: boolean) =>
 {
     return isRTL ? { alignItems: "flex-start" } : { alignItems: "flex-end" };
 }
-export const justifyContent = (isRTL: boolean) =>
+export const justifyContent: any = (isRTL: boolean) =>
 {
     return isRTL ? { justifyContent: "flex-start" } : { justifyContent: "flex-end" };
 }
-export const alignSelf = (isRTL: boolean) =>
+export const alignSelf: any = (isRTL: boolean) =>
 {
     return isRTL ? { alignSelf: "flex-start" } : { alignSelf: "flex-end" };
 }
-export const padding = (isRTL: boolean, padding: number, ) =>
+export const padding: any = (isRTL: boolean, paddingNum: number, ) =>
 {
-    return isRTL ? { paddingRight: padding } : { paddingLeft: padding };
+    return isRTL ? { paddingRight: paddingNum } : { paddingLeft: paddingNum };
 }
-export const margin = (isRTL: boolean, margin: number) =>
+export const margin: any = (isRTL: boolean, marginNum: number) =>
 {
-    return isRTL ? { marginRight: margin } : { marginLeft: margin };
+    return isRTL ? { marginRight: marginNum } : { marginLeft: marginNum };
 }
-export const position = (isRTL: boolean, position: number) =>
+export const position: any = (isRTL: boolean, positionNum: number) =>
 {
-    return isRTL ? { right: position } : { left: position };
+    return isRTL ? { right: positionNum } : { left: positionNum };
 }
+
+export const opacityOff = 0.4;

@@ -23,7 +23,7 @@ import Communications from 'react-native-communications';
 import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
 import { Strings } from '../modules/strings';
-import { colors, iconNames, flexDirection } from '../styles/common';
+import { colors, iconNames, flexDirection, opacityOff } from '../styles/common';
 import { MessageHandler } from '../handlers/message.handler';
 import { Messages } from '../handlers';
 import { Search } from '../modules/search.class';
@@ -251,14 +251,15 @@ export class ItemInput extends Component<any, any>
     render()
     {
         this.value = this.item.get(this.colName);
+
         let { isFirst, isLast } = this.props.itemOptions;
-        let mandatoryDisplay = this.formCol.mandatory === 1 ? 'flex' : 'none';
-        let labelColor = this.isReadonly() ? colors.gray : colors.disabledGray;
+        let mandatoryDisplay: any = this.formCol.mandatory === 1 ? 'flex' : 'none';
         let containerMargin = isFirst ? { marginTop: verticalScale(10) } : isLast ? { marginBottom: verticalScale(20) } : {};
+        let opacity = this.isReadonly() ? opacityOff : 1;
         return (
             <View style={[styles.container, containerMargin]}>
                 <View style={flexDirection(this.strings.isRTL)}>
-                    <FormLabel labelStyle={[styles.labelStyle, { color: labelColor }]}>{this.formCol.title} </FormLabel>
+                    <FormLabel labelStyle={[styles.labelStyle, { color: colors.label, opacity: opacity }]}>{this.formCol.title} </FormLabel>
                     <Text style={[styles.asterisk, { display: mandatoryDisplay }]} >
                         *
                     </Text>

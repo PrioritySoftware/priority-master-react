@@ -26,7 +26,7 @@ export class HorizontalList extends Component<any, any>
         this.props.onPress(item)
     }
 
-    getstyle(item)
+    getstyle(item): any
     {
         if (this.props.selected === item.name)
         {

@@ -6,7 +6,7 @@ import { Text, StyleSheet, Platform } from 'react-native';
 import DatePicker from './DatePicker/datePicker';
 import moment from 'moment';
 import { scale, verticalScale } from '../../utils/scale';
-import { colors, textAlign, flexDirection } from '../../styles/common';
+import { colors, textAlign, flexDirection, opacityOff } from '../../styles/common';
 import { Icon } from 'react-native-elements';
 import { Strings } from '../../modules/strings';
 
@@ -108,8 +108,7 @@ export default class DateControl extends Component<any, any>
         let iconName = this.props.mode === 'date' ? 'calendar' : 'time';
         let OSprefix = Platform.OS === 'android' ? 'md' : 'ios';
         iconName = OSprefix + "-" + iconName;
-        let iconColor = this.props.disabled ? colors.gray : colors.darkGray;
-        let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+        let opacity = this.props.disabled ? opacityOff : 1;
         return (
             <DatePicker
                 containerStyle={[styles.container, flexDirection(this.strings.isRTL)]}
@@ -122,10 +121,10 @@ export default class DateControl extends Component<any, any>
                 clearText={this.strings.clear}
 
             >
-                <Text style={[styles.text, textAlign(this.strings.isRTL), { color: textColor }]}>
+                <Text style={[styles.text, textAlign(this.strings.isRTL), { color: colors.darkGray, opacity: opacity }]}>
                     {this.formatedDate}
                 </Text>
-                <Icon type='ionicon' name={iconName} size={23} color={iconColor} />
+                <Icon type='ionicon' name={iconName} size={23} color={colors.darkGray} style={{ opacity: opacity }} />
             </DatePicker>
         )
     }

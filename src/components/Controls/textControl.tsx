@@ -3,7 +3,7 @@ import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
-import { colors, iconNames, padding, flexDirection, textAlign, margin } from '../../styles/common';
+import { colors, iconNames, padding, flexDirection, textAlign, margin, opacityOff } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
 import { observable } from 'mobx';
 import { Strings } from '../../modules/strings';
@@ -96,7 +96,7 @@ export default class TextControl extends Component<any, any> {
 
     render()
     {
-        let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+        let opacity = this.props.disabled ? opacityOff : 1;
         let inputWidth = '100%';
         if (this.props.icon !== '')
             inputWidth = '95%';
@@ -115,7 +115,7 @@ export default class TextControl extends Component<any, any> {
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
                     containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
-                    inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: textColor, width: inputWidth }]}
+                    inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: colors.darkGray, width: inputWidth, opacity: opacity }]}
                 />
                 {this.renderIcon()}
             </View>
@@ -123,7 +123,7 @@ export default class TextControl extends Component<any, any> {
     }
     renderIcon()
     {
-        let iconColor = this.props.disabled ? colors.gray : colors.darkGray;
+        let opacity = this.props.disabled ? opacityOff : 1;
         let { icon, iconClick } = this.props;
         let isSmallIcon = icon === iconNames.search || icon === iconNames.attach;
         let iconMargin = isSmallIcon ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
@@ -132,9 +132,19 @@ export default class TextControl extends Component<any, any> {
         if (icon !== '')
         {
             return (
-                <Icon type='ionicon' name={icon}
-                    size={23} color={iconColor}
-                    style={[isSmallIcon && styles.icon, !isSmallIcon && styles.largeIcon, padding(this.strings.isRTL, scale(20)), iconMargin]}
+                <Icon type='ionicon'
+                    name={icon}
+                    size={23}
+                    color={colors.darkGray}
+                    style={
+                        [
+                            isSmallIcon && styles.icon,
+                            !isSmallIcon && styles.largeIcon,
+                            padding(this.strings.isRTL, scale(20)),
+                            iconMargin,
+                            { opacity: opacity }
+                        ]
+                    }
                     underlayColor='transparent'
                     onPress={() => iconClick()} />
             );
@@ -158,10 +168,10 @@ const styles = StyleSheet.create({
             marginTop: verticalScale(-12),
             ...Platform.select({
                 ios:
-                {
-                    paddingVertical: verticalScale(10),
-                    marginTop: verticalScale(-10),
-                }
+                    {
+                        paddingVertical: verticalScale(10),
+                        marginTop: verticalScale(-10),
+                    }
             })
         }
 });

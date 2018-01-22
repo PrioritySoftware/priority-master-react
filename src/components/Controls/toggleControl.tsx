@@ -3,7 +3,7 @@ import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Switch } from 'react-native';
-import { colors, alignItems } from '../../styles/common';
+import { colors, alignItems, opacityOff } from '../../styles/common';
 import { scale, verticalScale } from '../../utils/scale';
 import { Strings } from '../../modules/strings';
 
@@ -64,19 +64,13 @@ export default class ToggleControl extends Component<any, any>
 
     render()
     {
-        let onTintColor = colors.middleBlue;
-        let tintColor = colors.toggleOff;
-        let thumbTintColor = this.isSelected ? colors.primaryColor : 'white';
+        let onTintColor = colors.primaryColor; // background on
+        let tintColor = colors.middleDarkGray; // background off
+        let thumbTintColor = this.isSelected ? colors.toggleOn : 'white'; // circle
         if (this.strings.platform === 'ios')
-            thumbTintColor = this.isSelected ? colors.primaryColor : colors.toggleOff;
-        if (this.props.disabled)
-        {
-            onTintColor = 'rgba(0, 173, 238, 0.2)';
-            tintColor = 'rgba(226, 226, 226, 0.6)';
-            thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(255, 255, 255, 0.75)';
-            if (this.strings.platform === 'ios')
-                thumbTintColor = this.isSelected ? colors.blueDisabled : 'rgba(226, 226, 226, 0.75)';
-        }
+            thumbTintColor = this.isSelected ? colors.primaryColor : colors.middleDarkGray;
+            
+        let opacity = this.props.disabled ? opacityOff : 1;
         return (
             <View style={[styles.switchContainer, alignItems(this.strings.isRTL)]}>
                 <Switch
@@ -86,7 +80,7 @@ export default class ToggleControl extends Component<any, any>
                     onTintColor={onTintColor}
                     tintColor={tintColor}
                     thumbTintColor={thumbTintColor}
-                    style={styles.switch}
+                    style={[styles.switch, { opacity: opacity }]}
                 />
             </View>
         );

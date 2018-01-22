@@ -6,7 +6,7 @@ import { Keyboard, StyleSheet, EmitterSubscription, Platform } from 'react-nativ
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
 import { verticalScale } from '../../utils/scale';
-import { colors, flexDirection, textAlign } from '../../styles/common';
+import { colors, flexDirection, textAlign, opacityOff } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { Strings } from '../../modules/strings';
 
@@ -138,7 +138,7 @@ export default class NumberControl extends Component<any, any> {
 
     render()
     {
-         let textColor = this.props.disabled ? colors.disabledGray : colors.darkGray;
+        let opacity = this.props.disabled ? opacityOff : 1;
         return (
             <FormInput
                 textInputRef={textInput => this.textInput = textInput}
@@ -151,7 +151,7 @@ export default class NumberControl extends Component<any, any> {
                 onEndEditing={this.handleEndEditing}
                 underlineColorAndroid='transparent'
                 containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
-                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: textColor }]}
+                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: colors.darkGray, opacity: opacity }]}
             />
         )
     }
