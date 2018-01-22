@@ -68,9 +68,12 @@ export default class ToggleControl extends Component<any, any>
         let tintColor = colors.middleDarkGray; // background off
         let thumbTintColor = this.isSelected ? colors.toggleOn : 'white'; // circle
         if (this.strings.platform === 'ios')
-            thumbTintColor = this.isSelected ? colors.primaryColor : colors.middleDarkGray;
-            
+        {
+            thumbTintColor = null; // the circle is white with shadow
+            tintColor=colors.disabledGray;// border color
+        }
         let opacity = this.props.disabled ? opacityOff : 1;
+
         return (
             <View style={[styles.switchContainer, alignItems(this.strings.isRTL)]}>
                 <Switch
