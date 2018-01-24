@@ -166,8 +166,12 @@ export class StartPage extends React.Component<any, any>
         () =>
         {
           this.setState({ isShowSpinner: true });
-          // go to login
-          this.setRoot('Login');
+          // Try to login with local (stored) data. Used for when the user adds a new application.
+          // If login was successful - go to main page,
+          // else - go to login page.
+          this.configService.loginWithLocalData()
+            .then(() => this.setRoot(Pages.Main.name))
+            .catch(error => this.setRoot(Pages.Login.name));
         },
         (reason: ServerResponse) =>
         {

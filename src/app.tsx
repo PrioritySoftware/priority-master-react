@@ -56,21 +56,21 @@ export class App extends React.Component<any, any>
     init(): Promise<any>
     {
         return providers.configService.loadConfigData()
-            .then((userData: LocalStorageUserData) =>
+            .then(() =>
             {
-                providers.configService.login(userData.userName, userData.password)
-                    .then(() => this.setNavigationStack('Main'))
-                    .catch(error => this.setNavigationStack('Login'));
+                providers.configService.loginWithLocalData()
+                    .then(() => this.setNavigationStack(Pages.Main.name))
+                    .catch(error => this.setNavigationStack(Pages.Login.name));
             })
-            .catch((error) => 
+            .catch(reason => 
             {
                 if (providers.appService && providers.appService.getAppList().length > 0)
                 {
-                    this.setNavigationStack('SwitchApp')
+                    this.setNavigationStack(Pages.SwitchApp.name)
                 }
                 else
                 {
-                    this.setNavigationStack('Start')
+                    this.setNavigationStack(Pages.Start.name)
                 }
             });
 

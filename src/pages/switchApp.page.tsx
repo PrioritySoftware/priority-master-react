@@ -5,7 +5,7 @@ import
     View,
     ListView,
 } from 'react-native';
-import { Strings } from '../modules';
+import { Strings, ServerResponse } from '../modules';
 import { SVG } from '../components/svg';
 import { Card } from '../components/card';
 import { center, header, container, colors } from '../styles/common';
@@ -68,26 +68,24 @@ export class SwitchApp extends React.Component<any, any>
         if (app.jsonUrl.length > 0)
         {
             this.configService.initApp(app.jsonUrl).then(
-                (isLoggedIn) =>
+                () =>
                 {
-                    // set the json in local storage
-                    this.appService.setJsonUrl(app.jsonUrl);
-                    if (isLoggedIn)
-                    {
-                        this.messageHandler.hideLoading();
-                        this.setRoot(Pages.Main.name);
-                    }
-                    else
-                    {
-                        // go to login
-                        this.messageHandler.hideLoading();
-                        this.props.navigation.navigate(Pages.Login.name)
-
-                    }
+                    this.configService.loginWithLocalData()
+                        .then(() =>
+                        {
+                            this.messageHandler.hideLoading();
+                            this.setRoot(Pages.Main.name);
+                        })
+                        .catch(error =>
+                        {
+                            this.messageHandler.hideLoading();
+                            this.setRoot(Pages.Login.name);
+                        });
                 },
-                (reason) =>
+                (reason: ServerResponse) =>
                 {
-                    this.messageHandler.showErrorOrWarning(true, reason);
+                    this.messageHandler.hideLoading();
+                    this.messageHandler.showErrorOrWarning(true, reason.message);
                 })
         }
         else

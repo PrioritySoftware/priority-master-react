@@ -18,6 +18,7 @@ export class ConfigService
     constructor(private appService: AppService, private storage: StorageService, private priorityService, private strings: Strings)
     {
         // initializations
+        this.entitiesData = [];
         this.supportCompanySelection = true;
         this.jsonCompanyDname = '';
         this.priorityUrl = '';
@@ -44,24 +45,7 @@ export class ConfigService
                         this.readJson(request.responseText, jsonUrl).then(
                             () =>
                             {
-                                if (this.storage.userData.userName != null && this.storage.userData.password != null)
-                                {
-                                    this.login(this.storage.userData.userName, this.storage.userData.password).then(
-                                        () =>
-                                        {
-                                            resolve(true);
-                                        },
-                                        (reason: ServerResponse) =>
-                                        {
-                                            resolve(false);
-                                        })
-                                        .catch(
-                                        () => resolve(false));
-                                }
-                                else
-                                {
-                                    resolve(false);
-                                }
+                                resolve();
                             },
                             () =>
                             {
@@ -162,7 +146,6 @@ export class ConfigService
                         try
                         {
                             this.entitiesData = json.forms_data;
-                            // this.initFormsConfig(this.entitiesData);
                         }
                         catch (err)
                         {
@@ -193,7 +176,7 @@ export class ConfigService
         });
     }
     /********* Local data********** */
-    loadConfigData()
+    loadConfigData(): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
@@ -202,15 +185,23 @@ export class ConfigService
                 {
                     /**  dev re root  */
                     if (__DEV__)
-                        return this.readJson(JSON.stringify(pridata), '');
+                    {
+                        this.readJson(JSON.stringify(pridata), '')
+                            .then(() => resolve());
+                        return;
+                    }
                     if (this.storage.userData.jsonUrl)
                     {
-                        return this.initApp(this.storage.userData.jsonUrl);
+                        this.initApp(this.storage.userData.jsonUrl)
+                            .then(() => resolve())
+                            .catch(reason => reject(reason));
                     }
-                    this.reason.message = this.strings.failedToLoadJsonError;
-                    reject(this.reason);
+                    else
+                    {
+                        this.reason.message = this.strings.failedToLoadJsonError;
+                        reject(this.reason);
+                    }
                 })
-                .then(() => resolve(this.storage.userData))
                 .catch(reason =>
                 {
                     this.reason.message = this.strings.failedToLoadJsonError;
@@ -304,6 +295,23 @@ export class ConfigService
                 });
         });
     }
+    loginWithLocalData(): Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            if (this.storage.userData.userName != null && this.storage.userData.password != null)
+            {
+                this.login(this.storage.userData.userName, this.storage.userData.password)
+                    .then(() => resolve())
+                    .catch((reason: ServerResponse) => reject(reason));
+            }
+            else
+            {
+                reject();
+            }
+        });
+
+    }
     /** Clear the values of username and password saved in local storage */
     clearLogin()
     {
@@ -391,7 +399,7 @@ export class ConfigService
                 })
         })
     }
-    getCompanyProfile(companies):Promise<any>
+    getCompanyProfile(companies): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {

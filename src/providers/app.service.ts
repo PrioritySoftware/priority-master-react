@@ -38,12 +38,6 @@ export class AppService
         this.storage.storeUserData();
     }
 
-    setJsonUrl(jsonUrl: string)
-    {
-        this.storage.userData.jsonUrl = jsonUrl;
-        this.storage.storeUserData();
-    }
-
     deleteApp(app)
     {
         let index = this.storage.userData.applist.indexOf(app);
