@@ -14,7 +14,7 @@ export const colors =
         darkGray: "#525252",
         overlay: "#dedede4a",
         disabledGray: "#b5b5b5",
-        label:'#a5a5a5',
+        label:'#606060',
         menuBackground: "#e8e8e8",
         toggleOff: '#a0a0a0',
 
@@ -29,6 +29,9 @@ export const colors =
         toggleOn: '#51cfff',
 
         // easy to see black
+        dark: '#222222',
+
+        //easy to see black
         dark: '#222222',
 
         // red
@@ -76,6 +79,7 @@ export const iconNames =
         menu: iconName("more"),
         arrowForward: iconName("arrow-forward"),
         arrowBack: iconName("arrow-back"),
+        mainMenu: iconName("menu"),
         checkmark: "md-checkmark",
         checkboxIOS: 'check-circle',
         checkBoxMD: 'checkbox-marked',
@@ -116,4 +120,4 @@ export const position: any = (isRTL: boolean, positionNum: number) =>
     return isRTL ? { right: positionNum } : { left: positionNum };
 }
 
-export const opacityOff = 0.4;
+export const opacityOff = 0.5;

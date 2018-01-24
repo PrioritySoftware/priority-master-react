@@ -231,7 +231,6 @@ export class MessageHandler extends Component<any, any>
         else
             buttonsArr = [cancelButton, okButton];
         this.showMessage(message, buttonsArr, messageOptions);
-
     }
     /**Presents an alert with three buttons: 'save-and-continue', 'cancel-and-continue', 'cancel'.
      * Calls 'onSaveAndContinue' when 'save-and-continue' is clicked. Calls 'onUndoAndContinue' when 'cancel-and-continue' is clicked.

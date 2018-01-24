@@ -1,21 +1,14 @@
-// import { FormConfig } from "../entities/form.class";
-import { ServerResponse, ServerResponseCode } from '../modules';
 import { StorageService } from './storage.service';
-
-// const AppVersion: string = "app_master_2";
-// const MasterMessagesEname: string = "MASTERMESSAGES";
-// const MasterMessagesType: string = "C";
 
 export class AppService
 {
-    currentApp: {title:string, jsonUrl:string};
-    // RowsBatchSize: number = 115;
+    currentApp: { title: string, jsonUrl: string };
 
-    constructor(private storage:StorageService)
+    constructor(private storage: StorageService)
     {
-        this.currentApp={title:"",jsonUrl:""};
+        this.currentApp = { title: "", jsonUrl: "" };
     }
-    // // ********************************* Apps **************************************
+    // ********************************* Apps **************************************
 
     setApp(appTitle: string, jsonUrl: string)
     {
@@ -45,47 +38,26 @@ export class AppService
         this.storage.storeUserData();
     }
 
+    setJsonUrl(jsonUrl: string)
+    {
+        this.storage.userData.jsonUrl = jsonUrl;
+        this.storage.storeUserData();
+    }
+
     deleteApp(app)
     {
         let index = this.storage.userData.applist.indexOf(app);
         this.storage.userData.applist.splice(index, 1);
         this.storage.storeUserData();
+
     }
-
-    // // /** Clear the values of username and password saved in local storage */
-    // clearLogin()
-    // {
-    //     this.loginExpired = false;
-    //     this.storage.userData.userName = null;
-    //     this.storage.userData.password = null;
-    //     this.setLocalUserData();
-    // }
-
-
-
-    
-
-
-  
-
-
-    // /*  Monitor server */
-    // contactMonitorServer(action: string, form: string)
-    // {
-    //     let url: string = "https://monitor.priority-software.com/monitor/b.aspx"
-    //         + "?u=" + encodeURI(this.storage.userData.userName)
-    //         + "&t=" + encodeURI(action)
-    //         + "&f=" + encodeURI(form)
-    //         + "&d=" + ""
-    //         + "&e=" + ""
-    //         + "&f=" + ""
-    //         + "&c=" + ""
-    //         + "&s=" + ""
-    //         + "&m=" + ""
-    //         + "&v=" + encodeURI(AppVersion);
-
-    //     this.http.get(encodeURI(url)).subscribe();
-    // }
-  
+    getAppList()
+    {
+        return this.storage.userData.applist;
+    }
+    getUserName()
+    {
+        return this.storage.userData.userName;
+    }
 
 }

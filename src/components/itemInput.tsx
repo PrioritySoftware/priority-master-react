@@ -255,7 +255,7 @@ export class ItemInput extends Component<any, any>
         let { isFirst, isLast } = this.props.itemOptions;
         let mandatoryDisplay: any = this.formCol.mandatory === 1 ? 'flex' : 'none';
         let containerMargin = isFirst ? { marginTop: verticalScale(10) } : isLast ? { marginBottom: verticalScale(20) } : {};
-        let opacity = this.isReadonly() ? 0.75 : 1;
+        let opacity = this.isReadonly() ? 0.6 : 1;
         return (
             <View style={[styles.container, containerMargin]}>
                 <View style={flexDirection(this.strings.isRTL)}>

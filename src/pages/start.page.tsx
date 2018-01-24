@@ -4,34 +4,40 @@ import
   StyleSheet,
   Text,
   View,
-  Image
+  Image,
+  Platform
 } from 'react-native';
 import { ServerResponse, Strings } from '../modules';
 import { Pages } from '.';
 import { NavigationActions } from 'react-navigation';
 import Spinner from 'react-native-spinkit';
-import { colors } from '../styles/common';
+import { colors, iconNames, alignSelf } from '../styles/common';
 import { ConfigService } from '../providers/config.service';
+import { AppService } from '../providers/app.service';
 import { inject } from 'mobx-react';
 import { Messages } from '../handlers/index';
 import { MessageHandler } from '../handlers/message.handler';
+
+import { Icon } from 'react-native-elements';
+import { scale } from '../utils/scale';
+
 const Permissions = require('react-native-permissions');
 
-@inject("configService", "strings")
+@inject("configService", "strings", "appService")
 export class StartPage extends React.Component<any, any>
 {
   static navigationOptions = { header: null };
-
+  appService: AppService;
   messageHandler: MessageHandler;
   configService: ConfigService;
   strings: Strings;
-
   constructor(props)
   {
     super(props);
     this.state = {
       isShowSpinner: false
     };
+    this.appService = this.props.appService;
     this.configService = this.props.configService;
     this.strings = this.props.strings;
   }
@@ -39,8 +45,15 @@ export class StartPage extends React.Component<any, any>
   {
     this.messageHandler = Messages;
   }
+  goBack()
+  {
+    this.props.navigation.goBack();
+  }
+
   render() 
   {
+
+
     let scanbutton = this.strings.scanButton;
     let scanInst = this.strings.scanInstructions;
     let preparingApp = this.strings.preparingApp;
@@ -67,14 +80,44 @@ export class StartPage extends React.Component<any, any>
 
       <View style={styles.container}>
         <Image style={styles.image} source={require('../../assets/img/start_bg.png')} >
-          <View style={styles.top}>
-            <Image source={require('../../assets/img/start_logo.png')} />
+          <View>
+            {this.renderBackIcon()}
+            <View style={styles.top}>
+              <Image source={require('../../assets/img/start_logo.png')} />
+            </View>
           </View>
           {footer}
         </Image>
       </View>
 
     );
+  }
+
+  renderBackIcon()
+  {
+    let backIconName
+    if (this.strings.isRTL)
+      backIconName = iconNames.arrowForward;
+    else
+      backIconName = iconNames.arrowBack;
+
+    if (this.appService.getAppList().length >= 1)
+    {
+      return (
+        <Icon
+          type='ionicon'
+          name={backIconName}
+          onPress={() => { this.goBack() }}
+          color='white'
+          underlayColor='transparent'
+          size={22}
+          containerStyle={[styles.backButton, alignSelf(!this.strings.isRTL)]} />
+      )
+    }
+    else
+    {
+      return (null)
+    }
   }
 
   /**
@@ -183,5 +226,17 @@ const styles = StyleSheet.create({
       justifyContent: 'flex-end',
       marginBottom: 60,
       alignItems: 'center'
+    },
+  backButton:
+    {
+      paddingVertical: scale(10),
+      paddingHorizontal: scale(20),
+      ...Platform.select({
+        ios:
+          {
+            paddingTop: scale(35)
+          }
+      })
+
     }
 });

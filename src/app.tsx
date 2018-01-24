@@ -29,7 +29,7 @@ export class App extends React.Component<any, any>
                 <Provider { ...providers }>
                     <View style={{ flex: 1 }}>
                         <this.navigator />
-                        {...Handlers }
+                        {...Handlers}
                     </View>
                 </Provider>
             );
@@ -62,78 +62,18 @@ export class App extends React.Component<any, any>
                     .then(() => this.setNavigationStack('Main'))
                     .catch(error => this.setNavigationStack('Login'));
             })
-            .catch(error => this.setNavigationStack('Start'));
+            .catch((error) => 
+            {
+                if (providers.appService && providers.appService.getAppList().length > 0)
+                {
+                    this.setNavigationStack('SwitchApp')
+                }
+                else
+                {
+                    this.setNavigationStack('Start')
+                }
+            });
 
-        // this.appService.jsonUrl().then(
-        //     url =>
-        //     {
-        //         this.appService.initApp(url).then(
-        //             //init app also logs in when username and password exist in localstorage
-        //             (isLoggedIn) =>
-        //             {
-        //                 if (isLoggedIn)
-        //                 {
-        //                     // this.nav.setRoot(MainPage,{},{animation: false}).then(() =>
-        //                     // {
-        //                     //   this.splashScreen.hide();
-        //                     // });
-        //                     // Using the setRoot function caused bugs with change detection in details page
-        //                     // We need to check if they still appear in later version of ionic
-        //                     this.rootPage = MainPage;
-        //                 }
-        //                 else
-        //                 {
-        //                     // this.nav.setRoot(LoginPage,{},{animation: false}).then(() =>
-        //                     // {
-        //                     //   this.splashScreen.hide();
-        //                     // });
-        //                     this.rootPage = LoginPage;
-        //                 }
-        //                 this.messageHandler.hideLoading();
-        //                 this.splashScreen.hide();
-        //             },
-        //             (reason: ServerResponse) =>
-        //             {
-        //                 //show start page to re-scan barcode if the json file is not valid.
-        //                 // this.nav.setRoot(StartPage,{},{animation: false}).then(() =>
-        //                 // {
-        //                 //   this.splashScreen.hide();
-        //                 //   this.messageHandler.showErrorOrWarning(true, reason + this.strings.scanNewConfigurationFile);
-        //                 // });
-        //                 if (this.appService.userData.applist.length > 1)
-        //                 {
-        //                     this.rootPage = AppsPage;
-        //                     this.messageHandler.hideLoading();
-        //                     this.splashScreen.hide();
-        //                 }
-        //                 else
-        //                 {
-        //                     this.rootPage = StartPage;
-        //                     this.messageHandler.hideLoading();
-        //                     this.splashScreen.hide();
-        //                     this.messageHandler.showErrorOrWarning(true, reason.message + this.strings.scanNewConfigurationFile);
-        //                 }
-        //             });
-        //     },
-        //     // show start page to scan barcode if url not found
-        //     // or apps page, if user has already scanned apps
-        //     (reason: ServerResponse) =>
-        //     {
-        //         if (this.appService.userData.applist.length)
-        //         {
-        //             this.rootPage = AppsPage;
-        //         }
-        //         else
-        //         {
-        //             this.rootPage = StartPage;
-        //         }
-        //         this.messageHandler.hideLoading();
-        //         this.splashScreen.hide();
-        //         // this.nav.setRoot(StartPage,{},{animation: false}).then(() =>
-        //         // {
-        //         //   this.splashScreen.hide();
-        //         // });
-        //     });
     }
 }
 

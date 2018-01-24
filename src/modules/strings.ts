@@ -10,6 +10,7 @@ export class Strings
     isChangesSaved = 'isChangesSaved';
     isNewRow = 'isNewRow';
     removeBtnType = 'Remove';
+    logoutAction='Logout';
     changesAlertType='changesAlertType';
 
     /** Style  */

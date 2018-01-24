@@ -5,7 +5,6 @@ import { ProfileConfig } from "../modules/profileConfig.class";
 import { ServerResponse } from "../modules/srvResponse.class";
 import { Form } from "../modules/form.class";
 import { ServerResponseCode } from "../modules/srvResponseCode.class";
-import { MessageOptions } from "../modules/messageOptions.class";
 import { ServerResponseType } from "../modules/srvResponseType.class";
 import { Filter } from "../modules/filter.class";
 import { QueryValue } from "../modules/queryValue.class";

@@ -19,6 +19,7 @@
     "react-native-action-button": "2.8.1",
     "react-native-camera": "0.10.0",
     "react-native-communications": "^2.2.1",
+    "react-native-drawer": "^2.5.0",
     "react-native-elements": "^0.16.0",
     "react-native-infinite-scroll-view": "^0.4.3",
     "react-native-keyboard-aware-scroll-view": "^0.4.1",
@@ -33,7 +34,7 @@
     "react-native-svg": "5.4.1",
     "react-native-svg-uri": "1.2.1",
     "react-native-swipe-list-view": "0.4.6",
-    "react-native-vector-icons": "^4.3.0",
+    "react-native-vector-icons": "^4.4.3",
     "react-navigation": "1.0.0-beta.11",
     "rn-splash-screen": "^5.2.0"
   },

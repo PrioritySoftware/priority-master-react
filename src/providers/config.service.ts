@@ -4,26 +4,21 @@ import { EnvProfile } from '../modules/envProfile.class';
 import { StorageService } from './storage.service';
 import { AppService } from './app.service';
 
-// const LocalJsonUrl: string = "assets/js/pridata.json";
 export class ConfigService
 {
     config: Configuration;
 
-    // currentApp: any = {};
     entitiesData: Entity[];
-    // formsConfig: { [key: string]: FormConfig } = {};
-    // RowsBatchSize: number = 115;
     passwordExpired: boolean;
-    // supportCompanySelection: boolean;
+    supportCompanySelection: boolean;
     private jsonCompanyDname: string;
     private priorityUrl: string;
     private reason: ServerResponse;
 
     constructor(private appService: AppService, private storage: StorageService, private priorityService, private strings: Strings)
     {
-
         // initializations
-        // this.supportCompanySelection = true;
+        this.supportCompanySelection = true;
         this.jsonCompanyDname = '';
         this.priorityUrl = '';
         this.reason = {
@@ -49,7 +44,24 @@ export class ConfigService
                         this.readJson(request.responseText, jsonUrl).then(
                             () =>
                             {
-                                resolve();
+                                if (this.storage.userData.userName != null && this.storage.userData.password != null)
+                                {
+                                    this.login(this.storage.userData.userName, this.storage.userData.password).then(
+                                        () =>
+                                        {
+                                            resolve(true);
+                                        },
+                                        (reason: ServerResponse) =>
+                                        {
+                                            resolve(false);
+                                        })
+                                        .catch(
+                                        () => resolve(false));
+                                }
+                                else
+                                {
+                                    resolve(false);
+                                }
                             },
                             () =>
                             {
@@ -188,6 +200,7 @@ export class ConfigService
             this.getLocalUserData()
                 .then(() =>
                 {
+                    /**  dev re root  */
                     if (__DEV__)
                         return this.readJson(JSON.stringify(pridata), '');
                     if (this.storage.userData.jsonUrl)
@@ -283,7 +296,6 @@ export class ConfigService
                             this.storage.storeUserData();
                             reject(reason);// getCompanies rejects only in case the user doesn't have permissions for any company.
                         });
-                    // this.messagesService.setMessages(MasterMessagesEname, MasterMessagesType, 1, 1000);
                 },
                 (reason: ServerResponse) =>
                 {
@@ -292,25 +304,46 @@ export class ConfigService
                 });
         });
     }
+    /** Clear the values of username and password saved in local storage */
+    clearLogin()
+    {
+        this.passwordExpired = false;
+        this.storage.userData.userName = null;
+        this.storage.userData.password = null;
+        this.storage.storeUserData();
+    }
 
     /********* Profiles  **********************/
-    // setProfileConfig(profile: ProfileConfig, companyName: string, groupName: string)
-    // {
-    //     this.configService.setProfileConfiguration(profile);
-    //     this.storage.userData.profile = profile;
-    //     this.storage.userData.companyName = companyName;
-    //     this.storage.userData.groupName = groupName;
-    //     this.setLocalUserData();
-    // }
-    getCurrentCompany(): string
+
+    setCompany(company)
     {
-        return this.storage.userData.profile.company;
+        return new Promise((resolve, reject) =>
+        {
+            this.storage.userData.profile.company = company.dname;
+            this.getCompanies().then(
+                () =>
+                {
+                    resolve()
+                },
+                (reason) =>
+                {
+                    reject(reason)
+                })
+        })
+    }
+    getCurrentCompany()
+    {
+        return this.storage.userData.companyName;
+    }
+    getCurrentCompanyProfile()
+    {
+        return this.storage.userData.groupName;
     }
     getCompanies(): Promise<any>
     {
         return new Promise((resolve, reject) =>
         {
-            if (!this.config.loginFunctions)// !this.supportCompanySelection || 
+            if (!this.config.loginFunctions)
             {
                 /**  No user login yet */
                 reject();
@@ -322,7 +355,7 @@ export class ConfigService
                     if (companies && companies.Company)
                     {
                         this.setProfile(companies.Company);
-                        resolve();
+                        resolve(companies);
                     }
                     else
                     {
@@ -332,16 +365,49 @@ export class ConfigService
                 })
                 .catch((reason: ServerResponse) =>
                 {
-                    // if (reason.code === ServerResponseCode.NotSupport)
-                    // {
-                    //     this.supportCompanySelection = false;
-                    // }
+                    if (reason.code === ServerResponseCode.NotSupport)
+                    {
+                        this.supportCompanySelection = false;
+                    }
                     resolve();
                 });
 
         });
     }
 
+    setCompanyProfile(profile)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            this.storage.userData.profile.group = profile.profile;
+            this.getCompanies().then(
+                () =>
+                {
+                    resolve()
+                },
+                (reason) =>
+                {
+                    reject(reason)
+                })
+        })
+    }
+    getCompanyProfile(companies):Promise<any>
+    {
+        return new Promise((resolve, reject) =>
+        {
+            let storageCompany: string = this.storage.userData.profile.company;
+            let companiesFilter = companies.Company.filter(comp => comp.dname === storageCompany)
+            if (companiesFilter[0].EnvProfile)
+            {
+                resolve(companiesFilter[0].EnvProfile)
+            }
+            else
+            {
+                resolve(null)
+            }
+        })
+
+    }
     setProfile(companies: Company[])
     {
         let storageCompany: string = this.storage.userData.profile.company;
