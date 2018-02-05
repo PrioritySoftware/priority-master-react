@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.datepicker;
+package com.priority_software.template.modules.datepicker;
 
 import javax.annotation.Nullable;
 

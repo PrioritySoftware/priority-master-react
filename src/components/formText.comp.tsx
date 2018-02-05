@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -6,6 +6,7 @@ import
     TextInput,
     WebView
 } from 'react-native';
+import PropTypes from 'prop-types';
 import { Strings, Form } from '../modules';
 import { ConfigService } from '../providers/config.service';
 import { colors, container } from '../styles/common';

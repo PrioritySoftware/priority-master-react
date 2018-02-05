@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -6,6 +6,7 @@ import
     ActivityIndicator,
     ListView,
     Text,
+    Linking,
     Image
 } from 'react-native';
 import { Strings, Form } from '../modules';
@@ -24,12 +25,13 @@ import { Row } from './Row';
 import { FormText } from './formText.comp';
 import { SearchBar } from 'react-native-elements'
 import debounce from 'lodash.debounce'
-import { Messages } from '../handlers/index';
+import { Messages, Files } from '../handlers/index';
 import { MessageHandler } from '../handlers/message.handler';
+import { FileHandler } from "../handlers/file.handler";
 
 @inject("formService", "configService", "strings")
 @observer
-export class FormList extends React.Component<any, any>
+export class FormList extends Component<any, any>
 {
 
     messageHandler: MessageHandler;
@@ -56,6 +58,8 @@ export class FormList extends React.Component<any, any>
 
     @observable rows: ObservableMap<any>;
     @observable isShowSearchLoading: boolean;
+
+    fileHandler: FileHandler;
 
     constructor(props)
     {
@@ -84,7 +88,7 @@ export class FormList extends React.Component<any, any>
         this.isShowSearchLoading = false;
 
         // new button
-        this.debounceNewBtn = debounce(this.newRow, 1000, { leading: true, trailing: false });
+        this.debounceNewBtn = debounce(this.newRowOrNewFile, 1000, { leading: true, trailing: false });
 
         // get form rows
         this.startForm();
@@ -94,6 +98,7 @@ export class FormList extends React.Component<any, any>
     componentDidMount()
     {
         this.messageHandler = Messages;
+        this.fileHandler = Files;
     }
     componentWillUnmount()
     {
@@ -195,7 +200,7 @@ export class FormList extends React.Component<any, any>
         // Closes the hidden row.
         let rowRef = rowMap[`${secId}${(rowInd - 1)}`];
         rowRef.closeRow();
-        
+
         let delFunc = () =>
         {
             this.messageHandler.showLoading();
@@ -221,7 +226,59 @@ export class FormList extends React.Component<any, any>
             .then(newRowIndex => this.editRow(this.form, this.form.title, newRowIndex))
             .catch(() => { });
     }
+    newRowOrNewFile = () =>
+    {
+        if (this.form.name === this.strings.extFiles)
+            this.fileHandler.openPicker(this.form, this.addNewFile);
+        else
+            this.newRow()
+    }
+    /**
+     * Called after a user chose a new file to add to 'EXTFILES' form.
+     * Opens a new row, updates the 'EXTFILENAME' field with the received file path and saves the row.
+     * 
+     * @memberof FormList
+     */
+    addNewFile = (file) =>
+    {
+        this.formService.newRow(this.form)
+            .then(rowInd =>
+            {
+                this.formService.updateField(this.form, rowInd, this.strings.fileFieldName, file)
+                    .then(() =>
+                    {
+                        this.formService.saveRow(this.form, rowInd, 0)
+                            .catch(() =>
+                            {
+                                this.formService.undoRow(this.form);
+                                this.formService.deleteLastFormRow(this.form);
+                            }
+                            );
+                    })
+                    .catch(() => { });
+            })
+            .catch(() => { });;
+    }
 
+    editRowOrOpenFile = (rowTitle, rowIndex, secId, rowsMap) =>
+    {
+        // Closes the hidden row.
+        let rowRef = rowsMap[`${secId}${(rowIndex - 1)}`];
+        rowRef.closeRow();
+
+        // For 'EXTFILES' forms opens the chosen file in the browser. 
+        if (this.form.name === this.strings.extFiles)
+        {
+            let item = this.formService.getFormRow(this.form, rowIndex);
+            if (item.get(this.strings.fileFieldName))
+                Linking.openURL(encodeURI(this.form.getFileUrl(item.get(this.strings.fileFieldName))));
+        }
+        else
+        {
+            this.editRow(this.form, rowTitle, rowIndex)
+        }
+
+    }
     // search
     search(val)
     {
@@ -320,8 +377,8 @@ export class FormList extends React.Component<any, any>
     }
     renderFooter = () => 
     {
-        /* Loading indicator for loading more rows will be shown when more rows are retrieved.
-        The footer will always be shown so that the Add button won't cover content of the last row. */
+        /* Loading indicator (for loading more rows) is shown when more rows are retrieved.
+        The footer is always shown so that the Add button won't cover content of the last row. */
         let opacity = this.state.isLoadingMore ? 1 : 0;
         return (
             < View style={[styles.rowsIndicator, { opacity: opacity }]} >
@@ -333,13 +390,13 @@ export class FormList extends React.Component<any, any>
     renderEmptyState()
     {
         let scaleX = this.strings.isRTL ? -1 : 1;
-        let arrowHeight = this.parentForm ? { height: verticalScale(275) } : { height: verticalScale(310) };
+        let arrowHeight = this.parentForm ? { height: scale(275) } : { height: scale(310) };
         let isShowAddBtn = !this.isHideAddBtn();
 
         return (
             <View style={styles.emptyState}>
-                <Text style={{ fontSize: scale(20) }}>{this.strings.noRecords}</Text>
-                {isShowAddBtn && <Text style={{ fontSize: scale(16) }}>{this.strings.clickAddButton}</Text>}
+                <Text style={{ fontSize: 20 }}>{this.strings.noRecords}</Text>
+                {isShowAddBtn && <Text style={{ fontSize: 16}}>{this.strings.clickAddButton}</Text>}
                 {isShowAddBtn &&
                     <Image source={require('../../assets/img/EmptyStateArrow.png')}
                         style={[
@@ -356,12 +413,13 @@ export class FormList extends React.Component<any, any>
 
     renderRow = (row, secId, rowId, rowsMap) =>
     {
+
         rowId++;
         return (
             <Row
                 formPath={this.form.path}
                 rowId={rowId}
-                editRow={(rowTitle, rowIndex) => this.editRow(this.form, rowTitle, rowIndex)}
+                editRow={(rowTitle, rowIndex) => this.editRowOrOpenFile(rowTitle, rowIndex, secId, rowsMap)}
             />
         );
     }
@@ -380,17 +438,24 @@ export class FormList extends React.Component<any, any>
     {
         rowId++;
         let isRTL = this.strings.isRTL;
+        let editBtnText = this.strings.editBtnText;
+        let editIconName = 'edit';
+        if (this.form.name === this.strings.extFiles)
+        {
+            editBtnText = this.strings.openBtnText;
+            editIconName = 'open-in-new';
+        }
         return (
             <View style={[styles.rowBack, isRTL ? styles.rtlFlex : styles.ltrFlex]} >
 
                 <Button
-                    title={this.strings.editBtnText}
-                    onPress={() => { this.editRow(this.form, row.title, rowId) }}
+                    title={editBtnText}
+                    onPress={() => { this.editRowOrOpenFile(row.title, rowId, secId, rowsMap) }}
                     containerViewStyle={[styles.hiddenBtnContainer]}
                     buttonStyle={styles.hiddenBtn}
                     backgroundColor={colors.darkBlue}
                     color='white'
-                    icon={{ name: 'edit', style: styles.hiddenIcon }}
+                    icon={{ name: editIconName, style: styles.hiddenIcon }}
                 />
 
                 <Button
@@ -427,7 +492,7 @@ export class FormList extends React.Component<any, any>
                 offsetY={offsetY}
                 offsetX={offsetX}
                 buttonColor={colors.primaryColor}
-                buttonTextStyle={{ fontSize: scale(27) }}
+                buttonTextStyle={{ fontSize: 27 }}
                 fixNativeFeedbackRadius={true}
                 onPress={this.debounceNewBtn}
             />
@@ -487,8 +552,8 @@ const styles = StyleSheet.create({
         {
             flex: 2,
             flexDirection: 'column',
-            top: verticalScale(12),
-            paddingBottom: verticalScale(13.4)
+            top: 12,
+            paddingBottom: 13.4
         },
     rtlFlex:
         {
@@ -508,7 +573,7 @@ const styles = StyleSheet.create({
             flexDirection: 'column',
             flex: 2,
             paddingHorizontal: 15,
-            minWidth: scale(80)
+            minWidth: 80
         },
     hiddenIcon:
         {

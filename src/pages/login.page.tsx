@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
     StyleSheet,
@@ -20,7 +20,7 @@ import { MessageHandler } from '../handlers/message.handler';
 import { Messages } from '../handlers/index';
 
 @inject("appService", "configService", "strings")
-export class LoginPage extends React.Component<any, any>
+export class LoginPage extends Component<any, any>
 {
     static navigationOptions = { header: null }
 

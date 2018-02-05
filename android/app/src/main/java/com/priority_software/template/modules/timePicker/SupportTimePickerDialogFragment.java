@@ -7,30 +7,29 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.datepicker;
+package com.priority_software.template.modules.timepicker;
 
 import javax.annotation.Nullable;
 
-import android.annotation.SuppressLint;
-import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.Dialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-@SuppressLint("ValidFragment")
-public class SupportDatePickerDialogFragment extends DialogFragment {
+@SuppressWarnings("ValidFragment")
+public class SupportTimePickerDialogFragment extends DialogFragment {
 
   @Nullable
-  private OnDateSetListener mOnDateSetListener;
+  private OnTimeSetListener mOnTimeSetListener;
   @Nullable
   private OnDismissListener mOnDismissListener;
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     final Bundle args = getArguments();
-    return DatePickerDialogFragment.createDialog(args, getActivity(), mOnDateSetListener);
+    return TimePickerDialogFragment.createDialog(args, getActivity(), mOnTimeSetListener);
   }
 
   @Override
@@ -41,11 +40,11 @@ public class SupportDatePickerDialogFragment extends DialogFragment {
     }
   }
 
-  /*package*/ void setOnDateSetListener(@Nullable OnDateSetListener onDateSetListener) {
-    mOnDateSetListener = onDateSetListener;
+  public void setOnDismissListener(@Nullable OnDismissListener onDismissListener) {
+    mOnDismissListener = onDismissListener;
   }
 
-  /*package*/ void setOnDismissListener(@Nullable OnDismissListener onDismissListener) {
-    mOnDismissListener = onDismissListener;
+  public void setOnTimeSetListener(@Nullable OnTimeSetListener onTimeSetListener) {
+    mOnTimeSetListener = onTimeSetListener;
   }
 }

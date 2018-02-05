@@ -1,9 +1,11 @@
-package com.prioritymaster;
+package com.priority_software.template;
 
 import android.app.Application;
-import com.prioritymaster.modules.DatePickerPackage;
-import com.prioritymaster.modules.TimePickerPackage;
+import com.priority_software.template.modules.DatePickerPackage;
+import com.priority_software.template.modules.TimePickerPackage;
 import com.facebook.react.ReactApplication;
+import com.imagepicker.ImagePickerPackage;
+import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
 import com.mehcode.reactnative.splashscreen.SplashScreenPackage;
 import com.horcrux.svg.SvgPackage;
 import com.react.rnspinkit.RNSpinkitPackage;
@@ -14,7 +16,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-
+import com.rnfs.RNFSPackage;
 import java.util.Arrays;
 import java.util.List;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
@@ -32,6 +34,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ImagePickerPackage(),
+            new ReactNativeDocumentPicker(),
             new SplashScreenPackage(),
             new SvgPackage(),
             new RNSpinkitPackage(),
@@ -39,7 +43,8 @@ public class MainApplication extends Application implements ReactApplication {
             new VectorIconsPackage(),
             new RCTCameraPackage(),
             new DatePickerPackage(),
-            new TimePickerPackage()
+            new TimePickerPackage(),
+            new RNFSPackage()
       );
     }
     // @Override

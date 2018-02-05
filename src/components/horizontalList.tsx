@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -6,9 +6,11 @@ import
     Text,
     FlatList,
     Platform,
+    TouchableHighlight,
 } from 'react-native';
 import { colors } from "../styles/common";
 import { scale } from '../utils/scale';
+import PropTypes from 'prop-types';
 
 export class HorizontalList extends Component<any, any>
 {
@@ -58,12 +60,15 @@ export class HorizontalList extends Component<any, any>
         }
     }
     renderListItem = ({ item }) => (
-        <View style={styles.itemBox} >
-            <Text style={[styles.item, this.getstyle(item)]}
-                onPress={() => { this.onPress(item) }}>
+        <TouchableHighlight
+            onPress={() => { this.onPress(item) }}
+            style={styles.itemBox}
+            activeOpacity={1}
+            underlayColor={colors.menuBackground}>
+            <Text style={[styles.item, this.getstyle(item)]}>
                 {item.title}
             </Text>
-        </View>
+        </TouchableHighlight>
     )
 }
 /*********** style ************* */

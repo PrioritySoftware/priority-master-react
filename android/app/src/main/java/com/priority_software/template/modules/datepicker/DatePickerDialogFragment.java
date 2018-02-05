@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.datepicker;
+package com.priority_software.template.modules.datepicker;
 
 import javax.annotation.Nullable;
 
@@ -98,10 +98,14 @@ public class DatePickerDialogFragment extends DialogFragment {
     final OnDateSetListener innerOnDateSetListener = onDateSetListener;
     final DatePickerDialog innerDialog = dialog;
     
-    dialog.setButton(DialogInterface.BUTTON_NEUTRAL, "CLEAR", new DialogInterface.OnClickListener() {
+    String clearText="CLEAR";
+    if(Locale.getDefault().getLanguage().equals("iw")|| Locale.getDefault().getLanguage().equals("he"))
+       clearText="נקה";
+
+    dialog.setButton(DialogInterface.BUTTON_NEUTRAL, clearText, new DialogInterface.OnClickListener() 
+    {
         @Override
-        public void onClick(DialogInterface dialogInterface, int i) {
-        }
+        public void onClick(DialogInterface dialogInterface, int i) {}
     });
 
     dialog.setOnShowListener(new DialogInterface.OnShowListener() {

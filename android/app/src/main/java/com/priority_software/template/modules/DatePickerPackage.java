@@ -1,6 +1,6 @@
-package com.prioritymaster.modules;
+package com.priority_software.template.modules;
 
-import com.prioritymaster.modules.datepicker.DatePickerDialogModule;
+import com.priority_software.template.modules.datepicker.DatePickerDialogModule;
 import com.facebook.react.LazyReactPackage;
 import com.facebook.react.bridge.ModuleSpec;
 import com.facebook.react.bridge.NativeModule;

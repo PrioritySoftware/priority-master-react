@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.timepicker;
+package com.priority_software.template.modules.timepicker;
 
 import android.app.Activity;
 import android.app.DialogFragment;

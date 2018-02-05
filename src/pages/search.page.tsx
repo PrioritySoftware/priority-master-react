@@ -5,9 +5,10 @@ import
     View,
     Text,
     FlatList,
-    BackHandler
+    BackHandler,
+    Dimensions
 } from 'react-native';
-import { container, colors, flexDirection, textAlign } from "../styles/common";
+import { container, colors, flexDirection, textAlign, body, bodyHeight } from "../styles/common";
 import { inject, observer } from 'mobx-react';
 import { FormService } from '../providers/form.service';
 import { SearchResult } from '../modules/searchResult.class';
@@ -69,6 +70,10 @@ export class SearchPage extends Component<any, any>
     {
         BackHandler.addEventListener('hardwareBackPress', this.goBack);
     }
+    componentWillUnmount()
+    {
+        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
+    }
 
     setIsLoadingMore(isLoading: boolean)
     {
@@ -83,7 +88,6 @@ export class SearchPage extends Component<any, any>
     }
     goBack = () =>
     {
-        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
         this.props.navigation.goBack();
         return true;
     }
@@ -174,7 +178,7 @@ export class SearchPage extends Component<any, any>
         return (
             <View style={[container, styles.container]}>
                 <HeaderComp title={this.title} goBack={() => this.goBack()} />
-                <View style={[styles.listContainer, { display: this.searchResults ? 'flex' : 'none' }]}>
+                <View style={[ { flex:bodyHeight,display: this.searchResults ? 'flex' : 'none' }]}>
                     {this.isSearch && this.renderSearchHeader()}
                     {!this.isSearch && this.renderChooseHeader()}
                     <FlatList
@@ -287,10 +291,6 @@ const styles = StyleSheet.create({
     container:
         {
             backgroundColor: 'white'
-        },
-    listContainer:
-        {
-            flex: 0.88
         },
     list:
         {

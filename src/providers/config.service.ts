@@ -405,7 +405,7 @@ export class ConfigService
         {
             let storageCompany: string = this.storage.userData.profile.company;
             let companiesFilter = companies.Company.filter(comp => comp.dname === storageCompany)
-            if (companiesFilter[0].EnvProfile)
+            if (companiesFilter && companiesFilter.length>0 && companiesFilter[0].EnvProfile)
             {
                 resolve(companiesFilter[0].EnvProfile)
             }

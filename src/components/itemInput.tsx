@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -7,6 +7,7 @@ import
     Linking,
     Text
 } from 'react-native';
+import PropTypes from 'prop-types';
 import TextControl from './Controls/textControl';
 import { FormService } from '../providers/form.service';
 import { Form } from '../modules/index';
@@ -23,10 +24,20 @@ import Communications from 'react-native-communications';
 import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
 import { Strings } from '../modules/strings';
-import { colors, iconNames, flexDirection, opacityOff } from '../styles/common';
+import { colors, iconNames, flexDirection, opacityOff, textAlign, alignSelf, padding } from '../styles/common';
 import { MessageHandler } from '../handlers/message.handler';
-import { Messages } from '../handlers';
+import { Messages, Files } from '../handlers';
 import { Search } from '../modules/search.class';
+import { FileHandler } from "../handlers/file.handler"
+import
+{
+    Menu,
+    MenuOptions,
+    MenuOption,
+    MenuTrigger,
+} from 'react-native-popup-menu';
+import { ColumnZoomType } from '../modules/columnZoomType.class';
+import { ContextMenu } from './Menus/context-menu.comp';
 
 @inject("formService", "strings")
 @observer
@@ -45,6 +56,7 @@ export class ItemInput extends Component<any, any>
         };
     formService: FormService;
     messageHandler: MessageHandler;
+    fileHandler: FileHandler;
     strings: Strings;
 
     // props
@@ -56,6 +68,8 @@ export class ItemInput extends Component<any, any>
     formCol: Column;
     colConfig: ColumnOptions;
     value: string;
+
+    attachContextMenu: ContextMenu;
 
     constructor(props)
     {
@@ -74,6 +88,7 @@ export class ItemInput extends Component<any, any>
     componentDidMount()
     {
         this.messageHandler = Messages;
+        this.fileHandler = Files;
     }
     isReadonly(): boolean
     {
@@ -83,41 +98,41 @@ export class ItemInput extends Component<any, any>
     // Returns if column is date or time type
     isDateOrTimeColumn()
     {
-        return this.formCol.type === "date" || (this.formCol.type === "time" && this.formCol.maxLength === 5);
+        return this.formCol.type === ColumnType.Date || (this.formCol.type === ColumnType.Time && this.formCol.maxLength === 5);
     }
     isBoolColumn()
     {
-        return this.formCol.type === "bool";
+        return this.formCol.type === ColumnType.Bool;
     }
 
     isSearch()
     {
-        return (this.formCol.zoom === "Search" || this.formCol.zoom === "Choose") && !this.isBoolColumn() && !this.isReadonly();
+        return (this.formCol.zoom === ColumnZoomType.Search || this.formCol.zoom === ColumnZoomType.Choose) && !this.isBoolColumn() && !this.isReadonly();
     }
 
     isBarcode()
     {
-        return this.colConfig.subtype === "barcode";
+        return this.colConfig.subtype === ColumnZoomType.Barcode;
     }
 
     isAttach()
     {
-        return this.formCol.zoom === "Attach";
+        return this.formCol.zoom === ColumnZoomType.Attach;
     }
 
     isPhone()
     {
-        return this.colConfig.subtype === "phone";
+        return this.colConfig.subtype === ColumnZoomType.Phone;
     }
 
     isUrl()
     {
-        return this.formCol.zoom === "URL";
+        return this.formCol.zoom === ColumnZoomType.URL;
     }
 
     isEmail()
     {
-        return this.formCol.zoom === "EMail";
+        return this.formCol.zoom === ColumnZoomType.EMail;
     }
 
     getIconName()
@@ -135,6 +150,10 @@ export class ItemInput extends Component<any, any>
         if (this.isAttach() && (!this.isReadonly() || this.value))
             return iconNames.attach;
         return '';
+    }
+    getOpacity()
+    {
+        return { opacity: this.isReadonly() ? opacityOff : 1 };
     }
     // field operations
     updateField = (newValue: string) =>
@@ -157,6 +176,24 @@ export class ItemInput extends Component<any, any>
             })
             .catch(() => { });
     }
+
+    /** Attachment treatment   */
+    handleAttachments = (value) =>
+    {
+        if (value)
+            this.attachContextMenu.open();
+        else
+            this.chooseFile();
+    }
+    openAttachment = () =>
+    {
+        Linking.openURL(encodeURI(this.form.getFileUrl(this.value)));
+    }
+    chooseFile = () =>
+    {
+        this.fileHandler.openPicker(this.form, this.updateField);
+    }
+
     // icons
     iconClick()
     {
@@ -166,6 +203,7 @@ export class ItemInput extends Component<any, any>
         }
         else if (this.isAttach())
         {
+            this.handleAttachments(this.value)
         }
         else if (this.isPhone())
         {
@@ -188,11 +226,15 @@ export class ItemInput extends Component<any, any>
             this.search();
         }
     }
+    // All 'hideLoading' in this message are for search after scanning.
     search()
     {
         let { navigation } = this.props.itemOptions;
         if (!navigation)
+        {
+            this.messageHandler.hideLoading();
             return;
+        }
         let value = this.value || '';
         this.formService.openSearchOrChoose(this.form, this.colName, value).then(
             (res: Search) =>
@@ -200,6 +242,7 @@ export class ItemInput extends Component<any, any>
                 let searchResults = res.SearchLine || res.ChooseLine;
                 if (searchResults)
                 {
+                    this.messageHandler.hideLoading();
                     navigation.navigate(Pages.Search.name,
                         {
                             title: this.formCol.title,
@@ -209,9 +252,12 @@ export class ItemInput extends Component<any, any>
                             onUpdate: this.updateField
                         });
                 }
-
+                else
+                {
+                    this.messageHandler.hideLoading();
+                }
             },
-            reason => { });
+            reason => this.messageHandler.hideLoading());
     }
     // barcode scanning
     scan()
@@ -231,7 +277,6 @@ export class ItemInput extends Component<any, any>
                 setTimeout(() =>
                 {
                     this.search();
-                    this.messageHandler.hideLoading();
                 }, 0);
 
             }
@@ -254,7 +299,7 @@ export class ItemInput extends Component<any, any>
 
         let { isFirst, isLast } = this.props.itemOptions;
         let mandatoryDisplay: any = this.formCol.mandatory === 1 ? 'flex' : 'none';
-        let containerMargin = isFirst ? { marginTop: verticalScale(10) } : isLast ? { marginBottom: verticalScale(20) } : {};
+        let containerMargin = isFirst ? { marginTop: 10 } : isLast ? { marginBottom: 50 } : {};
         let opacity = this.isReadonly() ? 0.6 : 1;
         return (
             <View style={[styles.container, containerMargin]}>
@@ -265,6 +310,7 @@ export class ItemInput extends Component<any, any>
                     </Text>
                 </View>
                 {this.renderControl()}
+                {this.renderAttachContextMenu()}
             </View>
         );
 
@@ -293,13 +339,14 @@ export class ItemInput extends Component<any, any>
         return (
             <TextControl key={this.colName}
                 value={this.value}
+                type={this.formCol.zoom}
                 disabled={this.isReadonly()}
                 maxLength={this.formCol.maxLength}
                 onUpdate={this.updateField}
                 icon={this.getIconName()}
                 iconClick={() => this.iconClick()}
                 containerStyle={styles.inputContainer}
-                inputStyle={styles.input}
+                inputStyle={[styles.input, this.getOpacity()]}
             />
         );
     }
@@ -312,6 +359,7 @@ export class ItemInput extends Component<any, any>
                 mode={this.formCol.type}
                 disabled={this.isReadonly()}
                 onUpdate={this.updateField}
+                inputStyle={[styles.input, this.getOpacity()]}
             />
         );
     }
@@ -327,7 +375,7 @@ export class ItemInput extends Component<any, any>
                 disabled={this.isReadonly()}
                 onUpdate={this.updateField}
                 containerStyle={styles.inputContainer}
-                inputStyle={styles.input}
+                inputStyle={[styles.input, this.getOpacity()]}
             />
         );
     }
@@ -350,9 +398,31 @@ export class ItemInput extends Component<any, any>
                 disabled={this.isReadonly()}
                 onUpdate={this.updateField}
                 containerStyle={styles.inputContainer}
-                inputStyle={styles.input}
+                inputStyle={[styles.input, this.getOpacity()]}
             />
         );
+    }
+
+    renderAttachContextMenu()
+    {
+        if (this.isAttach())
+        {
+            let menuItems = [
+                {
+                    text: this.strings.openBtnText,
+                    onPress: this.openAttachment,
+                },
+                {
+                    text: this.strings.addNewBtnText,
+                    onPress: this.chooseFile,
+                }
+            ];
+            return (<ContextMenu items={menuItems} onRef={menu => this.attachContextMenu = menu} />);
+        }
+        else
+        {
+            return (null);
+        }
     }
 }
 /*********** style ************* */
@@ -370,8 +440,9 @@ const styles = StyleSheet.create({
     },
     labelStyle:
         {
+            fontSize: 12,
             fontWeight: 'normal',
-            marginTop: scale(10),
+            marginTop: 10,
             marginLeft: 0,
             marginRight: 0,
             ...Platform.select({
@@ -384,8 +455,8 @@ const styles = StyleSheet.create({
         },
     asterisk:
         {
-            marginTop: verticalScale(10),
-            marginBottom: verticalScale(-5),
+            marginTop: 10,
+            marginBottom: -5,
             marginHorizontal: 1,
             color: 'red',
             fontSize: 17
@@ -394,18 +465,22 @@ const styles = StyleSheet.create({
         {
             marginLeft: 0,
             marginRight: 0,
-            marginBottom: verticalScale(6),
+            marginBottom: 6,
             borderBottomWidth: 1,
             borderBottomColor: colors.gray,
             width: '100%',
+
         },
     input:
         {
-            fontWeight: 'bold',
+            minHeight: 'auto',
+            fontSize: 15,
+            fontWeight: 'normal',
             marginLeft: 0,
             marginRight: 0,
-            marginBottom: verticalScale(-12),
-            marginTop: verticalScale(-2),
+            marginBottom: -10,
+            marginTop: -2,
+            color: colors.dark,
             ...Platform.select({
                 ios:
                     {

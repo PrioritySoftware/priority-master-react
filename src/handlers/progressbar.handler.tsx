@@ -1,16 +1,10 @@
 import React, { Component } from 'react';
 import { Strings } from '../modules';
-import { MessageOptions } from '../modules/messageOptions.class';
-import { ErrAndWarnMsgOpts } from '../modules/errAndWarnMsgOpts.class';
-import Toast from 'react-native-simple-toast';
 import { inject, observer, } from 'mobx-react';
 import { observable } from 'mobx';
-import { View, StyleSheet, Platform, ActivityIndicator, BackHandler } from 'react-native';
-import { scale } from '../utils/scale';
-import { colors, flexDirection, textAlign, modal, center, alignItems, alignSelf } from '../styles/common';
+import { View, StyleSheet, Platform, BackHandler } from 'react-native';
+import { colors, modal, center} from '../styles/common';
 import Modal from 'react-native-modalbox'
-import { ButtonComp } from '../components/button';
-import { ButtonOpts } from '../modules/buttonOptions.class';
 import { Text, Button } from 'react-native-elements';
 
 @inject("strings")
@@ -109,9 +103,9 @@ export class ProgressBarHandler extends Component<any, any>
 const styles = StyleSheet.create({
     progressContainer:
         {
-            width: scale(240),
-            height: scale(150),
-            padding: scale(21),
+            width: 240,
+            height: 150,
+            padding: 21,
             elevation: 1,
             shadowColor: colors.gray,
             shadowOffset: { width: 0, height: 1 },
@@ -128,13 +122,20 @@ const styles = StyleSheet.create({
         },
     progress:
         {
-            height: scale(23),
+            height: 23,
             borderWidth: 1,
             borderColor: colors.disabledGray,
-            marginTop: scale(20),
-            marginBottom: scale(10),
+            marginTop: 20,
+            marginBottom: 10,
             alignSelf: 'flex-start',
             width: '100%',
+            ...Platform.select({
+                ios: {
+                    width: '90%',
+                    marginLeft : '5%',
+                    marginRight : '5%',
+                }
+            })
         },
     progressBackground:
         {
@@ -145,7 +146,10 @@ const styles = StyleSheet.create({
         {
             color: 'black',
             alignSelf: 'center',
-            position: 'absolute'
+            position: 'absolute',
+            borderColor: 'transparent',
+            backgroundColor:'transparent',
+            
         },
     absolute: {
         position: "absolute",

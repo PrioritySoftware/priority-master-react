@@ -7,13 +7,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.datepicker;
+package com.priority_software.template.modules.timepicker;
 
-/**
- * Date picker modes
- */
-public enum DatePickerMode {
-  CALENDAR,
+
+public enum TimePickerMode {
+  CLOCK,
   SPINNER,
   DEFAULT
 }

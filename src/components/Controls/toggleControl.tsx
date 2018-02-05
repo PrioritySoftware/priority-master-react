@@ -3,8 +3,7 @@ import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet, Switch } from 'react-native';
-import { colors, alignItems, opacityOff } from '../../styles/common';
-import { scale, verticalScale } from '../../utils/scale';
+import { colors, alignItems, opacityOff, margin } from '../../styles/common';
 import { Strings } from '../../modules/strings';
 
 @inject("strings")
@@ -96,13 +95,13 @@ const styles = StyleSheet.create({
         {
             borderBottomWidth: 1,
             borderBottomColor: colors.gray,
-            paddingBottom: verticalScale(4),
-            marginTop: verticalScale(0),
-            marginBottom: verticalScale(8),
+            paddingBottom: 4,
+            marginTop: 0,
+            marginBottom: 8,
 
         },
     switch: {
         flexDirection: 'row',
-        marginHorizontal: scale(-3)
+        marginHorizontal: -2
     }
 })

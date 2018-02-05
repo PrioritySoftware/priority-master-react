@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -7,6 +7,7 @@ import { Button, CheckBox } from 'react-native-elements';
 import { inject, observer } from 'mobx-react';
 import { Strings } from '../modules/strings';
 import { colors, iconNames } from '../styles/common';
+import PropTypes from 'prop-types';
 
 @inject("strings")
 @observer
@@ -67,7 +68,9 @@ const styles = StyleSheet.create({
         {
             backgroundColor: 'transparent',
             borderWidth: 0,
-            padding: 0
+            padding: 0,
+            marginRight:0,
+            marginLeft:0,
         },
     disabled:
         {

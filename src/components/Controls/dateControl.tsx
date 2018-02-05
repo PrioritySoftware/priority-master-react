@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { Text, StyleSheet, Platform } from 'react-native';
 import DatePicker from './DatePicker/datePicker';
 import moment from 'moment';
-import { scale, verticalScale } from '../../utils/scale';
 import { colors, textAlign, flexDirection, opacityOff } from '../../styles/common';
 import { Icon } from 'react-native-elements';
 import { Strings } from '../../modules/strings';
@@ -20,7 +19,12 @@ export default class DateControl extends Component<any, any>
         format: PropTypes.string.isRequired,
         onUpdate: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
-        mode: PropTypes.string
+        mode: PropTypes.string,
+        inputStyle: PropTypes.oneOfType([
+            PropTypes.array,
+            PropTypes.number,
+            PropTypes.shape({}),
+        ]),
     };
     static defaultProps =
         {
@@ -121,10 +125,10 @@ export default class DateControl extends Component<any, any>
                 clearText={this.strings.clear}
 
             >
-                <Text style={[styles.text, textAlign(this.strings.isRTL), { color: colors.darkGray, opacity: opacity }]}>
+                <Text style={[this.props.inputStyle,styles.text, textAlign(this.strings.isRTL)]}>
                     {this.formatedDate}
                 </Text>
-                <Icon type='ionicon' name={iconName} size={23} color={colors.darkGray} style={{ opacity: opacity }} />
+                <Icon type='ionicon' name={iconName} size={23} color={colors.darkGray} style={{ opacity: opacity}} />
             </DatePicker>
         )
     }
@@ -134,23 +138,15 @@ let styles = StyleSheet.create({
         {
             borderBottomWidth: 1,
             borderBottomColor: colors.gray,
-            paddingHorizontal: scale(2.5),
-            marginBottom: verticalScale(8),
+            paddingHorizontal: 2.5,
+            marginBottom:8,
             paddingTop: 4.5,
             paddingBottom: 3.5,
-        },
-    iconStyle:
-        {
-            width: scale(16),
-            height: scale(24),
-            resizeMode: 'contain',
         },
 
     text:
         {
             flex: 1,
-            fontWeight: 'bold',
-            marginTop: scale(5),
-            fontSize: scale(14)
+            marginTop:2
         }
 });

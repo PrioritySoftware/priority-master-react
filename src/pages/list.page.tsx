@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
     StyleSheet,
@@ -13,7 +13,7 @@ import {  inject } from 'mobx-react';
 import { FormList } from '../components/formList.comp';
 
 @inject("formService", "strings")
-export class ListPage extends React.Component<any, any>
+export class ListPage extends Component<any, any>
 {
     static navigationOptions = { header: null };
 

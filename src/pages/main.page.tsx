@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
     StyleSheet,
@@ -10,9 +10,9 @@ import
 } from 'react-native';
 import { Strings, Entity } from '../modules';
 import { ConfigService } from '../providers/config.service';
-import { Header, Icon, List, ListItem } from 'react-native-elements'
+import {  Icon, List, ListItem } from 'react-native-elements'
 import { SVG } from '../components/svg';
-import { center, header, container, colors, margin, iconNames, textAlign } from '../styles/common';
+import {  container, colors, margin, iconNames, textAlign, body } from '../styles/common';
 import { Card } from '../components/card';
 import { FormService } from '../providers/form.service';
 import { AppService } from '../providers/app.service';
@@ -24,9 +24,10 @@ import { MessageHandler } from '../handlers/message.handler';
 import { Messages } from '../handlers/index';
 import { scale } from '../utils/scale';
 import Drawer from 'react-native-drawer';
+import { HeaderComp } from '../components/header';
 
 @inject("appService", "formService", "procService", "configService", "strings", "appService")
-export class MainPage extends React.Component<any, any>
+export class MainPage extends Component<any, any>
 {
     static navigationOptions = { header: null }
     appService: AppService;
@@ -166,9 +167,6 @@ export class MainPage extends React.Component<any, any>
     {
 
         let cards = [];
-
-        let leftComp = this.props.specialComponent;
-        let rightComp = this.props.specialComponent;
         let companyOption = null;
 
         for (let ent of this.configService.entitiesData)
@@ -188,11 +186,6 @@ export class MainPage extends React.Component<any, any>
             cards.push(newCard);
 
         }
-
-        if (this.strings.isRTL)
-            rightComp = this.renderIcon(iconNames.mainMenu);
-        else
-            leftComp = this.renderIcon(iconNames.mainMenu);
 
         if (this.configService.supportCompanySelection)
         {
@@ -230,7 +223,7 @@ export class MainPage extends React.Component<any, any>
         let drawerContent = (
             <View style={styles.drawerContent}>
                 <View style={styles.menuTitle}>
-                    <Text style={[styles.appNameTitle, textAlign(this.strings.isRTL)]}  ellipsizeMode='tail' numberOfLines={1}>{this.appService.currentApp.title}</Text>
+                    <Text style={[styles.appNameTitle, textAlign(this.strings.isRTL)]} ellipsizeMode='tail' numberOfLines={1}>{this.appService.currentApp.title}</Text>
                     <Text style={[styles.companyNameTitle, textAlign(this.strings.isRTL)]} ellipsizeMode='tail' numberOfLines={1}> {this.getCurrentCompany()} </Text>
                     <Text style={[styles.userNameTitle, textAlign(this.strings.isRTL)]} ellipsizeMode='tail' numberOfLines={1}> {this.appService.getUserName()} </Text>
                 </View>
@@ -268,16 +261,8 @@ export class MainPage extends React.Component<any, any>
                 side={this.strings.isRTL ? "right" : "left"}
             >
                 <View style={[container, styles.container]}>
-                    <View style={styles.headerContainer}>
-                        <Header
-                            centerComponent={<SVG svg={SVG.headerLogo} height="30" />}
-                            outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
-                            innerContainerStyles={[center, { marginTop: 10 }]}
-                            rightComponent={rightComp}
-                            leftComponent={leftComp}
-                        />
-                    </View>
-                    <ScrollView style={{ paddingHorizontal: 10 }}>
+                    <HeaderComp centerComp={<SVG svg={SVG.headerLogo} height="30" />} optionsComp={this.renderIcon(iconNames.mainMenu)} />
+                    <ScrollView style={[body,{ paddingHorizontal: 10 }]}>
                         {cards}
                     </ScrollView>
                 </View >
@@ -294,8 +279,8 @@ export class MainPage extends React.Component<any, any>
             onPress={() => { this._drawer.open() }}
             color='white'
             underlayColor='transparent'
-            size={scale(25)}
-            containerStyle={[styles.mainMenuButton, margin(this.strings.isRTL, scale(-20))]} />
+            size={25}
+            containerStyle={[styles.mainMenuButton, margin(this.strings.isRTL, -20),margin(!this.strings.isRTL,-25)]} />
         );
     }
 
@@ -306,10 +291,6 @@ const styles = StyleSheet.create({
     container:
         {
             backgroundColor: colors.lightGray
-        },
-    headerContainer:
-        {
-            flex: 0.14,
         },
     cardContainer:
         {
@@ -338,9 +319,9 @@ const styles = StyleSheet.create({
         },
     mainMenuButton:
         {
-            paddingVertical: scale(30),
-            paddingHorizontal: scale(25),
-            paddingTop: scale(25),
+            paddingVertical: 30,
+            paddingHorizontal: 25,
+            paddingTop: 26,
             ...Platform.select({
                 ios:
                     {
@@ -352,19 +333,25 @@ const styles = StyleSheet.create({
     drawerContent:
         {
             flex: 1,
-            backgroundColor: colors.darkGray
+            backgroundColor: "#fff"
         },
     menuTitle:
         {
-            flex: 0.2,
+            flex: 0.17,
             backgroundColor: colors.darkGray,
-            paddingHorizontal: scale(15),
-            justifyContent:'center'
+            paddingHorizontal: 15,
+            justifyContent: 'center',
+            ...Platform.select({
+                ios:
+                    {
+                        flex: 0.15,
+                    }
+            })
         },
     appNameTitle:
         {
             color: "#fff",
-            fontSize: 18,
+            fontSize: 17,
             ...Platform.select({
                 ios:
                     {
@@ -375,17 +362,19 @@ const styles = StyleSheet.create({
     userNameTitle:
         {
             color: "#fff",
-            marginTop:scale(4),
+            fontSize: 13,
+            marginTop: 4,
         },
     companyNameTitle:
         {
             color: "#fff",
-           marginTop:scale(4),
+            fontSize: 13,
+            marginTop: 4,
         },
 
     drawerContentMenu:
         {
-            flex: 0.8,
+            flex: 0.83,
             backgroundColor: '#ffffff'
         },
     drawerContentMenuList:

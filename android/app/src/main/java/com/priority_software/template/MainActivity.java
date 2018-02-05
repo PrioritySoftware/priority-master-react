@@ -1,4 +1,4 @@
-package com.prioritymaster;
+package com.priority_software.template;
 
 import com.facebook.react.ReactActivity;
 

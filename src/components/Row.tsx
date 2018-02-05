@@ -9,14 +9,14 @@ import { inject, observer } from "mobx-react";
 import * as moment from 'moment';
 import { Card } from './card';
 import { colors, position, flexDirection } from '../styles/common';
-import * as React from 'react';
+import React,{ Component } from 'react';
 import { ColumnType } from '../modules/columnType.class';
 import { Icon } from 'react-native-elements';
 import { scale } from '../utils/scale';
 
 @inject("formService", "strings")
 @observer
-export class Row extends React.Component<any, any>
+export class Row extends Component<any, any>
 {
     render()
     {
@@ -82,7 +82,7 @@ export class Row extends React.Component<any, any>
                 <Text style={[styles.text, titleStyle]}>
                     {colTitle + ":"}
                 </Text>
-                <Text style={[styles.text, valueStyle, styles.bold, styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
+                <Text style={[styles.text, valueStyle, styles.bold,styles.valueText]} ellipsizeMode='tail' numberOfLines={1}>
                     {colValue}
                 </Text>
             </View>
@@ -100,14 +100,14 @@ export class Row extends React.Component<any, any>
                     {
                         !isFalse && <Icon type={'material-community'}
                             name={'check-circle-outline'}
-                            size={scale(19)}
+                            size={19}
                             color={colors.middleDarkGray}
                             style={[styles.boolIcon]} />
                     }
                     {
                         isFalse && <Icon type={'material-community'}
                             name={'minus-circle-outline'}
-                            size={scale(19)}
+                            size={19}
                             color={colors.middleDarkGray}
                             style={[styles.boolIcon]} />
                     }
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
         },
     boolIcon:
         {
-            marginTop: scale(-14),
+            marginTop: -14,
         }
 
 });

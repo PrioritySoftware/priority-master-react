@@ -1,7 +1,14 @@
 import
 {
-    Platform
+    Platform, Dimensions
 } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+export const fullHeight=height;
+export const fullWidth=width;
+export const opacityOff = 0.5;
+export const headerHeight = 60;
+export const bodyHeight = height - headerHeight;
 
 export const colors =
     {
@@ -14,7 +21,7 @@ export const colors =
         darkGray: "#525252",
         overlay: "#dedede4a",
         disabledGray: "#b5b5b5",
-        label:'#606060',
+        label: '#606060',
         menuBackground: "#e8e8e8",
         toggleOff: '#a0a0a0',
 
@@ -28,10 +35,7 @@ export const colors =
         blueDisabled: '#85C4DF',
         toggleOn: '#51cfff',
 
-        // easy to see black
-        dark: '#222222',
-
-        //easy to see black
+        // black
         dark: '#222222',
 
         // red
@@ -55,6 +59,10 @@ export const header =
     {
         backgroundColor: colors.primaryColor,
         height: '100%'
+    }
+export const body =
+    {
+        height: bodyHeight
     }
 export const modal =
     {
@@ -84,7 +92,10 @@ export const iconNames =
         checkboxIOS: 'check-circle',
         checkBoxMD: 'checkbox-marked',
         blankCheckboxIOS: 'checkbox-blank-circle-outline',
-        blankCheckboxMD: 'checkbox-blank-outline'
+        blankCheckboxMD: 'checkbox-blank-outline',
+        folder:iconName('folder'),
+        camera:iconName('camera'),
+        image:iconName('image'),
     };
 
 export const flexDirection: any = (isRTL: boolean) =>
@@ -119,5 +130,3 @@ export const position: any = (isRTL: boolean, positionNum: number) =>
 {
     return isRTL ? { right: positionNum } : { left: positionNum };
 }
-
-export const opacityOff = 0.5;

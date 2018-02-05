@@ -12,6 +12,9 @@ export class Strings
     removeBtnType = 'Remove';
     logoutAction='Logout';
     changesAlertType='changesAlertType';
+    extFiles="EXTFILES";
+    fileFieldName="EXTFILENAME";
+    attachmentBtn="Attachment";
 
     /** Style  */
     isRTL: boolean;
@@ -639,7 +642,7 @@ export class Strings
         this._editBtnText.value = "Edit";
         this._deleteBtnText.value = "Delete";
         this._deleteRowText.value = "Delete Record";
-        this._addNewBtnText.value = "Add new";
+        this._addNewBtnText.value = "New";
         this._saveBtnText.value = "Save";
         this._saveAndCont.value = "Save and continue";
         this._neverAskAgain.value = "Never ask again";

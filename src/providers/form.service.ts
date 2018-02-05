@@ -212,7 +212,7 @@ export class FormService
     /** Global error and warning handler passed to api with formStart. */
     errorAndWarningMsgHandler = (serverMsg: ServerResponse) =>
     {
-        if (serverMsg.code === ServerResponseCode.FailedPreviousRequest)
+        if (serverMsg.code === ServerResponseCode.FailedPreviousRequest || serverMsg.code===ServerResponseCode.NoSuchSubForm)
         {
             return;
         }

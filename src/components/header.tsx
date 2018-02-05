@@ -1,23 +1,24 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
     View,
     Platform
 } from 'react-native';
-import { header, center, margin, iconNames } from "../styles/common";
+import PropTypes from 'prop-types';
+import { header, center, margin, iconNames, headerHeight } from "../styles/common";
 import providers from '../providers';
 import { Strings } from '../modules/strings';
 import { Header, Icon } from 'react-native-elements';
-import { scale } from '../utils/scale';
 
 export class HeaderComp extends Component<any, any>
 {
     static propTypes =
         {
-            title: PropTypes.string.isRequired,
+            title: PropTypes.string,
+            centerComp: PropTypes.object,
             optionsComp: PropTypes.object,
-            goBack: PropTypes.func.isRequired
+            goBack: PropTypes.func
         };
     static defaultProps =
         {
@@ -34,20 +35,29 @@ export class HeaderComp extends Component<any, any>
         let backIconName;
         let leftComp = this.props.optionsComp;
         let rightComp = this.props.optionsComp;
+
+        // Renders back icon only when 'goBack' function is sent in props.
+        // Else renders 'optionsComp' instead.
         if (this.strings.isRTL)
         {
-            backIconName = iconNames.arrowForward;
-            rightComp = this.renderBackIcon(backIconName);
+            if (this.props.goBack)
+                rightComp = this.renderBackIcon(iconNames.arrowForward);
+            else
+                leftComp = null;
         }
         else
         {
-            backIconName = iconNames.arrowBack;
-            leftComp = this.renderBackIcon(backIconName);
+            if (this.props.goBack)
+                leftComp = this.renderBackIcon(iconNames.arrowBack);
+            else
+                rightComp = null;
         }
+
+        let centerComponent = this.props.title ? { text: this.props.title, style: styles.headerTitleStyle, ellipsizeMode: 'tail', numberOfLines: 1 } : this.props.centerComp;
         return (
             <View style={styles.headerContainer}>
                 <Header
-                    centerComponent={{ text: this.props.title, style: styles.headerTitleStyle, ellipsizeMode: 'tail', numberOfLines: 1 }}
+                    centerComponent={centerComponent}
                     rightComponent={rightComp}
                     leftComponent={leftComp}
                     outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
@@ -65,7 +75,7 @@ export class HeaderComp extends Component<any, any>
             color='white'
             underlayColor='transparent'
             size={22}
-            containerStyle={[styles.backButton, margin(this.strings.isRTL, scale(-20))]} />
+            containerStyle={[styles.backButton, margin(this.strings.isRTL, -20)]} />
         );
     }
 }
@@ -80,16 +90,16 @@ const styles = StyleSheet.create({
         },
     headerContainer:
         {
-            flex: 0.12,
+            height: headerHeight
         },
     backButton:
         {
-            paddingVertical: scale(30),
-            paddingHorizontal: scale(20),
+            paddingVertical:30,
+            paddingHorizontal: 20,
             ...Platform.select({
                 ios:
                     {
-                        paddingTop: scale(35)
+                        paddingTop: 35
                     }
             })
 

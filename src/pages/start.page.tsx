@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
   StyleSheet,
@@ -24,7 +24,7 @@ import { scale } from '../utils/scale';
 const Permissions = require('react-native-permissions');
 
 @inject("configService", "strings", "appService")
-export class StartPage extends React.Component<any, any>
+export class StartPage extends Component<any, any>
 {
   static navigationOptions = { header: null };
   appService: AppService;

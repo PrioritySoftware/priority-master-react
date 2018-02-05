@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
     StyleSheet,
@@ -19,7 +19,7 @@ import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
 
 @inject("appService", "configService", "strings")
-export class SwitchCompany extends React.Component<any, any>
+export class SwitchCompany extends Component<any, any>
 {
     static navigationOptions = { header: null };
 

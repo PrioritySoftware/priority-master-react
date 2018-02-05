@@ -1,15 +1,15 @@
-import React from 'react';
+import React,{ Component } from 'react';
 import
 {
     StyleSheet,
     View,
     ListView,
+    ScrollView,
 } from 'react-native';
 import { Strings, ServerResponse } from '../modules';
 import { SVG } from '../components/svg';
 import { Card } from '../components/card';
-import { center, header, container, colors } from '../styles/common';
-import { Header } from 'react-native-elements'
+import {  container, colors, body } from '../styles/common';
 import { inject } from 'mobx-react';
 import { AppService } from '../providers/app.service'
 import { ConfigService } from '../providers/config.service';
@@ -20,9 +20,10 @@ import { MessageHandler } from '../handlers/message.handler';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { scale, verticalScale } from '../utils/scale';
 import { NavigationActions } from 'react-navigation';
+import { HeaderComp } from '../components/header';
 
 @inject("appService", "configService", "strings")
-export class SwitchApp extends React.Component<any, any>
+export class SwitchApp extends Component<any, any>
 {
     static navigationOptions = { header: null };
 
@@ -123,21 +124,15 @@ export class SwitchApp extends React.Component<any, any>
     {
         return (
             <View style={[container]}>
-                <View style={styles.headerContainer}>
-                    <Header
-                        centerComponent={<SVG svg={SVG.headerLogo} height="30" />}
-                        outerContainerStyles={[header, { flexDirection: 'row-reverse' }]}
-                        innerContainerStyles={[center, { marginTop: 10 }]}
-                    />
-                </View>
-                <View style={{ flex: 0.86 }}>
+                <HeaderComp centerComp={<SVG svg={SVG.headerLogo} height="30" />} />
+                <ScrollView style={body}>
                     {this.renderSwipeListView()}
                     <Card key={"add app"}
                         title={this.strings.newApp}
                         cardContainerStyle={[styles.borderPoints, { margin: 9 }]}
                         cardTextStyle={styles.cardText}
                         onPress={() => this.newApp()} />
-                </View>
+                </ScrollView>
             </View >
         )
     }
@@ -183,7 +178,6 @@ export class SwitchApp extends React.Component<any, any>
     }
     renderHiddenRow = (ent, secId, rowId, rowMap) =>
     {
-
         let isRTL = this.strings.isRTL;
         return (
             <View style={[styles.rowBack, isRTL ? styles.rtlFlex : styles.ltrFlex]} >
@@ -207,10 +201,6 @@ const styles = StyleSheet.create({
     container:
         {
             backgroundColor: colors.lightGray
-        },
-    headerContainer:
-        {
-            flex: 0.14,
         },
     borderRight:
         {

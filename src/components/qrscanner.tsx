@@ -31,9 +31,12 @@ export class QRCodeScanner extends Component<any, any> {
   {
     BackHandler.addEventListener('hardwareBackPress', this.scanCanceled);
   }
-  goBack(result, iscanceled: boolean = false)
+  componentWillUnmount()
   {
     BackHandler.removeEventListener('hardwareBackPress', this.scanCanceled);
+  }
+  goBack(result, iscanceled: boolean = false)
+  {
     this.props.navigation.goBack();
     if (this.params && this.params.onRead)
       this.params.onRead(result, iscanceled);

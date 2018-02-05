@@ -1,6 +1,6 @@
-package com.prioritymaster.modules;
+package com.priority_software.template.modules;
 
-import com.prioritymaster.modules.timepicker.TimePickerDialogModule;
+import com.priority_software.template.modules.timepicker.TimePickerDialogModule;
 import com.facebook.react.LazyReactPackage;
 import com.facebook.react.bridge.ModuleSpec;
 import com.facebook.react.bridge.NativeModule;

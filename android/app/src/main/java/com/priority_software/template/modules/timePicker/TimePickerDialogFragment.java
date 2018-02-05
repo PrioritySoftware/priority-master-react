@@ -7,7 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-package com.prioritymaster.modules.timepicker;
+package com.priority_software.template.modules.timepicker;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -104,7 +104,11 @@ public class TimePickerDialogFragment extends DialogFragment {
     final OnTimeSetListener innerOnTimeSetListener = onTimeSetListener;
     final TimePickerDialog innerDialog = dialog;
 
-    dialog.setButton(DialogInterface.BUTTON_NEUTRAL, "CLEAR", new DialogInterface.OnClickListener() {
+    String clearText="CLEAR";
+    if(Locale.getDefault().getLanguage().equals("iw")|| Locale.getDefault().getLanguage().equals("he"))
+       clearText="נקה";
+
+    dialog.setButton(DialogInterface.BUTTON_NEUTRAL,clearText, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialogInterface, int i) {
       }

@@ -96,7 +96,6 @@ export default class DurationControl extends Component<any, any> {
 
     render()
     {
-        let opacity = this.props.disabled ? opacityOff : 1;
         return (
             <FormInput
                 textInputRef={textInput => this.textInput = textInput}
@@ -108,7 +107,7 @@ export default class DurationControl extends Component<any, any> {
                 onBlur={this.handleEndEditing}
                 underlineColorAndroid="transparent"
                 containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
-                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: colors.darkGray, opacity: opacity }]}
+                inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL)]}
             />
         )
     }

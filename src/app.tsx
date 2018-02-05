@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Image, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
+import React, { Component } from 'react';
+import { View, Image, StyleSheet, Dimensions, ActivityIndicator, Animated, Easing } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import { LocalStorageUserData } from './modules/index';
 import providers from './providers';
@@ -8,8 +8,9 @@ import SplashScreen from "rn-splash-screen";
 import { Provider } from "mobx-react";
 import { navigationTransition } from "./utils/navigation";
 import { Handlers } from './handlers/index';
+import { MenuProvider } from 'react-native-popup-menu';
 
-export class App extends React.Component<any, any>
+export class App extends Component<any, any>
 {
     navigator;
     constructor(props)
@@ -27,10 +28,12 @@ export class App extends React.Component<any, any>
         {
             return (
                 <Provider { ...providers }>
-                    <View style={{ flex: 1 }}>
-                        <this.navigator />
-                        {...Handlers}
-                    </View>
+                    <MenuProvider>
+                        <View style={{ flex: 1 }}>
+                            <this.navigator />
+                            {...Handlers}
+                        </View>
+                    </MenuProvider>
                 </Provider>
             );
         }
@@ -48,7 +51,8 @@ export class App extends React.Component<any, any>
         this.navigator = StackNavigator(Pages,
             {
                 initialRouteName: root,
-                transitionConfig: navigationTransition(providers.strings.isRTL)
+                transitionConfig: navigationTransition(providers.strings.isRTL),
+                cardStyle: { opacity: 1 },
             });
         this.setState({ isFinishedloading: true });
 

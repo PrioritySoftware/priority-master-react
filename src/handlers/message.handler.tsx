@@ -7,9 +7,9 @@ import Toast from 'react-native-simple-toast';
 import { inject, observer, } from 'mobx-react';
 import { observable } from 'mobx';
 import { View, Text, StyleSheet, Platform, ActivityIndicator, BackHandler, ScrollView } from 'react-native';
-import { scale } from '../utils/scale';
-import { colors, flexDirection, textAlign, modal } from '../styles/common';
-import Modal from 'react-native-modalbox'
+import { scale, moderateScale } from '../utils/scale';
+import { colors, flexDirection, textAlign, modal, position } from '../styles/common';
+import Modal from 'react-native-modalbox';
 import { ButtonComp } from '../components/button';
 import { ButtonOpts } from '../modules/buttonOptions.class';
 import { Divider } from 'react-native-elements';
@@ -63,7 +63,7 @@ export class MessageHandler extends Component<any, any>
         return (
             <Modal
                 entry='top'
-                style={modal}
+                style={[modal,{flex:1}]}
                 backdrop={false}
                 swipeToClose={false}
                 isOpen={true}
@@ -92,8 +92,8 @@ export class MessageHandler extends Component<any, any>
         let alertTextAlign = this.strings.platform === 'ios' ? { textAlign: 'center' } : textAlign(this.strings.isRTL);
         return (
             <View style={this.alert.style}>
-                <Text style={[styles.messageTitle, alertTextAlign]}>{this.alert.title}</Text>
-                <ScrollView contentContainerStyle={[styles.messageContainer, this.alert.title && { paddingTop: scale(20) }]}>
+                <Text style={[styles.messageTitle, alertTextAlign, this.alert.title && { marginBottom: 10 }]}>{this.alert.title}</Text>
+                <ScrollView contentContainerStyle={[styles.messageContainer]}>
                     <Text style={[styles.message, alertTextAlign]} >{this.alert.message}</Text>
                 </ScrollView>
                 {this.renderAlertButtons()}
@@ -104,7 +104,7 @@ export class MessageHandler extends Component<any, any>
     {
         // Three buttons are displayed vertically.
         let flexDir = null;
-        let containerViewStyle = styles.btnContainerVertical;
+        let containerViewStyle = [position(this.strings.isRTL, -12),styles.btnContainerVertical];
         let topBorder = { borderTopWidth: 0 };
         if (this.alert.buttons.length < 3)
         {
@@ -387,9 +387,9 @@ export class MessageHandler extends Component<any, any>
 const styles = StyleSheet.create({
     alertContainer:
         {
-            width: scale(337),
-            height: scale(200),
-            padding: scale(21),
+            width: 327,
+            height: 200,
+            padding: 21,
             elevation: 1,
             justifyContent: 'space-between',
             shadowColor: colors.gray,
@@ -402,15 +402,15 @@ const styles = StyleSheet.create({
                     borderRadius: 20,
                     padding: 0,
                     paddingTop: scale(21),
-                    width: scale(300),
+                    width: 300,
                 }
             })
         },
     alertContainerLong:
         {
-            width: scale(337),
-            height: scale(230),
-            padding: scale(21),
+            width: 327,
+            height: 250,
+            padding: 21,
             elevation: 1,
             justifyContent: 'space-between',
             shadowColor: colors.gray,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
                     borderRadius: 20,
                     padding: 0,
                     paddingTop: scale(21),
-                    width: scale(300),
+                    width: 300,
                     height: scale(220),
                 }
             })
@@ -443,6 +443,7 @@ const styles = StyleSheet.create({
         },
     btnContainer:
         {
+            marginTop: 10,
             ...Platform.select({
                 ios: {
                     width: scale(150),
@@ -455,7 +456,9 @@ const styles = StyleSheet.create({
                 ios: {
                     marginLeft: 0,
                     marginRight: 0,
-                    width: scale(300)
+                    width: scale(300),
+                    right:'auto',
+                    left'auto'
                 }
             })
         },
@@ -472,7 +475,7 @@ const styles = StyleSheet.create({
     verticalBtnRTL:
         {
             padding: 0,
-            paddingVertical: scale(10),
+            paddingVertical: 10,
             justifyContent: 'flex-end',
             ...Platform.select({
                 ios: {
@@ -485,7 +488,7 @@ const styles = StyleSheet.create({
     verticalBtnLTR:
         {
             padding: 0,
-            paddingVertical: scale(10),
+            paddingVertical: 10,
             justifyContent: 'flex-start',
             ...Platform.select({
                 ios: {
@@ -506,7 +509,6 @@ const styles = StyleSheet.create({
         },
     messageContainer:
         {
-            paddingBottom: scale(5),
         },
     message:
         {

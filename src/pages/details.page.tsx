@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import
 {
     StyleSheet,
@@ -9,7 +9,7 @@ import
     Keyboard,
 
 } from 'react-native';
-import { container, colors, iconNames, textAlign, margin, flexDirection } from '../styles/common';
+import { container, colors, iconNames, textAlign, margin, flexDirection, body, bodyHeight } from '../styles/common';
 import { FormService } from '../providers/form.service';
 import { ProcService } from '../providers/Proc.service'
 import { HeaderComp } from '../components/header';
@@ -32,10 +32,11 @@ import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
 import { Icon } from 'react-native-elements';
 import { ConfigService } from '../providers/config.service';
+import { ColumnZoomType } from '../modules/columnZoomType.class';
 
 @inject("formService", "strings", "procService", "configService")
 @observer
-export class DetailsPage extends React.Component<any, any>
+export class DetailsPage extends Component<any, any>
 {
     static navigationOptions = { header: null }
 
@@ -113,7 +114,7 @@ export class DetailsPage extends React.Component<any, any>
     }
     isSearch(formCol: Column)
     {
-        return formCol.zoom === "Search" || formCol.zoom === "Choose";
+        return formCol && (formCol.zoom === ColumnZoomType.Search || formCol.zoom === ColumnZoomType.Choose);
     }
     getIsChangesSaved()
     {
@@ -413,21 +414,26 @@ export class DetailsPage extends React.Component<any, any>
         return (
             < View style={[container, styles.container]} >
                 <HeaderComp title={this.title} goBack={() => this.focusAndPressIcon(this.goBack)} optionsComp={this.renderOperationsIcons()} />
-                {this.renderSubFormsMenu()}
-                {this.currentSubFormOpts.name ? this.renderSubformsList() : this.renderParentDetails()}
+                <View style={container}>
+                    {this.renderSubFormsMenu()}
+                    {this.currentSubFormOpts.name ? this.renderSubformsList() : this.renderParentDetails()}
+                </View>
             </View >
         );
     }
     renderParentDetails()
     {
         return (
-            <View style={[container]}>
+            <View>
                 {this.rendertActivations()}
-                <KeyboardAwareScrollView keyboardOpeningTime={0} style={{ flex: 0.88 }}>
+                <KeyboardAwareScrollView keyboardOpeningTime={0}>
                     {
                         Object.keys(this.columns).map(
                             (fieldName, index, arr) =>
-                                <ItemInput key={fieldName}
+                            {
+                                if (!this.form.columns[fieldName] || !this.form.columns[fieldName])
+                                    return (null);
+                                return (<ItemInput key={fieldName}
                                     formPath={this.form.path}
                                     itemIndex={this.itemIndex}
                                     colName={fieldName}
@@ -436,8 +442,8 @@ export class DetailsPage extends React.Component<any, any>
                                         isFirst: index === 0,
                                         isLast: index === arr.length - 1
                                     }}
-
-                                />
+                                />);
+                            }
                         )
                     }
                 </KeyboardAwareScrollView>
@@ -447,7 +453,7 @@ export class DetailsPage extends React.Component<any, any>
 
     /**
      * Renders rows of a selected subform.
-     * @returns 
+     * @returns
      * @memberof DetailsPage
      */
     renderSubformsList()
@@ -464,7 +470,7 @@ export class DetailsPage extends React.Component<any, any>
 
     /**
      * Renders subforms menu at the top.
-     * @returns 
+     * @returns
      * @memberof DetailsPage
      */
     renderSubFormsMenu()
@@ -599,7 +605,7 @@ const styles = StyleSheet.create({
     },
     optionsIcon:
         {
-            paddingVertical: scale(30),
+            paddingVertical: 30,
             paddingHorizontal: scale(20),
             ...Platform.select({
                 ios:

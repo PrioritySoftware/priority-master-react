@@ -7,6 +7,7 @@ import { colors, iconNames, padding, flexDirection, textAlign, margin, opacityOf
 import { FormInput, Icon } from 'react-native-elements'
 import { observable } from 'mobx';
 import { Strings } from '../../modules/strings';
+import { ColumnZoomType } from '../../modules/columnZoomType.class';
 
 @inject("strings")
 @observer
@@ -19,6 +20,7 @@ export default class TextControl extends Component<any, any> {
             onUpdate: PropTypes.func.isRequired,
             placeholder: PropTypes.string,
             disabled: PropTypes.bool,
+            type: PropTypes.string,
             direction: PropTypes.string,
             icon: PropTypes.string,
             iconClick: PropTypes.func,
@@ -93,10 +95,12 @@ export default class TextControl extends Component<any, any> {
             onUpdate(this.text);
         }
     }
-
+    isAttach()
+    {
+        return this.props && this.props.type && this.props.type === ColumnZoomType.Attach;
+    }
     render()
     {
-        let opacity = this.props.disabled ? opacityOff : 1;
         let inputWidth = '100%';
         if (this.props.icon !== '')
             inputWidth = '95%';
@@ -115,7 +119,7 @@ export default class TextControl extends Component<any, any> {
                     onBlur={this.handleEndEditing}
                     underlineColorAndroid='transparent'
                     containerStyle={[this.props.containerStyle, flexDirection(this.strings.isRTL)]}
-                    inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { color: colors.darkGray, width: inputWidth, opacity: opacity }]}
+                    inputStyle={[this.props.inputStyle, textAlign(this.strings.isRTL), { width: inputWidth }]}
                 />
                 {this.renderIcon()}
             </View>
@@ -126,9 +130,9 @@ export default class TextControl extends Component<any, any> {
         let opacity = this.props.disabled ? opacityOff : 1;
         let { icon, iconClick } = this.props;
         let isSmallIcon = icon === iconNames.search || icon === iconNames.attach;
-        let iconMargin = isSmallIcon ? { marginHorizontal: scale(-38) } : { marginHorizontal: scale(-42) };
+        let iconMargin = isSmallIcon ? { marginHorizontal: -38 } : { marginHorizontal: -42.5 };
         if (isSmallIcon && icon === iconNames.attach)
-            iconMargin = { marginHorizontal: scale(-35) };
+            iconMargin = { marginHorizontal: -35 };
         if (icon !== '')
         {
             return (
@@ -140,7 +144,7 @@ export default class TextControl extends Component<any, any> {
                         [
                             isSmallIcon && styles.icon,
                             !isSmallIcon && styles.largeIcon,
-                            padding(this.strings.isRTL, scale(20)),
+                            padding(this.strings.isRTL, 20),
                             iconMargin,
                             { opacity: opacity }
                         ]
@@ -150,7 +154,6 @@ export default class TextControl extends Component<any, any> {
             );
         }
         return (null);
-
     }
 }
 
@@ -158,14 +161,14 @@ const styles = StyleSheet.create({
     icon:
         {
             alignSelf: 'flex-end',
-            paddingVertical: verticalScale(8),
-            marginTop: verticalScale(-8),
+            paddingVertical: 7.2,
+            marginTop: -7.2,
         },
     largeIcon:
         {
             alignSelf: 'flex-end',
-            paddingVertical: verticalScale(12),
-            marginTop: verticalScale(-12),
+            paddingVertical: 11.2,
+            marginTop: -11.2,
             ...Platform.select({
                 ios:
                     {
