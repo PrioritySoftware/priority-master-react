@@ -15,7 +15,7 @@ import { observer, inject } from 'mobx-react';
 import DateControl from './Controls/dateControl';
 import { Column } from '../modules/column.class';
 import { FormLabel } from 'react-native-elements'
-import { scale, verticalScale } from '../utils/scale';
+import { verticalScale } from '../utils/scale';
 import NumberControl from './Controls/numberControl';
 import ToggleControl from './Controls/toggleControl';
 import { ColumnOptions } from '../modules/columnOptions.class';
@@ -24,20 +24,14 @@ import Communications from 'react-native-communications';
 import DurationControl from './Controls/durationControl';
 import { Pages } from '../pages/index';
 import { Strings } from '../modules/strings';
-import { colors, iconNames, flexDirection, opacityOff, textAlign, alignSelf, padding } from '../styles/common';
+import { colors, iconNames, flexDirection, opacityOff } from '../styles/common';
 import { MessageHandler } from '../handlers/message.handler';
 import { Messages, Files } from '../handlers';
 import { Search } from '../modules/search.class';
 import { FileHandler } from "../handlers/file.handler"
-import
-{
-    Menu,
-    MenuOptions,
-    MenuOption,
-    MenuTrigger,
-} from 'react-native-popup-menu';
 import { ColumnZoomType } from '../modules/columnZoomType.class';
 import { ContextMenu } from './Menus/context-menu.comp';
+import { RequestPermission } from '../handlers/permissions.handler';
 
 @inject("formService", "strings")
 @observer
@@ -265,7 +259,15 @@ export class ItemInput extends Component<any, any>
         let { navigation } = this.props.itemOptions;
         if (!navigation)
             return;
-        navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
+        RequestPermission(this.strings.cameraPermission)
+            .then(authorized =>
+            {
+                if (authorized)
+                    navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
+                else
+                    this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
+            })
+            .catch(error => this.messageHandler.showErrorOrWarning(true, this.strings.scanError));
     }
     scanFinished = (data, iscanceled) =>
     {

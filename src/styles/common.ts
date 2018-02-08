@@ -68,7 +68,8 @@ export const modal =
     {
         backgroundColor: 'transparent',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        flex:1
     }
 
 export const iconName = (name) =>

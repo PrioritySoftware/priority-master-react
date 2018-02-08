@@ -1,4 +1,4 @@
-import React,{ Component } from 'react';
+import React, { Component } from 'react';
 import
 {
   StyleSheet,
@@ -20,8 +20,7 @@ import { MessageHandler } from '../handlers/message.handler';
 
 import { Icon } from 'react-native-elements';
 import { scale } from '../utils/scale';
-
-const Permissions = require('react-native-permissions');
+import { RequestPermission } from '../handlers/permissions.handler';
 
 @inject("configService", "strings", "appService")
 export class StartPage extends Component<any, any>
@@ -52,8 +51,6 @@ export class StartPage extends Component<any, any>
 
   render() 
   {
-
-
     let scanbutton = this.strings.scanButton;
     let scanInst = this.strings.scanInstructions;
     let preparingApp = this.strings.preparingApp;
@@ -127,23 +124,15 @@ export class StartPage extends Component<any, any>
    */
   scan = () =>
   {
-    if (this.strings.platform === 'ios')
-    {
-      Permissions.check("camera")
-        .then(result =>
-        {
-          if (result === "authorized" || result === "undetermined")
-            this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
-          else
-            this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
-        })
-        .catch(error => this.messageHandler.showErrorOrWarning(true, this.strings.scanError));
-    }
-    else
-    {
-      this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
-    }
-
+    RequestPermission(this.strings.cameraPermission)
+      .then(authorized =>
+      {
+        if (authorized)
+          this.props.navigation.navigate(Pages.QRCodeScanner.name, { onRead: this.scanFinished });
+        else
+          this.messageHandler.showErrorOrWarning(true, this.strings.scanPermissionError);
+      })
+      .catch(error => this.messageHandler.showErrorOrWarning(true, this.strings.scanError));
   }
 
   /**

@@ -10,11 +10,11 @@ export class Strings
     isChangesSaved = 'isChangesSaved';
     isNewRow = 'isNewRow';
     removeBtnType = 'Remove';
-    logoutAction='Logout';
-    changesAlertType='changesAlertType';
-    extFiles="EXTFILES";
-    fileFieldName="EXTFILENAME";
-    attachmentBtn="Attachment";
+    logoutAction = 'Logout';
+    changesAlertType = 'changesAlertType';
+    extFiles = 'EXTFILES';
+    fileFieldName = 'EXTFILENAME';
+    cameraPermission = 'camera';
 
     /** Style  */
     isRTL: boolean;

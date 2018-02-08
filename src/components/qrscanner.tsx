@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import
 {
   StyleSheet,
-  Dimensions,
   Vibration,
   View,
   BackHandler

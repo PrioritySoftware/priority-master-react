@@ -63,7 +63,7 @@ export class MessageHandler extends Component<any, any>
         return (
             <Modal
                 entry='top'
-                style={[modal,{flex:1}]}
+                style={modal}
                 backdrop={false}
                 swipeToClose={false}
                 isOpen={true}
