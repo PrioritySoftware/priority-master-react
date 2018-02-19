@@ -21,6 +21,7 @@ export class FileHandler extends Component<any, any>
     form: Form;
     afterUploadFunc: Function;
     isUploadCanceled: boolean;
+    isRTL: boolean;
 
     slideinMenu: SlideinMenu;
 
@@ -30,6 +31,7 @@ export class FileHandler extends Component<any, any>
         this.strings = this.props.strings;
 
         this.isUploadCanceled = false;
+        this.isRTL = this.strings.isRTL;
     }
     componentWillMount()
     {
@@ -47,6 +49,9 @@ export class FileHandler extends Component<any, any>
 
     openPicker(form: Form, afterUploadFunc: Function)
     {
+        // When device's language is different from the current app's language we need to rerender filesHandler in order to get the correct language.
+        if (this.isRTL !== this.strings.isRTL)
+            this.setState({ isRerender: true });
         this.form = form;
         this.afterUploadFunc = afterUploadFunc;
         this.slideinMenu.open();
