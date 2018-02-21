@@ -7,7 +7,7 @@ import Toast from 'react-native-simple-toast';
 import { inject, observer, } from 'mobx-react';
 import { observable } from 'mobx';
 import { View, Text, StyleSheet, Platform, ActivityIndicator, BackHandler, ScrollView } from 'react-native';
-import { scale, moderateScale } from '../utils/scale';
+import { scale } from '../utils/scale';
 import { colors, flexDirection, textAlign, modal, position } from '../styles/common';
 import Modal from 'react-native-modalbox';
 import { ButtonComp } from '../components/button';
@@ -151,7 +151,7 @@ export class MessageHandler extends Component<any, any>
         if (this.alert.buttons.length > 2 || btnIndex !== 1)
             return (null);
 
-        let margin = this.strings.isRTL ? { marginRight: -scale(15) } : { marginLeft: -scale(30) };
+            let margin = this.strings.isRTL ? { marginRight: -scale(15) } : { marginLeft: -scale(30) };
         return (
             <Divider style={[styles.divider, margin]} />
         );
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
                 ios: {
                     borderRadius: 20,
                     padding: 0,
-                    paddingTop: scale(21),
+                    paddingTop: 21,
                     width: 300,
                 }
             })
@@ -422,9 +422,9 @@ const styles = StyleSheet.create({
                 ios: {
                     borderRadius: 20,
                     padding: 0,
-                    paddingTop: scale(21),
+                    paddingTop: 21,
                     width: 300,
-                    height: scale(220),
+                    height: 220,
                 }
             })
         },
@@ -446,7 +446,8 @@ const styles = StyleSheet.create({
             marginTop: 10,
             ...Platform.select({
                 ios: {
-                    width: scale(150),
+                    width: 150,
+                    marginTop:0
                 }
             })
         },
@@ -456,9 +457,8 @@ const styles = StyleSheet.create({
                 ios: {
                     marginLeft: 0,
                     marginRight: 0,
-                    width: scale(300),
                     right:'auto',
-                    left'auto'
+                    left:'auto'
                 }
             })
         },
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
             marginHorizontal: 0,
             ...Platform.select({
                 ios: {
-                    paddingVertical: scale(21),
+                    paddingVertical: 21,
                 }
             })
         },
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios:
                     {
-                        paddingHorizontal: scale(21),
+                        paddingHorizontal: 21,
                     }
             })
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { View, StyleSheet, Switch } from 'react-native';
+import { View, StyleSheet, Switch, Platform } from 'react-native';
 import { colors, alignItems, opacityOff, margin } from '../../styles/common';
 import { Strings } from '../../modules/strings';
 
@@ -98,7 +98,12 @@ const styles = StyleSheet.create({
             paddingBottom: 4,
             marginTop: 0,
             marginBottom: 8,
-
+            ...Platform.select({
+                ios:
+                    {
+                        paddingBottom: 6,
+                    }
+            })
         },
     switch: {
         flexDirection: 'row',

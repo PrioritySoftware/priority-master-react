@@ -147,6 +147,12 @@ let styles = StyleSheet.create({
     text:
         {
             flex: 1,
-            marginTop:2
+            marginTop:2,
+            ...Platform.select({
+                ios:
+                    {
+                          marginBottom:-3
+                    }
+            })
         }
 });

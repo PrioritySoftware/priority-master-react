@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
             margin: 10,
             textAlignVertical: 'top',
             backgroundColor: 'white',
-            fontSize:scale(16)
+            fontSize:16
         },
     textCntainer:
         {

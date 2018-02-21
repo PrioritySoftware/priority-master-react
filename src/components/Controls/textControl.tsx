@@ -163,6 +163,13 @@ const styles = StyleSheet.create({
             alignSelf: 'flex-end',
             paddingVertical: 7.2,
             marginTop: -7.2,
+            ...Platform.select({
+                ios:
+                    {
+                       
+                        marginTop: -10,
+                    }
+            })
         },
     largeIcon:
         {
@@ -172,8 +179,8 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios:
                     {
-                        paddingVertical: verticalScale(10),
-                        marginTop: verticalScale(-10),
+                        paddingVertical: 10,
+                        marginTop: -20,
                     }
             })
         }

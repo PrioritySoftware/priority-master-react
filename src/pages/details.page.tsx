@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios:
                     {
-                        paddingTop: scale(35)
+                        paddingTop: 35
                     }
             })
         }

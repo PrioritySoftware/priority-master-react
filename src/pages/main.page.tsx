@@ -22,9 +22,9 @@ import { inject } from "mobx-react";
 import { ProcService } from '../providers/proc.service';
 import { MessageHandler } from '../handlers/message.handler';
 import { Messages } from '../handlers/index';
-import { scale } from '../utils/scale';
 import Drawer from 'react-native-drawer';
 import { HeaderComp } from '../components/header';
+import { scale } from '../utils/scale';
 
 @inject("appService", "formService", "procService", "configService", "strings", "appService")
 export class MainPage extends Component<any, any>
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
             ...Platform.select({
                 ios:
                     {
-                        paddingTop: scale(27)
+                        paddingTop: 30
                     }
             })
 
