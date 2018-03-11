@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { observable } from 'mobx';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import * as displayUtils from '../../utils/display';
 import * as validationUtils from '../../utils/validation';
 import { colors, flexDirection, textAlign, opacityOff } from '../../styles/common';
@@ -45,9 +45,6 @@ export default class NumberControl extends Component<any, any> {
     @observable number;
     @observable inputLength;
 
-    textInput;
-    keyboardWillHideSub: EmitterSubscription;
-
     constructor(props)
     {
         super(props);
@@ -60,16 +57,6 @@ export default class NumberControl extends Component<any, any> {
         this.handleEndEditing = this.handleEndEditing.bind(this);
     }
 
-    componentWillMount()
-    {
-        this.keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
-    }
-
-    componentWillUnmount()
-    {
-        this.keyboardWillHideSub.remove();
-    }
-
     componentWillReceiveProps(nextProps)
     {
         const num = this.number.substring(this.props.prefix.length);
@@ -77,16 +64,6 @@ export default class NumberControl extends Component<any, any> {
         {
             this.number = nextProps.prefix + displayUtils.number(nextProps.value, nextProps.code === 'Real' ? nextProps.decimal : 0);
             this.inputLength = this.calcInputLength(this.number);
-        }
-    }
-
-    keyboardDidHide = (event) =>
-    {
-        // handle case were keyboard was closed by the android back button, were onBlur event is not fired
-        if (this.textInput.isFocused())
-        {
-            this.handleEndEditing();
-            this.textInput.blur();
         }
     }
 
@@ -139,7 +116,6 @@ export default class NumberControl extends Component<any, any> {
     {
         return (
             <FormInput
-                textInputRef={textInput => this.textInput = textInput}
                 placeholder={this.props.placeholder}
                 editable={!this.props.disabled}
                 keyboardType='numeric'

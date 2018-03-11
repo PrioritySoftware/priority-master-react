@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, StyleSheet, EmitterSubscription, View, Platform } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { verticalScale, scale } from '../../utils/scale';
 import { colors, iconNames, padding, flexDirection, textAlign, margin, opacityOff } from '../../styles/common';
 import { FormInput, Icon } from 'react-native-elements'
@@ -44,8 +44,6 @@ export default class TextControl extends Component<any, any> {
     strings: Strings;
 
     @observable text: string;
-    keyboardWillHideSub: EmitterSubscription;
-    textInput;
 
     constructor(props)
     {
@@ -54,31 +52,11 @@ export default class TextControl extends Component<any, any> {
         this.text = props.value;
     }
 
-    componentWillMount()
-    {
-        this.keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
-    }
-
-    componentWillUnmount()
-    {
-        this.keyboardWillHideSub.remove();
-    }
-
     componentWillReceiveProps(nextProps)
     {
         if (this.text !== nextProps.value)
         {
             this.text = nextProps.value;
-        }
-    }
-
-    keyboardDidHide = (event) =>
-    {
-        // handle case were keyboard was closed by the android back button, were onBlur event is not fired
-        if (this.textInput.isFocused())
-        {
-            this.handleEndEditing();
-            this.textInput.blur();
         }
     }
 
@@ -107,7 +85,6 @@ export default class TextControl extends Component<any, any> {
         return (
             <View style={flexDirection(this.strings.isRTL)}>
                 <FormInput
-                    textInputRef={textInput => this.textInput = textInput}
                     editable={!this.props.disabled}
                     placeholder={this.props.placeholder}
                     placeholderTextColor={colors.middleGray}

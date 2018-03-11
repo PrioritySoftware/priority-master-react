@@ -30,7 +30,7 @@ import { FormList } from '../components/formList.comp';
 import { Messages, } from '../handlers/index';
 import { MessageHandler } from '../handlers/message.handler';
 import { scale } from '../utils/scale';
-import { Icon } from 'react-native-elements';
+import { FormInput, Icon } from 'react-native-elements';
 import { ConfigService } from '../providers/config.service';
 import { ColumnZoomType } from '../modules/columnZoomType.class';
 
@@ -56,11 +56,8 @@ export class DetailsPage extends Component<any, any>
     @observable currentSubFormOpts: { name: string, ishtml?: boolean, actions?: { save?: Function, undo?: Function, checkChanges?: Function } };
     dropdown;
 
-    // keyboard
-    keyboardShowListener;
-    keyboardHideListener;
-    isKeyboardOpen: boolean;
-    onKeyboardHide;
+    hiddenInput;
+    iconFunc;
 
     constructor(props)
     {
@@ -82,35 +79,22 @@ export class DetailsPage extends Component<any, any>
     componentDidMount()
     {
         this.messageHandler = Messages;
-        BackHandler.addEventListener('hardwareBackPress', this.goBack);
-        // Adds keyboard event listeners in order to take care of a case when the user presses one of the header icons (save & back) without closing the keyboard.
-        // When the keyboard is dismissed the 'keyboardDidHide' function of each control (textControl, numberControl...) is called.
-        this.keyboardShowListener = Keyboard.addListener('keyboardDidShow', () => this.isKeyboardOpen = true);
-        this.keyboardHideListener = Keyboard.addListener('keyboardDidHide', () =>
-        {
-            this.isKeyboardOpen = false;
-            if (this.onKeyboardHide)
-                this.onKeyboardHide();
-            this.onKeyboardHide = null;
-        });
+        BackHandler.addEventListener('hardwareBackPress', this.blurAndGoBack);
     }
-    componentWillUnmount()
+    
+    blurAndRunFunc = (func = this.goBack) =>
     {
-        this.keyboardHideListener.remove();
-        this.keyboardShowListener.remove();
+        this.iconFunc = func;
+        //blur current input 
+        this.hiddenInput.focus();
     }
-    focusAndPressIcon = (afterDismissFunc) =>
+    focusHiddenInput() 
     {
-        if (this.isKeyboardOpen)
-        {
-            this.onKeyboardHide = afterDismissFunc;
-            // Dismissing the keyboard triggers field updates.
-            Keyboard.dismiss();
-        }
-        else
-        {
-            afterDismissFunc();
-        }
+        //don't open keyboard
+        Keyboard.dismiss(); 
+        //run the function that was supposed to run
+        if(this.iconFunc)
+             this.iconFunc();
     }
     isSearch(formCol: Column)
     {
@@ -131,6 +115,11 @@ export class DetailsPage extends Component<any, any>
     {
         return this.getIsChangesSaved() && this.getIsNewRow();
     }
+    blurAndGoBack = () =>
+    {
+        this.blurAndRunFunc(this.goBack);
+        return true;
+    }
     goBack = () =>
     {
         // When there are no changes made for a new row, delete the row before navigating back.
@@ -149,7 +138,7 @@ export class DetailsPage extends Component<any, any>
     }
     navigateBack()
     {
-        BackHandler.removeEventListener('hardwareBackPress', this.goBack);
+        BackHandler.removeEventListener('hardwareBackPress', this.blurAndGoBack);
         this.props.navigation.goBack();
     }
     getNavigation(colName: string)
@@ -410,10 +399,11 @@ export class DetailsPage extends Component<any, any>
             .catch(() => this.messageHandler.hideLoading());
     }
     render() 
-    {
+    { 
         return (
             < View style={[container, styles.container]} >
-                <HeaderComp title={this.title} goBack={() => this.focusAndPressIcon(this.goBack)} optionsComp={this.renderOperationsIcons()} />
+                <HeaderComp title={this.title} goBack={() => this.blurAndGoBack()} optionsComp={this.renderOperationsIcons()} />
+                <FormInput onFocus={()=>{this.focusHiddenInput()}}  textInputRef={(ref)=> this.hiddenInput = ref} inputStyle={{display: 'none'}}/>
                 <View style={container}>
                     {this.renderSubFormsMenu()}
                     {this.currentSubFormOpts.name ? this.renderSubformsList() : this.renderParentDetails()}
@@ -529,7 +519,7 @@ export class DetailsPage extends Component<any, any>
                     isShowSave && <Icon
                         type='ionicon'
                         name={iconNames.checkmark}
-                        onPress={() => this.focusAndPressIcon(() => this.save(afterSave))}
+                        onPress={(event) => this.blurAndRunFunc(() => this.save(afterSave))}
                         color='white'
                         underlayColor='transparent'
                         size={22}
@@ -540,7 +530,7 @@ export class DetailsPage extends Component<any, any>
                     isShowActivations && <Icon
                         type='ionicon'
                         name={iconNames.menu}
-                        onPress={this.openActivationsList}
+                        onPress={() => this.blurAndRunFunc(this.openActivationsList)}
                         color='white'
                         underlayColor='transparent'
                         size={22}

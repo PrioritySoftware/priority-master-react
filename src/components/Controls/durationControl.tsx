@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import PropTypes from 'prop-types';
-import { Keyboard, EmitterSubscription, } from 'react-native';
 import { colors, flexDirection, textAlign, opacityOff } from '../../styles/common';
 import { FormInput } from 'react-native-elements'
 import { observable } from 'mobx';
@@ -37,24 +36,12 @@ export default class DurationControl extends Component<any, any> {
     strings: Strings;
 
     @observable text: string;
-    keyboardWillHideSub: EmitterSubscription;
-    textInput;
 
     constructor(props)
     {
         super(props);
         this.strings = this.props.strings;
         this.text = props.value;
-    }
-
-    componentWillMount()
-    {
-        this.keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
-    }
-
-    componentWillUnmount()
-    {
-        this.keyboardWillHideSub.remove();
     }
 
     componentWillReceiveProps(nextProps)
@@ -65,15 +52,6 @@ export default class DurationControl extends Component<any, any> {
         }
     }
 
-    keyboardDidHide = (event) =>
-    {
-        // handle case were keyboard was closed by the android back button, were onBlur event is not fired
-        if (this.textInput.isFocused())
-        {
-            this.handleEndEditing();
-            this.textInput.blur();
-        }
-    }
 
     handleChange = (text: string) =>
     {
@@ -98,7 +76,6 @@ export default class DurationControl extends Component<any, any> {
     {
         return (
             <FormInput
-                textInputRef={textInput => this.textInput = textInput}
                 editable={!this.props.disabled}
                 keyboardType='numeric'
                 value={this.text}
