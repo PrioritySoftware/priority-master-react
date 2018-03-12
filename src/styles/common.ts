@@ -95,7 +95,7 @@ export const iconNames =
         blankCheckboxIOS: 'checkbox-blank-circle-outline',
         blankCheckboxMD: 'checkbox-blank-outline',
         folder:iconName('folder'),
-        camera:iconName('camera'),
+        camera:'md-camera',
         image:iconName('image'),
     };
 

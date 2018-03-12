@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native';
+import { Text,StyleSheet, Platform } from 'react-native';
 import
 {
     MenuProvider,
@@ -84,7 +84,7 @@ export class SlideinMenu extends Component<any, any>
                                                     color={colors.darkGray}
                                                     underlayColor='transparent'
                                                     style={padding(this.strings.isRTL, 10)} />
-                                                <Text style={[padding(this.strings.isRTL, 10), textAlign(this.strings.isRTL)]}>
+                                                <Text style={[styles.optionText,padding(this.strings.isRTL, 10), textAlign(this.strings.isRTL)]}>
                                                     {item.text}
                                                 </Text>
                                             </MenuOption>
@@ -99,3 +99,14 @@ export class SlideinMenu extends Component<any, any>
         );
     }
 }
+const styles = StyleSheet.create({
+    optionText:
+    {
+        ...Platform.select({
+            ios:
+                {
+                    paddingTop:3
+                }
+        })
+    }
+});

@@ -21,6 +21,7 @@ export class FileHandler extends Component<any, any>
     form: Form;
     afterUploadFunc: Function;
     isUploadCanceled: boolean;
+    isRTL: boolean;
 
     slideinMenu: SlideinMenu;
 
@@ -30,6 +31,7 @@ export class FileHandler extends Component<any, any>
         this.strings = this.props.strings;
 
         this.isUploadCanceled = false;
+        this.isRTL = this.strings.isRTL;
     }
     componentWillMount()
     {
@@ -47,6 +49,12 @@ export class FileHandler extends Component<any, any>
 
     openPicker(form: Form, afterUploadFunc: Function)
     {
+        // When device's language is different from the current app's language we need to rerender filesHandler in order to get the correct language.
+        if (this.isRTL !== this.strings.isRTL)
+        {
+            this.setState({ isRerender: true });
+            this.isRTL = this.strings.isRTL;
+        }
         this.form = form;
         this.afterUploadFunc = afterUploadFunc;
         this.slideinMenu.open();
@@ -149,7 +157,6 @@ export class FileHandler extends Component<any, any>
 
     render()
     {
-        let isRenderFiles = this.strings.platform === 'android';
         let menuItems = [
             {
                 text: this.strings.camera,
@@ -160,14 +167,17 @@ export class FileHandler extends Component<any, any>
                 text: this.strings.photoGalery,
                 icon: iconNames.image,
                 onPress: this.openGalery,
-            },
-            isRenderFiles &&
-            {
-                text: this.strings.files,
-                icon: iconNames.folder,
-                onPress: this.openDocumentPicker,
-            },
+            }
         ];
+        if (this.strings.platform === 'android')
+        {
+            menuItems.push(
+                {
+                    text: this.strings.files,
+                    icon: iconNames.folder,
+                    onPress: this.openDocumentPicker,
+                });
+        }
         return (
             <SlideinMenu items={menuItems} onRef={menu => this.slideinMenu = menu} />
         );
